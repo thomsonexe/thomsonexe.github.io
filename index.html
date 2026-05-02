@@ -1,0 +1,306 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>thomson.cx | Cybersecurity Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-bracket">[</span>
+                <span class="logo-text">thomson.cx</span>
+                <span class="logo-bracket">]</span>
+            </div>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#home" class="nav-link">~/home</a></li>
+                <li><a href="#about" class="nav-link">~/about</a></li>
+                <li><a href="#certifications" class="nav-link">~/certs</a></li>
+                <li><a href="#projects" class="nav-link">~/projects</a></li>
+                <li><a href="#ctf" class="nav-link">~/labs</a></li>
+                <li><a href="#blog" class="nav-link">~/blog</a></li>
+                <li><a href="#contact" class="nav-link">~/contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <div class="hero-terminal">
+                <div class="terminal-header">
+                    <span class="terminal-dot red"></span>
+                    <span class="terminal-dot yellow"></span>
+                    <span class="terminal-dot green"></span>
+                    <span class="terminal-title">bash -- 80x24</span>
+                </div>
+                <div class="terminal-body">
+                    <p class="terminal-line"><span class="prompt">ben@thomson.cx:~$</span> <span class="cmd">cat user.txt</span></p>
+                    <p class="hero-role">Ben</p>
+                    <p class="terminal-line"><span class="prompt">ben@thomson.cx:~$</span> <span class="cmd">cat role.txt</span></p>
+                    <p class="hero-role"><span id="typingText"></span><span class="cursor">|</span></p>
+                    <p class="terminal-line mt"><span class="prompt">ben@thomson.cx:~$</span> <span class="cursor-blink">&#9608;</span></p>
+                </div>
+            </div>
+            <div class="hero-actions">
+                <a href="#about" class="btn btn-primary">Learn More</a>
+                <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+            </div>
+        </div>
+        <div class="grid-overlay"></div>
+    </section>
+
+    <!-- About -->
+    <section id="about" class="section">
+        <div class="container">
+            <h2 class="section-title"><span class="title-prefix">// </span>About Me</h2>
+            <div class="about-grid">
+                <div class="about-image">
+                    <img src="avatar.jpg" alt="Ben" class="avatar-img">
+                </div>
+                <div class="about-content">
+                    <p class="about-text">Hey! I am <strong>Ben</strong>, a Junior Security Analyst with a BSc in Computer Forensics &amp; Security from <strong>Leeds Beckett University</strong>, where I was a member of the <strong>Ethical Hacking Society</strong>. Focused on blue team operations, threat detection, and incident response.</p>
+                    <p class="about-text">Passionate about <strong>threat hunting</strong>, <strong>digital forensics</strong>, and <strong>malware analysis</strong>. Always learning, always defending.</p>
+                    <div class="skills-grid">
+                        <span class="skill-tag">Threat Hunting</span>
+                        <span class="skill-tag">Incident Response</span>
+                        <span class="skill-tag">Log Analysis</span>
+                        <span class="skill-tag">Disk &amp; Memory Forensics</span>
+                        <span class="skill-tag">Malware Analysis</span>
+                        <span class="skill-tag">Network Forensics</span>
+                        <span class="skill-tag">Penetration Testing</span>
+                        <span class="skill-tag">Reverse Engineering</span>
+                        <span class="skill-tag">Data Recovery</span>
+                        <span class="skill-tag">Python</span>
+                        <span class="skill-tag">Bash</span>
+                        <span class="skill-tag">PowerShell</span>
+                        <span class="skill-tag">Wireshark</span>
+                        <span class="skill-tag">Ghidra</span>
+                        <span class="skill-tag">Burp Suite</span>
+                        <span class="skill-tag">Kali Linux</span>
+                        <span class="skill-tag">FTK</span>
+                        <span class="skill-tag">Autopsy</span>
+                        <span class="skill-tag">Volatility</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Certifications -->
+    <section id="certifications" class="section section-alt">
+        <div class="container">
+            <h2 class="section-title"><span class="title-prefix">// </span>Certifications</h2>
+            <div class="cert-grid">
+                <div class="cert-card">
+                    <div class="cert-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div class="cert-info">
+                        <h3>BTL1</h3>
+                        <p>Blue Team Level 1</p>
+                        <span class="cert-issuer">Security Blue Team</span>
+                    </div>
+                    <span class="cert-badge earned">Earned</span>
+                </div>
+                <div class="cert-card">
+                    <div class="cert-icon"><i class="fas fa-lock"></i></div>
+                    <div class="cert-info">
+                        <h3>CompTIA Security+</h3>
+                        <p>Security+ Certification</p>
+                        <span class="cert-issuer">CompTIA</span>
+                    </div>
+                    <span class="cert-badge earned">Earned</span>
+                </div>
+                <div class="cert-card">
+                    <div class="cert-icon"><i class="fas fa-certificate"></i></div>
+                    <div class="cert-info">
+                        <h3>CompTIA SecurityX</h3>
+                        <p>Advanced Security Practitioner</p>
+                        <span class="cert-issuer">CompTIA</span>
+                    </div>
+                    <span class="cert-badge in-progress">In Progress</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects -->
+    <section id="projects" class="section">
+        <div class="container">
+            <h2 class="section-title"><span class="title-prefix">// </span>Projects &amp; Tools</h2>
+            <div class="projects-grid">
+                <div class="project-card">
+                    <div class="project-header">
+                        <i class="fas fa-terminal project-icon"></i>
+                        <div class="project-links">
+                            <a href="#" class="project-link" title="GitHub"><i class="fab fa-github"></i></a>
+                            <a href="#" class="project-link" title="Live Demo"><i class="fas fa-external-link-alt"></i></a>
+                        </div>
+                    </div>
+                    <h3 class="project-title">Project Name</h3>
+                    <p class="project-desc">A short description of your project. What does it do, why did you build it, and what problem does it solve?</p>
+                    <div class="project-tags">
+                        <span class="tag">Python</span><span class="tag">Network</span><span class="tag">Automation</span>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-header">
+                        <i class="fas fa-search project-icon"></i>
+                        <div class="project-links">
+                            <a href="#" class="project-link" title="GitHub"><i class="fab fa-github"></i></a>
+                        </div>
+                    </div>
+                    <h3 class="project-title">Another Tool</h3>
+                    <p class="project-desc">Description of this project. Keep it concise -- what is unique about it?</p>
+                    <div class="project-tags">
+                        <span class="tag">Go</span><span class="tag">Recon</span><span class="tag">OSINT</span>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-header">
+                        <i class="fas fa-code project-icon"></i>
+                        <div class="project-links">
+                            <a href="#" class="project-link" title="GitHub"><i class="fab fa-github"></i></a>
+                        </div>
+                    </div>
+                    <h3 class="project-title">Security Script</h3>
+                    <p class="project-desc">What does this script do? Who is it for? Add relevant details here.</p>
+                    <div class="project-tags">
+                        <span class="tag">Bash</span><span class="tag">Enumeration</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTF Writeups -->
+    <section id="ctf" class="section section-alt">
+        <div class="container">
+            <h2 class="section-title"><span class="title-prefix">// </span>Lab Writeups</h2>
+            <div class="ctf-grid">
+                <div class="ctf-card">
+                    <div class="ctf-meta">
+                        <span class="ctf-platform btlo">BTLO</span>
+                        <span class="ctf-difficulty easy">Easy</span>
+                    </div>
+                    <h3 class="ctf-title">Phishing Analysis</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Email Analysis / Threat Intel</p>
+                    <p class="ctf-excerpt">Investigated a suspicious phishing email, extracted IOCs, identified malicious infrastructure, and documented findings to support a simulated incident response.</p>
+                    <a href="#" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="ctf-card">
+                    <div class="ctf-meta">
+                        <span class="ctf-platform thm">TryHackMe</span>
+                        <span class="ctf-difficulty medium">Medium</span>
+                    </div>
+                    <h3 class="ctf-title">Investigating Windows</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> DFIR / Windows Forensics</p>
+                    <p class="ctf-excerpt">Analysed a compromised Windows host — reviewed event logs, identified persistence mechanisms via registry and scheduled tasks, and reconstructed the full attack timeline.</p>
+                    <a href="#" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="ctf-card">
+                    <div class="ctf-meta">
+                        <span class="ctf-platform cyberdef">CyberDefenders</span>
+                        <span class="ctf-difficulty medium">Medium</span>
+                    </div>
+                    <h3 class="ctf-title">Tomcat Takeover</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Threat Hunting / Log Analysis</p>
+                    <p class="ctf-excerpt">Hunted through web server logs to identify exploitation of Apache Tomcat, traced lateral movement across the network and mapped attacker TTPs to the MITRE ATT&amp;CK framework.</p>
+                    <a href="#" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog -->
+    <section id="blog" class="section">
+        <div class="container">
+            <h2 class="section-title"><span class="title-prefix">// </span>Blog Posts</h2>
+            <div class="blog-grid">
+                <article class="blog-card">
+                    <div class="blog-date">
+                        <span class="day">01</span><span class="month">Jan</span><span class="year">2025</span>
+                    </div>
+                    <div class="blog-content">
+                        <span class="blog-category">Research</span>
+                        <h3 class="blog-title">Your Blog Post Title Here</h3>
+                        <p class="blog-excerpt">A short preview of what this blog post covers. Give readers a reason to click through.</p>
+                        <a href="#" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </article>
+                <article class="blog-card">
+                    <div class="blog-date">
+                        <span class="day">15</span><span class="month">Dec</span><span class="year">2024</span>
+                    </div>
+                    <div class="blog-content">
+                        <span class="blog-category">Tutorial</span>
+                        <h3 class="blog-title">Another Blog Post Title</h3>
+                        <p class="blog-excerpt">A short preview of what this blog post covers. Keep it engaging and relevant.</p>
+                        <a href="#" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </article>
+                <article class="blog-card">
+                    <div class="blog-date">
+                        <span class="day">30</span><span class="month">Nov</span><span class="year">2024</span>
+                    </div>
+                    <div class="blog-content">
+                        <span class="blog-category">Writeup</span>
+                        <h3 class="blog-title">Third Blog Post Title</h3>
+                        <p class="blog-excerpt">A short preview of what this blog post covers. This could link to a full writeup.</p>
+                        <a href="#" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="section section-alt">
+        <div class="container">
+            <h2 class="section-title"><span class="title-prefix">// </span>Contact</h2>
+            <div class="contact-content">
+                <p class="contact-text">Interested in collaborating or just want to say hi? Reach out.</p>
+                <div class="social-grid">
+                    <div class="social-card discord-card" onclick="copyDiscord()" title="Click to copy">
+                        <i class="fab fa-discord"></i>
+                        <span>thomsoncx</span>
+                        <small class="discord-hint">click to copy</small>
+                    </div>
+                    <a href="mailto:ben@thomson.cx" class="social-card">
+                        <i class="fas fa-envelope"></i>
+                        <span>ben@thomson.cx</span>
+                    </a>
+                    <a href="https://github.com/thomsonexe" class="social-card" target="_blank" rel="noopener">
+                        <i class="fab fa-github"></i>
+                        <span>thomsonexe</span>
+                    </a>
+                </div>
+                <p class="copy-confirm" id="copyConfirm">Copied to clipboard!</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; echo <span class="accent">"stay curious. stay vigilant."</span>
+            </p>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <script src="script.js"></script>
+</body>
+</html>
