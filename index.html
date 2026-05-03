@@ -22,13 +22,12 @@
                 <span class="glitch glitch-nav" data-text="thomsoN">thomsoN</span>
             </div>
             <ul class="nav-links" id="navLinks">
-                <li><a href="#home" class="nav-link">~/home</a></li>
-                <li><a href="#about" class="nav-link">~/about</a></li>
-                <li><a href="#certifications" class="nav-link">~/certs</a></li>
-                <li><a href="#projects" class="nav-link">~/projects</a></li>
-                <li><a href="#ctf" class="nav-link">~/labs</a></li>
-                <li><a href="#blog" class="nav-link">~/blog</a></li>
-                <li><a href="#contact" class="nav-link">~/contact</a></li>
+                <li><a href="#home" class="nav-link">home</a></li>
+                <li><a href="#about" class="nav-link">about</a></li>
+                <li><a href="#certifications" class="nav-link">certs</a></li>
+                <li><a href="#projects" class="nav-link">cves</a></li>
+                <li><a href="#ctf" class="nav-link">labs</a></li>
+                <li><a href="#contact" class="nav-link">contact</a></li>
             </ul>
             <div class="nav-right">
                 <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
@@ -67,11 +66,25 @@
             <h2 class="section-title"><span class="title-prefix">// </span>About Me</h2>
             <div class="about-grid">
                 <div class="about-image">
-                    <img src="avatar.jpg" alt="Ben" class="avatar-img">
+                    <canvas id="globeCanvas" class="globe-canvas" width="200" height="200"></canvas>
                 </div>
                 <div class="about-content">
                     <p class="about-text">Hey! I am <strong>Ben</strong>, a Junior Security Analyst with a background in Computer Forensics &amp; Security. Passionate about blue team operations, defending organisations against real-world threats, and continuously developing my skills across threat detection, incident response, and vulnerability management.</p>
                     <p class="about-text">I post random crap on here.</p>
+                    <a href="https://www.youtube.com/channel/UCk_oOI7Np2oLSVD6Xb21ccA" target="_blank" rel="noopener" class="yt-card">
+                        <div class="yt-icon"><i class="fab fa-youtube"></i></div>
+                        <div class="yt-info">
+                            <span class="yt-name">thomsoN</span>
+                        </div>
+                        <i class="fas fa-arrow-right yt-arrow"></i>
+                    </a>
+                    <a href="https://github.com/thomsonexe" target="_blank" rel="noopener" class="yt-card">
+                        <div class="yt-icon" style="color: var(--text-primary);"><i class="fab fa-github"></i></div>
+                        <div class="yt-info">
+                            <span class="yt-name">thomsonexe</span>
+                        </div>
+                        <i class="fas fa-arrow-right yt-arrow"></i>
+                    </a>
                     <div class="skills-grid">
                         <span class="skill-tag">Threat Detection</span>
                         <span class="skill-tag">Incident Response</span>
@@ -155,57 +168,19 @@
         </div>
     </section>
 
-    <!-- Projects -->
+    <!-- KEV Feed -->
     <section id="projects" class="section">
         <div class="container">
-            <h2 class="section-title"><span class="title-prefix">// </span>Projects &amp; Tools</h2>
-            <div class="projects-grid">
-                <div class="project-card">
-                    <div class="project-header">
-                        <i class="fas fa-terminal project-icon"></i>
-                        <div class="project-links">
-                            <a href="#" class="project-link" title="GitHub"><i class="fab fa-github"></i></a>
-                            <a href="#" class="project-link" title="Live Demo"><i class="fas fa-external-link-alt"></i></a>
-                        </div>
-                    </div>
-                    <h3 class="project-title">Project Name</h3>
-                    <p class="project-desc">A short description of your project. What does it do, why did you build it, and what problem does it solve?</p>
-                    <div class="project-tags">
-                        <span class="tag">Python</span><span class="tag">Network</span><span class="tag">Automation</span>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <div class="project-header">
-                        <i class="fas fa-search project-icon"></i>
-                        <div class="project-links">
-                            <a href="#" class="project-link" title="GitHub"><i class="fab fa-github"></i></a>
-                        </div>
-                    </div>
-                    <h3 class="project-title">Another Tool</h3>
-                    <p class="project-desc">Description of this project. Keep it concise -- what is unique about it?</p>
-                    <div class="project-tags">
-                        <span class="tag">Go</span><span class="tag">Recon</span><span class="tag">OSINT</span>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <div class="project-header">
-                        <i class="fas fa-code project-icon"></i>
-                        <div class="project-links">
-                            <a href="#" class="project-link" title="GitHub"><i class="fab fa-github"></i></a>
-                        </div>
-                    </div>
-                    <h3 class="project-title">Security Script</h3>
-                    <p class="project-desc">What does this script do? Who is it for? Add relevant details here.</p>
-                    <div class="project-tags">
-                        <span class="tag">Bash</span><span class="tag">Enumeration</span>
-                    </div>
-                </div>
+            <h2 class="section-title"><span class="title-prefix">// </span>Actively Exploited</h2>
+            <p class="cve-subtitle">Live feed from the CISA Known Exploited Vulnerabilities catalogue &mdash; CVEs confirmed exploited in the wild</p>
+            <div class="cve-grid" id="cveGrid">
+                <p class="cve-loading"><i class="fas fa-circle-notch fa-spin"></i> Fetching exploited vulnerabilities...</p>
             </div>
         </div>
     </section>
 
     <!-- CTF Writeups -->
-    <section id="ctf" class="section section-alt">
+    <section id="ctf" class="section section-alt" style="padding-bottom: 3rem;">
         <div class="container">
             <h2 class="section-title"><span class="title-prefix">// </span>Lab Writeups</h2>
             <div class="ctf-grid">
@@ -231,62 +206,53 @@
                 </div>
                 <div class="ctf-card">
                     <div class="ctf-meta">
-                        <span class="ctf-platform cyberdef">CyberDefenders</span>
-                        <span class="ctf-difficulty medium">Medium</span>
+                        <span class="ctf-platform sentinel">Sentinel</span>
+                        <span class="ctf-difficulty medium">Intermediate</span>
                     </div>
-                    <h3 class="ctf-title">Tomcat Takeover</h3>
-                    <p class="ctf-category"><i class="fas fa-tag"></i> Threat Hunting / Log Analysis</p>
-                    <p class="ctf-excerpt">Hunted through web server logs to identify exploitation of Apache Tomcat, traced lateral movement across the network and mapped attacker TTPs to the MITRE ATT&amp;CK framework.</p>
-                    <a href="#" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
+                    <h3 class="ctf-title">KQL & Log Analytics</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> SIEM / Threat Hunting</p>
+                    <p class="ctf-excerpt">A practical KQL reference for Microsoft Sentinel — covering key operators, Sentinel tables, authentication and endpoint queries, and threat hunting techniques with real-world examples.</p>
+                    <a href="writeup-kql.html" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="ctf-card">
+                    <div class="ctf-meta">
+                        <span class="ctf-platform forensics">Forensics</span>
+                        <span class="ctf-difficulty easy">Beginner</span>
+                    </div>
+                    <h3 class="ctf-title">Autopsy — Digital Forensics</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Digital Forensics / DFIR</p>
+                    <p class="ctf-excerpt">A practical guide to Autopsy — building a case, adding disk images, recovering deleted files, extracting browser and registry artefacts, and generating investigation reports.</p>
+                    <a href="writeup-autopsy.html" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="ctf-card">
+                    <div class="ctf-meta">
+                        <span class="ctf-platform forensics">Forensics</span>
+                        <span class="ctf-difficulty medium">Intermediate</span>
+                    </div>
+                    <h3 class="ctf-title">Volatility — Memory Forensics</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Memory Forensics / Malware Analysis</p>
+                    <p class="ctf-excerpt">A practical guide to Volatility 3 — analysing memory dumps to uncover running processes, network connections, injected shellcode, registry persistence, and hidden malware.</p>
+                    <a href="writeup-volatility.html" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="ctf-card">
+                    <div class="ctf-meta">
+                        <span class="ctf-platform network">Network</span>
+                        <span class="ctf-difficulty easy">Beginner</span>
+                    </div>
+                    <h3 class="ctf-title">Wireshark — Network Analysis</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Network Analysis / Packet Capture</p>
+                    <p class="ctf-excerpt">A practical guide to Wireshark — capture and display filters, protocol dissection, following streams, spotting C2 beaconing and DNS exfiltration, and extracting artefacts from packet captures.</p>
+                    <a href="writeup-wireshark.html" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- Blog -->
-    <section id="blog" class="section">
-        <div class="container">
-            <h2 class="section-title"><span class="title-prefix">// </span>Blog Posts</h2>
-            <div class="blog-grid">
-                <article class="blog-card">
-                    <div class="blog-date">
-                        <span class="day">02</span><span class="month">May</span><span class="year">2026</span>
-                    </div>
-                    <div class="blog-content">
-                        <span class="blog-category">Vulnerability Management</span>
-                        <h3 class="blog-title">Getting Started with Rapid7 InsightVM</h3>
-                        <p class="blog-excerpt">Core concepts, scanning workflow, risk scoring, and how to prioritise vulnerabilities across your organisation using Rapid7 InsightVM.</p>
-                        <a href="blog-rapid7-ivm.html" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                </article>
-                <article class="blog-card">
-                    <div class="blog-date">
-                        <span class="day">15</span><span class="month">Dec</span><span class="year">2024</span>
-                    </div>
-                    <div class="blog-content">
-                        <span class="blog-category">Tutorial</span>
-                        <h3 class="blog-title">Another Blog Post Title</h3>
-                        <p class="blog-excerpt">A short preview of what this blog post covers. Keep it engaging and relevant.</p>
-                        <a href="#" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                </article>
-                <article class="blog-card">
-                    <div class="blog-date">
-                        <span class="day">30</span><span class="month">Nov</span><span class="year">2024</span>
-                    </div>
-                    <div class="blog-content">
-                        <span class="blog-category">Writeup</span>
-                        <h3 class="blog-title">Third Blog Post Title</h3>
-                        <p class="blog-excerpt">A short preview of what this blog post covers. This could link to a full writeup.</p>
-                        <a href="#" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                </article>
+            <div class="section-footer">
+                <a href="labs.html" class="btn btn-secondary">View All Writeups <i class="fas fa-arrow-right"></i></a>
             </div>
         </div>
     </section>
 
     <!-- Contact -->
-    <section id="contact" class="section section-alt">
+    <section id="contact" class="section section-alt" style="padding-top: 3rem;">
         <div class="container">
             <h2 class="section-title"><span class="title-prefix">// </span>Contact</h2>
             <div class="contact-content">
@@ -294,15 +260,11 @@
                 <div class="social-grid">
                     <div class="social-card" onclick="copyDiscord()" title="Click to copy" style="cursor:pointer">
                         <i class="fab fa-discord"></i>
-                        <span>thomsoncx</span>
+                        <span>thomsonexe</span>
                     </div>
                     <a href="mailto:ben@thomson.cx" class="social-card">
                         <i class="fas fa-envelope"></i>
                         <span>ben@thomson.cx</span>
-                    </a>
-                    <a href="https://github.com/thomsonexe" class="social-card" target="_blank" rel="noopener">
-                        <i class="fab fa-github"></i>
-                        <span>thomsonexe</span>
                     </a>
                 </div>
                 <p class="copy-confirm" id="copyConfirm">Copied to clipboard!</p>

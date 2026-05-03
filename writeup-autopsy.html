@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autopsy — Digital Forensics | thomson.cx</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo writeup-logo">
+                <svg width="26" height="30" viewBox="0 0 26 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13 1.5 L24.5 5.5 L24.5 15.5 Q24.5 24 13 28.5 Q1.5 24 1.5 15.5 L1.5 5.5 Z" fill="#0d1117" stroke="#00ff88" stroke-width="1.3" stroke-opacity="0.8"/>
+                </svg>
+                <span class="glitch glitch-nav" data-text="thomsoN">thomsoN</span>
+            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="index.html#ctf" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Labs
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="writeup-hero">
+        <div class="container">
+            <div class="writeup-meta">
+                <span class="ctf-platform forensics">Forensics</span>
+                <span class="ctf-difficulty easy">Beginner</span>
+                <span class="writeup-category"><i class="fas fa-tag"></i> Digital Forensics / Incident Response</span>
+            </div>
+            <h1 class="writeup-title">Autopsy — Digital Forensics</h1>
+            <p class="writeup-subtitle">A practical guide to using Autopsy for digital forensic investigations — from building a case to recovering artefacts, carving deleted files, and producing reports.</p>
+            <div class="writeup-stats">
+                <span><i class="fas fa-clock"></i> 15 min read</span>
+                <span><i class="fas fa-tools"></i> Hands-on</span>
+                <span><i class="fas fa-shield-alt"></i> Blue Team / DFIR</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="writeup-body">
+        <div class="container writeup-container">
+
+            <aside class="writeup-toc">
+                <div class="toc-card">
+                    <h3 class="toc-title"><i class="fas fa-list"></i> Contents</h3>
+                    <ul class="toc-links">
+                        <li><a href="#intro">What is Autopsy?</a></li>
+                        <li><a href="#case">Creating a Case</a></li>
+                        <li><a href="#datasource">Adding Data Sources</a></li>
+                        <li><a href="#filesystem">File System Navigation</a></li>
+                        <li><a href="#deleted">Deleted File Recovery</a></li>
+                        <li><a href="#keyword">Keyword Search</a></li>
+                        <li><a href="#timeline">Timeline Analysis</a></li>
+                        <li><a href="#artifacts">Artefacts & Modules</a></li>
+                        <li><a href="#reports">Generating Reports</a></li>
+                        <li><a href="#tips">Tips & Best Practices</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <article class="writeup-content">
+
+                <section id="intro" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>What is Autopsy?</h2>
+                    <p>Autopsy is a free, open-source digital forensics platform built on top of The Sleuth Kit (TSK). It provides a graphical interface for analysing disk images, file systems, and mobile devices — making it one of the most widely used tools in both law enforcement and corporate DFIR.</p>
+                    <p>Autopsy is particularly useful for investigating compromised endpoints, recovering deleted files, analysing user activity artefacts, and building a timeline of events across a system.</p>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Autopsy is cross-platform but runs best on Windows. Download it from <strong>sleuthkit.org/autopsy</strong>. The Windows installer bundles all required dependencies including The Sleuth Kit and Java.</p>
+                    </div>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Supported Data Source</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Raw disk image (<code>.dd</code>, <code>.img</code>)</td><td>Bit-for-bit copy of a disk or partition</td></tr>
+                                <tr><td>E01 / Expert Witness Format</td><td>EnCase forensic image format — most common in corporate DFIR</td></tr>
+                                <tr><td>Virtual machine disks (<code>.vmdk</code>, <code>.vhd</code>)</td><td>VM disk files — useful for cloud and virtualised environments</td></tr>
+                                <tr><td>Local disk</td><td>Analyse a live disk (write-blocker recommended)</td></tr>
+                                <tr><td>Logical files / folders</td><td>Analyse a collection of files without a full image</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="case" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Creating a Case</h2>
+                    <p>Every Autopsy investigation starts with a <strong>case</strong>. A case is a container that holds all the evidence sources, analysis results, tags, and reports for a single investigation.</p>
+
+                    <div class="methodology-flow">
+                        <div class="flow-step">
+                            <span class="flow-num">01</span>
+                            <div>
+                                <strong>New Case</strong>
+                                <p>Open Autopsy and select <em>New Case</em>. Enter a case name, choose a base directory for storing case data, and set the case type (Single-user for standalone analysis, Multi-user if collaborating across a team).</p>
+                            </div>
+                        </div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-step">
+                            <span class="flow-num">02</span>
+                            <div>
+                                <strong>Case Metadata</strong>
+                                <p>Fill in the optional metadata — case number, examiner name, phone, email, and notes. This information is embedded in any reports you export, which matters for chain of custody.</p>
+                            </div>
+                        </div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-step">
+                            <span class="flow-num">03</span>
+                            <div>
+                                <strong>Add Data Source</strong>
+                                <p>After creating the case, Autopsy immediately prompts you to add a data source — a disk image, local disk, or logical file set. You can add more sources later from the <em>Case</em> menu.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Use a consistent naming convention.</strong> Include the date and device identifier in the case name (e.g. <code>2026-05-03_LAPTOP-JSMITH</code>) so you can find cases quickly and maintain clear records.</p>
+                    </div>
+                </section>
+
+                <section id="datasource" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Adding Data Sources</h2>
+                    <p>A data source is the evidence you are analysing. Autopsy supports multiple types — you can add more than one to a single case.</p>
+
+                    <h3 class="sub-heading">Ingest Modules</h3>
+                    <p>When you add a data source, Autopsy runs <strong>ingest modules</strong> — automated analysis passes that extract artefacts from the image. You select which modules to run at this stage.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Ingest Module</th><th>What it does</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Recent Activity</td><td>Extracts browser history, downloads, searches, last accessed files, installed programs</td></tr>
+                                <tr><td>Hash Lookup</td><td>Compares files against known-good (NSRL) and known-bad hash sets to flag malicious or system files</td></tr>
+                                <tr><td>File Type Identification</td><td>Identifies true file types based on magic bytes, not just extensions</td></tr>
+                                <tr><td>Extension Mismatch Detector</td><td>Flags files where the extension doesn't match the actual file type — a common obfuscation technique</td></tr>
+                                <tr><td>Keyword Search</td><td>Indexes file contents for full-text search, including strings inside executables</td></tr>
+                                <tr><td>Email Parser</td><td>Parses PST, MBOX, and EML files and populates the Email Accounts section</td></tr>
+                                <tr><td>Encryption Detection</td><td>Flags encrypted or high-entropy files — may indicate packed malware or encrypted containers</td></tr>
+                                <tr><td>EXIF Parser</td><td>Extracts metadata from images — GPS coordinates, camera model, timestamps</td></tr>
+                                <tr><td>Plaso / Log2Timeline</td><td>Generates a super-timeline from multiple artefact types (if installed)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Run all relevant modules upfront.</strong> Re-running ingest on a large image takes a long time. Enable everything you might need at the start rather than adding modules later.</p>
+                    </div>
+                </section>
+
+                <section id="filesystem" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>File System Navigation</h2>
+                    <p>The left-hand tree in Autopsy gives you a full view of the file system. You can browse it like Windows Explorer — navigating through folders, viewing file metadata, and examining file contents in the viewer pane.</p>
+
+                    <h3 class="sub-heading">Key views</h3>
+                    <div class="concept-grid">
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-folder-open"></i></div>
+                            <h4>File System Tree</h4>
+                            <p>Full directory structure of the image. Deleted files and folders appear with a red X overlay. You can view hidden and system files here.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-file-alt"></i></div>
+                            <h4>File Viewer</h4>
+                            <p>Bottom-right pane. Shows file content in Hex, Text, Application (renders images/HTML), and Metadata tabs. Metadata tab shows MAC times, size, inode, and flags.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-tags"></i></div>
+                            <h4>Tagging</h4>
+                            <p>Right-click any file or result to add a tag — Notable, Follow Up, or custom. Tags are collected in the Tags node in the tree and included in reports.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-bookmark"></i></div>
+                            <h4>Bookmarking</h4>
+                            <p>Bookmark interesting files to add them to your report. Bookmarks appear under the Results node and can be exported directly.</p>
+                        </div>
+                    </div>
+
+                    <h3 class="sub-heading">MAC Times</h3>
+                    <p>Every file in the file system has three timestamps — collectively called <strong>MAC times</strong>. These are critical for building a timeline.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Timestamp</th><th>Meaning</th><th>Forensic Note</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><strong>M</strong>odified</td><td>Last time file content was changed</td><td>Changed when file is written to</td></tr>
+                                <tr><td><strong>A</strong>ccessed</td><td>Last time the file was read or opened</td><td>Can be unreliable — some systems disable access time updates for performance</td></tr>
+                                <tr><td><strong>C</strong>hanged / Created</td><td>On Windows: Created time. On UNIX: last metadata change (permissions, owner)</td><td>On NTFS, Created time is stored separately and is a reliable creation indicator</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Timestamps can be manipulated.</strong> Attackers use tools like <code>timestomp</code> to alter MAC times. Look for inconsistencies — a file with a Modified time earlier than its Created time is a red flag.</p>
+                    </div>
+                </section>
+
+                <section id="deleted" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Deleted File Recovery</h2>
+                    <p>When a file is deleted on most file systems, the data isn't immediately overwritten — only the reference to it is removed. Autopsy can recover these files by reading the raw disk image and identifying unallocated clusters that still contain file data.</p>
+
+                    <h3 class="sub-heading">How to find deleted files</h3>
+                    <p>Deleted files appear in the directory tree with a red X icon. You can also navigate to <strong>File Views &gt; Deleted Files</strong> in the left panel to see all recovered deleted files across the image in one place.</p>
+
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>File carving (finding deleted files without a directory entry) is handled by the <strong>PhotoRec</strong> carver built into Autopsy. It reconstructs files based on file headers and footers in unallocated space — useful when the directory entry itself has been overwritten.</p>
+                    </div>
+
+                    <h3 class="sub-heading">Recovery states</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>State</th><th>What it means</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Allocated</td><td>File exists and is referenced by the file system — normal active file</td></tr>
+                                <tr><td>Unallocated</td><td>File has been deleted — directory entry removed, but data clusters may still be intact</td></tr>
+                                <tr><td>Orphan</td><td>File clusters found in unallocated space with no directory entry — recovered by carving</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Export recovered files carefully.</strong> Right-click a deleted file and choose <em>Extract File(s)</em> to save it to your case output directory. Avoid opening files directly from the image in case you modify timestamps.</p>
+                    </div>
+                </section>
+
+                <section id="keyword" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Keyword Search</h2>
+                    <p>The Keyword Search module indexes file content during ingest, allowing you to search across every file on the image — including file slack space and unallocated clusters.</p>
+
+                    <h3 class="sub-heading">Types of search</h3>
+                    <div class="concept-grid">
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-font"></i></div>
+                            <h4>Exact Match</h4>
+                            <p>Searches for a literal string. Case-sensitive by default. Best for searching for known usernames, hostnames, or file names.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-asterisk"></i></div>
+                            <h4>Substring</h4>
+                            <p>Partial match — finds the string anywhere within a larger string. Useful when you know part of a value.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-code"></i></div>
+                            <h4>Regex</h4>
+                            <p>Regular expression search. Use for patterns like IP addresses, email addresses, credit card numbers, or file paths.</p>
+                        </div>
+                    </div>
+
+                    <h3 class="sub-heading">Useful search terms for investigations</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Search term / Pattern</th><th>What you're looking for</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>password</code></td><td>Credentials stored in plaintext in config files, scripts, or documents</td></tr>
+                                <tr><td><code>cmd.exe /c</code></td><td>Command execution via shell — found in scripts, logs, or prefetch</td></tr>
+                                <tr><td><code>powershell -enc</code></td><td>Encoded PowerShell — common obfuscation technique</td></tr>
+                                <tr><td><code>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}</code></td><td>IP addresses (regex) — useful for finding C2 infrastructure in logs or malware</td></tr>
+                                <tr><td><code>[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}</code></td><td>Email addresses (regex)</td></tr>
+                                <tr><td><code>http://</code> / <code>https://</code></td><td>URLs embedded in files or scripts</td></tr>
+                                <tr><td><code>net user</code></td><td>Account enumeration or manipulation commands</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="timeline" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Timeline Analysis</h2>
+                    <p>Autopsy's Timeline tool aggregates file system timestamps, log entries, and artefact data into a unified chronological view. This is one of the most powerful features for reconstructing what happened during an incident.</p>
+
+                    <p>Access it via <strong>Tools &gt; Timeline</strong>. You can switch between three views:</p>
+
+                    <div class="concept-grid">
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-chart-bar"></i></div>
+                            <h4>Counts View</h4>
+                            <p>A bar chart showing event density over time. Useful for identifying spikes of activity — a large cluster of events at an unusual hour is immediately visible here.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-list-ul"></i></div>
+                            <h4>Details View</h4>
+                            <p>Granular event list with timestamps, file paths, and event types. Filter by event type (file system, log, web activity) or cluster around a specific time of interest.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-table"></i></div>
+                            <h4>List View</h4>
+                            <p>Flat table of all events. Sortable and filterable. Good for exporting a time-bounded slice of events into a report.</p>
+                        </div>
+                    </div>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Narrow before you dive.</strong> Use the timeline zoom controls to isolate the window around your suspected incident time. Analysing days of events is overwhelming — zoom into the relevant hour once you have an anchor timestamp.</p>
+                    </div>
+                </section>
+
+                <section id="artifacts" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Artefacts &amp; Ingest Modules</h2>
+                    <p>After ingest completes, Autopsy populates the <strong>Results</strong> node in the tree with extracted artefacts grouped by category. These give you a quick view of user activity without having to manually dig through the file system.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Artefact Category</th><th>What's extracted</th><th>Common source files</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Web History</td><td>Visited URLs, page titles, visit timestamps</td><td>Chrome: <code>History</code> SQLite DB; Firefox: <code>places.sqlite</code></td></tr>
+                                <tr><td>Web Downloads</td><td>Downloaded files, source URL, timestamps</td><td>Chrome: <code>History</code>; Firefox: <code>downloads.sqlite</code></td></tr>
+                                <tr><td>Web Search Terms</td><td>Search engine queries entered by the user</td><td>Extracted from browser history URLs</td></tr>
+                                <tr><td>Web Cookies</td><td>Stored cookies — can reveal logged-in accounts</td><td>Chrome: <code>Cookies</code>; Firefox: <code>cookies.sqlite</code></td></tr>
+                                <tr><td>Installed Programs</td><td>Applications installed on the system</td><td>Registry: <code>SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall</code></td></tr>
+                                <tr><td>Recent Documents</td><td>Files recently accessed by the user</td><td>LNK files in <code>Recent</code> folder; Registry jump lists</td></tr>
+                                <tr><td>Shell Bags</td><td>Folders the user has browsed — persists after deletion</td><td>Registry: <code>UsrClass.dat</code></td></tr>
+                                <tr><td>USB Devices</td><td>Connected USB storage devices and timestamps</td><td>Registry: <code>SYSTEM\CurrentControlSet\Enum\USBSTOR</code></td></tr>
+                                <tr><td>Email Messages</td><td>Parsed emails including subject, sender, recipients, body</td><td>PST, MBOX, EML files</td></tr>
+                                <tr><td>EXIF Metadata</td><td>GPS, camera model, timestamps from image files</td><td>JPEG, TIFF, PNG files</td></tr>
+                                <tr><td>OS Account</td><td>User accounts found on the system</td><td>SAM registry hive; <code>/etc/passwd</code></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Windows Registry Hives</h3>
+                    <p>Autopsy's Recent Activity module parses key registry hives automatically, but you can also navigate to them directly in the file system tree under <code>Windows/System32/config/</code>.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Hive File</th><th>Location</th><th>Contains</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>SAM</code></td><td><code>config\SAM</code></td><td>Local user accounts and password hashes</td></tr>
+                                <tr><td><code>SYSTEM</code></td><td><code>config\SYSTEM</code></td><td>Hardware config, USB history, timezone, computer name</td></tr>
+                                <tr><td><code>SOFTWARE</code></td><td><code>config\SOFTWARE</code></td><td>Installed programs, OS version, run keys (autostart)</td></tr>
+                                <tr><td><code>SECURITY</code></td><td><code>config\SECURITY</code></td><td>Security policy, cached domain credentials</td></tr>
+                                <tr><td><code>NTUSER.DAT</code></td><td><code>Users\&lt;username&gt;\NTUSER.DAT</code></td><td>Per-user settings, MRU lists, typed paths, search history</td></tr>
+                                <tr><td><code>UsrClass.dat</code></td><td><code>Users\&lt;username&gt;\AppData\Local\Microsoft\Windows\UsrClass.dat</code></td><td>Shell bags — folder browsing history</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="reports" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Generating Reports</h2>
+                    <p>When your analysis is complete, Autopsy can generate a report from everything you've tagged and bookmarked during the investigation.</p>
+
+                    <p>Go to <strong>Tools &gt; Generate Report</strong>. You can export in several formats:</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Format</th><th>Best used for</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>HTML Report</td><td>Shareable, self-contained report — includes thumbnails and linked artefacts. Best for general reporting.</td></tr>
+                                <tr><td>Excel (XLS)</td><td>Flat data export — useful for sorting and filtering large artefact sets in a spreadsheet.</td></tr>
+                                <tr><td>Tagged Results</td><td>Report limited to files and artefacts you tagged as Notable or Follow Up — keeps the output focused.</td></tr>
+                                <tr><td>Body File</td><td>TSK body file format — all file system events with MAC times. Import into Plaso or mactime for further timeline analysis.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Tag as you go.</strong> The report is only as useful as your tags. Mark anything significant during analysis rather than trying to remember findings at the end. Use <em>Notable Item</em> for confirmed evidence and <em>Follow Up</em> for items that need more investigation.</p>
+                    </div>
+                </section>
+
+                <section id="tips" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Tips &amp; Best Practices</h2>
+
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Always work from a forensic image, never the original.</strong> Create a verified copy of the evidence using FTK Imager or dd before opening anything in Autopsy. Preserve chain of custody and verify integrity with MD5/SHA-256 hashes.</p>
+                    </div>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Verify the image hash before and after.</strong> Autopsy will calculate the hash of your data source during ingest. Compare it against your acquisition hash to confirm the image is intact.</p>
+                    </div>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Run all ingest modules upfront.</strong> Modules like Keyword Search and Hash Lookup are much faster to run on first ingest than to add later. Enable everything relevant before starting the ingest job.</p>
+                    </div>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p><strong>Use hash sets to filter noise.</strong> Import the NIST NSRL known-good hash set to automatically flag OS and application files. This lets you focus analysis on user-created or unknown files rather than sifting through thousands of Windows system files.</p>
+                    </div>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Document everything.</strong> Note the hash of each piece of evidence, the modules run, and the timestamps of your analysis. In a real investigation this documentation is as important as the findings themselves.</p>
+                    </div>
+                </section>
+
+            </article>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; echo <span class="accent">"stay curious. stay vigilant."</span>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+    </script>
+</body>
+</html>

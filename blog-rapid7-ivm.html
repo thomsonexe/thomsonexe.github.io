@@ -7,7 +7,6 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="writeup.css">
-    <link rel="stylesheet" href="blog.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -23,24 +22,25 @@
                 </svg>
                 <span class="glitch glitch-nav" data-text="thomsoN">thomsoN</span>
             </a>
-            <a href="index.html#blog" class="btn btn-secondary back-btn">
-                <i class="fas fa-arrow-left"></i> Back to Blog
-            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="labs.html" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
         </div>
     </nav>
 
     <div class="writeup-hero">
         <div class="container">
             <div class="writeup-meta">
-                <span class="blog-category-tag">Vulnerability Management</span>
-                <span class="blog-category-tag tool-tag">Rapid7 InsightVM</span>
+                <span class="writeup-category"><i class="fas fa-shield-alt"></i> Vulnerability Management</span>
             </div>
             <h1 class="writeup-title">Getting Started with Rapid7 InsightVM</h1>
             <p class="writeup-subtitle">A practical introduction to InsightVM — core concepts, scanning workflow, understanding risk scores, and how to start prioritising vulnerabilities across your organisation.</p>
             <div class="writeup-stats">
-                <span><i class="fas fa-calendar"></i> May 2026</span>
-                <span><i class="fas fa-clock"></i> 12 min read</span>
-                <span><i class="fas fa-user"></i> Ben Thomson</span>
+                <span><i class="fas fa-tag"></i> Vulnerability Management</span>
+                <span><i class="fas fa-signal"></i> Intermediate</span>
             </div>
         </div>
     </div>
@@ -183,22 +183,16 @@
                     </div>
 
                     <h3 class="sub-heading">CVSS Severity Bands</h3>
-                    <div class="severity-table">
-                        <div class="severity-row header">
-                            <span>Score</span><span>Severity</span><span>Typical Response</span>
-                        </div>
-                        <div class="severity-row critical">
-                            <span>9.0 – 10.0</span><span>Critical</span><span>Patch within 24–72 hours</span>
-                        </div>
-                        <div class="severity-row high">
-                            <span>7.0 – 8.9</span><span>High</span><span>Patch within 7 days</span>
-                        </div>
-                        <div class="severity-row medium">
-                            <span>4.0 – 6.9</span><span>Medium</span><span>Patch within 30 days</span>
-                        </div>
-                        <div class="severity-row low">
-                            <span>0.1 – 3.9</span><span>Low</span><span>Patch in next maintenance window</span>
-                        </div>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Score</th><th>Severity</th><th>Typical Response</th></tr></thead>
+                            <tbody>
+                                <tr><td style="color:#ff4757;font-weight:600;">9.0 – 10.0</td><td style="color:#ff4757;">Critical</td><td>Patch within 24–72 hours</td></tr>
+                                <tr><td style="color:#ff9f43;font-weight:600;">7.0 – 8.9</td><td style="color:#ff9f43;">High</td><td>Patch within 7 days</td></tr>
+                                <tr><td style="color:#ffd32a;font-weight:600;">4.0 – 6.9</td><td style="color:#ffd32a;">Medium</td><td>Patch within 30 days</td></tr>
+                                <tr><td style="color:#2ed573;font-weight:600;">0.1 – 3.9</td><td style="color:#2ed573;">Low</td><td>Patch in next maintenance window</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
@@ -354,7 +348,7 @@
                 </section>
 
                 <div class="writeup-footer">
-                    <a href="index.html#blog" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Blog</a>
+                    <a href="labs.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Writeups</a>
                 </div>
 
             </article>
@@ -374,16 +368,27 @@
     </button>
 
     <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+
         const backToTop = document.getElementById('backToTop');
         window.addEventListener('scroll', () => {
             backToTop.classList.toggle('visible', window.scrollY > 400);
         });
         backToTop.addEventListener('click', () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-        const navbar = document.getElementById('navbar');
-        window.addEventListener('scroll', () => {
-            navbar.classList.toggle('scrolled', window.scrollY > 50);
         });
     </script>
 </body>

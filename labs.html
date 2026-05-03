@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Lab Writeups | thomson.cx</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo writeup-logo">
+                <svg width="26" height="30" viewBox="0 0 26 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13 1.5 L24.5 5.5 L24.5 15.5 Q24.5 24 13 28.5 Q1.5 24 1.5 15.5 L1.5 5.5 Z" fill="#0d1117" stroke="#00ff88" stroke-width="1.3" stroke-opacity="0.8"/>
+                </svg>
+                <span class="glitch glitch-nav" data-text="thomsoN">thomsoN</span>
+            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="index.html" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="writeup-hero">
+        <div class="container">
+            <div class="writeup-meta">
+                <span class="writeup-category"><i class="fas fa-flask"></i> Lab Writeups &amp; Reference Guides</span>
+            </div>
+            <h1 class="writeup-title">All Writeups</h1>
+            <p class="writeup-subtitle">CTF walkthroughs, blue team lab writeups, and tool reference guides.</p>
+            <div class="writeup-stats">
+                <span><i class="fas fa-file-alt"></i> 8 writeups</span>
+                <span><i class="fas fa-shield-alt"></i> Blue Team focused</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="labs-body">
+        <div class="container">
+
+            <div class="labs-filter">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="btlo">BTLO</button>
+                <button class="filter-btn" data-filter="thm">TryHackMe</button>
+                <button class="filter-btn" data-filter="cyberdef">CyberDefenders</button>
+                <button class="filter-btn" data-filter="sentinel">Sentinel</button>
+                <button class="filter-btn" data-filter="forensics">Forensics</button>
+                <button class="filter-btn" data-filter="network">Network</button>
+                <button class="filter-btn" data-filter="vulnmgmt">Vuln Mgmt</button>
+            </div>
+
+            <div class="ctf-grid labs-grid">
+
+                <div class="ctf-card" data-platform="btlo">
+                    <div class="ctf-meta">
+                        <span class="ctf-platform btlo">BTLO</span>
+                        <span class="ctf-difficulty easy">Easy</span>
+                    </div>
+                    <h3 class="ctf-title">Phishing Analysis</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Email Analysis / Threat Intel</p>
+                    <p class="ctf-excerpt">Investigated a suspicious phishing email, extracted IOCs, identified malicious infrastructure, and documented findings to support a simulated incident response.</p>
+                    <a href="phishing-analysis.html" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="ctf-card" data-platform="thm">
+                    <div class="ctf-meta">
+                        <span class="ctf-platform thm">TryHackMe</span>
+                        <span class="ctf-difficulty easy">Easy</span>
+                    </div>
+                    <h3 class="ctf-title">Prompt Injection</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> AI Security / LLM Attacks</p>
+                    <p class="ctf-excerpt">How LLMs can be manipulated through direct and indirect prompt injection — covering real-world incidents, injection techniques, and a hands-on practical with CalBot.</p>
+                    <a href="prompt-injection.html" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="ctf-card" data-platform="cyberdef">
+                    <div class="ctf-meta">
+                        <span class="ctf-platform cyberdef">CyberDefenders</span>
+                        <span class="ctf-difficulty medium">Medium</span>
+                    </div>
+                    <h3 class="ctf-title">Tomcat Takeover</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Threat Hunting / Log Analysis</p>
+                    <p class="ctf-excerpt">Hunted through web server logs to identify exploitation of Apache Tomcat, traced lateral movement across the network and mapped attacker TTPs to the MITRE ATT&amp;CK framework.</p>
+                    <span class="read-more coming-soon"><i class="fas fa-clock"></i> Coming Soon</span>
+                </div>
+
+                <div class="ctf-card" data-platform="sentinel">
+                    <div class="ctf-meta">
+                        <span class="ctf-platform sentinel">Sentinel</span>
+                        <span class="ctf-difficulty medium">Intermediate</span>
+                    </div>
+                    <h3 class="ctf-title">KQL & Log Analytics</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> SIEM / Threat Hunting</p>
+                    <p class="ctf-excerpt">A practical KQL reference for Microsoft Sentinel — covering key operators, Sentinel tables, authentication and endpoint queries, and threat hunting techniques with real-world examples.</p>
+                    <a href="writeup-kql.html" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="ctf-card" data-platform="forensics">
+                    <div class="ctf-meta">
+                        <span class="ctf-platform forensics">Forensics</span>
+                        <span class="ctf-difficulty easy">Beginner</span>
+                    </div>
+                    <h3 class="ctf-title">Autopsy — Digital Forensics</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Digital Forensics / DFIR</p>
+                    <p class="ctf-excerpt">A practical guide to Autopsy — building a case, adding disk images, recovering deleted files, extracting browser and registry artefacts, and generating investigation reports.</p>
+                    <a href="writeup-autopsy.html" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="ctf-card" data-platform="forensics">
+                    <div class="ctf-meta">
+                        <span class="ctf-platform forensics">Forensics</span>
+                        <span class="ctf-difficulty medium">Intermediate</span>
+                    </div>
+                    <h3 class="ctf-title">Volatility — Memory Forensics</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Memory Forensics / Malware Analysis</p>
+                    <p class="ctf-excerpt">A practical guide to Volatility 3 — analysing memory dumps to uncover running processes, network connections, injected shellcode, registry persistence, and hidden malware.</p>
+                    <a href="writeup-volatility.html" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="ctf-card" data-platform="network">
+                    <div class="ctf-meta">
+                        <span class="ctf-platform network">Network</span>
+                        <span class="ctf-difficulty easy">Beginner</span>
+                    </div>
+                    <h3 class="ctf-title">Wireshark — Network Analysis</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Network Analysis / Packet Capture</p>
+                    <p class="ctf-excerpt">A practical guide to Wireshark — capture and display filters, protocol dissection, following streams, spotting C2 beaconing and DNS exfiltration, and extracting artefacts from packet captures.</p>
+                    <a href="writeup-wireshark.html" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="ctf-card" data-platform="vulnmgmt">
+                    <div class="ctf-meta">
+                        <span class="ctf-platform vulnmgmt">Vuln Mgmt</span>
+                        <span class="ctf-difficulty medium">Intermediate</span>
+                    </div>
+                    <h3 class="ctf-title">Rapid7 InsightVM</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Vulnerability Management</p>
+                    <p class="ctf-excerpt">A practical introduction to InsightVM — core concepts, scanning workflow, understanding risk scores, and how to prioritise vulnerabilities across your organisation.</p>
+                    <a href="blog-rapid7-ivm.html" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; echo <span class="accent">"stay curious. stay vigilant."</span>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+
+        // Filter buttons
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const cards = document.querySelectorAll('.labs-grid .ctf-card');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const filter = btn.dataset.filter;
+                cards.forEach(card => {
+                    const match = filter === 'all' || card.dataset.platform === filter;
+                    card.style.display = match ? '' : 'none';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

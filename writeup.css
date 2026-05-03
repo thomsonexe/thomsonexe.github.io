@@ -236,6 +236,39 @@ code {
 
 .code-comment { color: #6e7681; }
 .code-string { color: #a5d6ff; }
+.code-table { color: #ffa657; }
+.code-pipe { color: #6e7681; }
+.code-op { color: #79c0ff; }
+.code-fn { color: #d2a8ff; }
+.code-val { color: #a5d6ff; }
+.code-keyword { color: #ff7b72; }
+
+/* KQL TABLES */
+.kql-table-wrap { overflow-x: auto; margin: 1.25rem 0; border-radius: 8px; border: 1px solid var(--border); }
+
+.kql-table {
+    width: 100%; border-collapse: collapse;
+    font-family: var(--font-mono); font-size: 0.82rem;
+    background: var(--bg-card);
+}
+
+.kql-table th {
+    background: var(--bg-secondary); color: var(--accent);
+    padding: 0.65rem 1rem; text-align: left;
+    font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+}
+
+.kql-table td {
+    padding: 0.65rem 1rem; border-bottom: 1px solid var(--border);
+    color: var(--text-secondary); vertical-align: top; line-height: 1.6;
+}
+
+.kql-table tr:last-child td { border-bottom: none; }
+.kql-table tr:hover td { background: rgba(0,255,136,0.03); }
+
+.kql-table td:first-child { color: var(--text-primary); white-space: nowrap; }
+.kql-table td code { font-size: 0.78rem; }
 
 /* ROOM INFO */
 .room-info-card {
@@ -322,6 +355,35 @@ code {
 
 /* WRITEUP FOOTER */
 .writeup-footer { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+
+/* LABS PAGE */
+.labs-body { padding: 3rem 0 5rem; }
+
+.labs-filter {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.filter-btn {
+    font-family: var(--font-mono); font-size: 0.72rem;
+    padding: 0.35rem 0.85rem; border-radius: 20px;
+    border: 1px solid var(--border); background: transparent;
+    color: var(--text-secondary); cursor: pointer;
+    transition: var(--transition);
+}
+.filter-btn:hover { border-color: var(--border-accent); color: var(--accent); }
+.filter-btn.active {
+    background: rgba(0,255,136,0.1); border-color: var(--accent);
+    color: var(--accent);
+}
+
+.labs-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+
+.coming-soon {
+    font-family: var(--font-mono); font-size: 0.8rem;
+    color: var(--text-secondary); display: flex;
+    align-items: center; gap: 0.4rem;
+}
 
 /* RESPONSIVE */
 @media (max-width: 900px) {
