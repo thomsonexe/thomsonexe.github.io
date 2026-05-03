@@ -87,7 +87,7 @@ function initTerminal() {
             case 'final': {
                 const el = document.createElement('p');
                 el.className = 'terminal-line mt';
-                el.innerHTML = `<span class="prompt">${PROMPT}</span> <span class="cursor-blink">&#9608;</span>`;
+                el.innerHTML = `<span class="prompt">${PROMPT}</span> <span class="cursor-blink"></span>`;
                 return el;
             }
         }
@@ -222,45 +222,52 @@ fadeEls.forEach(el => {
     fadeObserver.observe(el);
 });
 
-// CISA KEV Feed
+// CISA KEV Feed via NVD API (native CORS support — no proxy needed)
 async function initKEVFeed() {
     const grid = document.getElementById('cveGrid');
     if (!grid) return;
 
     try {
-        const target = 'https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json';
-        const res = await fetch('https://corsproxy.io/?' + encodeURIComponent(target));
+        const res = await fetch(
+            'https://services.nvd.nist.gov/rest/json/cves/2.0?isKevExploited=true&resultsPerPage=20',
+            { headers: { 'Accept': 'application/json' } }
+        );
         if (!res.ok) throw new Error();
         const data = await res.json();
 
         const vulns = (data.vulnerabilities || [])
-            .slice()
-            .sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded))
+            .filter(v => v.cve.cisaExploitAdd)
+            .sort((a, b) => new Date(b.cve.cisaExploitAdd) - new Date(a.cve.cisaExploitAdd))
             .slice(0, 6);
 
+        if (!vulns.length) throw new Error();
         grid.innerHTML = '';
 
-        vulns.forEach(v => {
-            const id          = v.cveID;
-            const vendor      = v.vendorProject;
-            const product     = v.product;
-            const name        = v.vulnerabilityName;
-            const desc        = v.shortDescription || '';
-            const dateAdded   = new Date(v.dateAdded).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-            const dueDate     = new Date(v.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-            const ransomware  = v.knownRansomwareCampaignUse === 'Known';
-            const shortDesc   = desc.length > 140 ? desc.substring(0, 140).trimEnd() + '…' : desc;
+        vulns.forEach(({ cve }) => {
+            const id        = cve.id;
+            const name      = cve.cisaVulnerabilityName || id;
+            const desc      = (cve.descriptions || []).find(d => d.lang === 'en')?.value || '';
+            const shortDesc = desc.length > 140 ? desc.substring(0, 140).trimEnd() + '…' : desc;
+            const dateAdded = cve.cisaExploitAdd
+                ? new Date(cve.cisaExploitAdd).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+                : '—';
+            const dueDate = cve.cisaActionDue
+                ? new Date(cve.cisaActionDue).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+                : '—';
+
+            const cvss    = cve.metrics?.cvssMetricV31?.[0]?.cvssData
+                         ?? cve.metrics?.cvssMetricV30?.[0]?.cvssData
+                         ?? null;
+            const score    = cvss?.baseScore ?? null;
+            const severity = cvss?.baseSeverity ?? 'UNKNOWN';
+            const sevClass = severity.toLowerCase();
 
             const card = document.createElement('div');
             card.className = 'cve-card';
             card.innerHTML = `
                 <div class="cve-header">
                     <a href="https://nvd.nist.gov/vuln/detail/${id}" target="_blank" rel="noopener" class="cve-id">${id}</a>
-                    ${ransomware ? '<span class="cve-badge kev-ransomware"><i class="fas fa-skull-crossbones"></i> Ransomware</span>' : '<span class="cve-badge kev-exploited">Exploited</span>'}
-                </div>
-                <div class="cve-tags">
-                    <span class="cve-vendor">${vendor}</span>
-                    <span class="cve-cwe">${product}</span>
+                    <span class="cve-badge sev-${sevClass}">${severity}${score !== null ? ' ' + score : ''}</span>
                 </div>
                 <p class="cve-vuln-name">${name}</p>
                 <p class="cve-desc">${shortDesc}</p>
@@ -277,65 +284,28 @@ async function initKEVFeed() {
 
 initKEVFeed();
 
-// Globe
-function initGlobe() {
-    const canvas = document.getElementById('globeCanvas');
-    if (!canvas) return;
-
-    const dpr  = Math.min(window.devicePixelRatio || 1, 3);
-    const SIZE = 200;
-    canvas.width  = SIZE * dpr;
-    canvas.height = SIZE * dpr;
-    canvas.style.width  = SIZE + 'px';
-    canvas.style.height = SIZE + 'px';
-
-    const ctx = canvas.getContext('2d');
-    ctx.scale(dpr, dpr);
-
-    const cx = SIZE / 2, cy = SIZE / 2;
-    const R  = SIZE / 2 - 8;
-    let angle  = 0;
-    let pulseT = 0;
-    let dots   = [];
-
-    // Fixed red target locations (major cities / threat-intel hotspots)
-    const targets = [
-        [ 51.5,  -0.1],  // London
-        [ 40.7, -74.0],  // New York
-        [ 35.7, 139.7],  // Tokyo
-        [ 55.7,  37.6],  // Moscow
-        [ 28.6,  77.2],  // Delhi
-        [ 39.9, 116.4],  // Beijing
-        [-23.5, -46.6],  // São Paulo
-        [  1.3, 103.8],  // Singapore
-        [ 48.9,   2.3],  // Paris
-        [-33.9,  18.4],  // Cape Town
-    ].map(([la, lo]) => [la * Math.PI / 180, lo * Math.PI / 180]);
-
-    async function loadDots() {
+// Shared land-dot loader (cached so both globes fetch once)
+let _landDotsCache = null;
+function getLandDots() {
+    if (_landDotsCache) return _landDotsCache;
+    _landDotsCache = (async () => {
         const OW = 1440, OH = 720;
         const oc = document.createElement('canvas');
         oc.width = OW; oc.height = OH;
         const ox = oc.getContext('2d');
         ox.fillStyle = '#fff';
-
         try {
-            const res = await fetch(
-                'https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_110m_land.geojson'
-            );
+            const res = await fetch('https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_110m_land.geojson');
             if (!res.ok) throw new Error();
             const geo = await res.json();
-
             function drawRing(coords) {
                 if (!coords || coords.length < 3) return;
                 ox.beginPath();
                 ox.moveTo((coords[0][0] + 180) * 4, (90 - coords[0][1]) * 4);
                 for (let i = 1; i < coords.length; i++)
                     ox.lineTo((coords[i][0] + 180) * 4, (90 - coords[i][1]) * 4);
-                ox.closePath();
-                ox.fill();
+                ox.closePath(); ox.fill();
             }
-
             geo.features.forEach(({ geometry: g }) => {
                 if (!g) return;
                 if (g.type === 'Polygon') drawRing(g.coordinates[0]);
@@ -356,149 +326,290 @@ function initGlobe() {
             ];
             LAND.forEach(pts => {
                 ox.beginPath();
-                ox.moveTo((pts[0][0] + 180) * 4, (90 - pts[0][1]) * 4);
-                for (let i = 1; i < pts.length; i++)
-                    ox.lineTo((pts[i][0] + 180) * 4, (90 - pts[i][1]) * 4);
-                ox.closePath();
-                ox.fill();
+                ox.moveTo((pts[0][0]+180)*4,(90-pts[0][1])*4);
+                for(let i=1;i<pts.length;i++) ox.lineTo((pts[i][0]+180)*4,(90-pts[i][1])*4);
+                ox.closePath(); ox.fill();
             });
         }
-
         const img = ox.getImageData(0, 0, OW, OH).data;
         const result = [];
-        for (let py = 0; py < OH; py += 3) {
-            for (let px = 0; px < OW; px += 3) {
-                if (img[(py * OW + px) * 4] > 128) {
-                    result.push([
-                        (90  - py / 4) * Math.PI / 180,
-                        (px / 4 - 180) * Math.PI / 180,
-                    ]);
-                }
-            }
-        }
+        for (let py = 0; py < OH; py += 5)
+            for (let px = 0; px < OW; px += 5)
+                if (img[(py * OW + px) * 4] > 128)
+                    result.push([(90 - py/4) * Math.PI/180, (px/4 - 180) * Math.PI/180]);
         return result;
+    })();
+    return _landDotsCache;
+}
+
+// Shared globe sphere renderer
+function drawSphere(ctx, cx, cy, R) {
+    const grad = ctx.createRadialGradient(cx - R*0.3, cy - R*0.32, R*0.02, cx, cy, R);
+    grad.addColorStop(0,    '#ffffff');
+    grad.addColorStop(0.45, '#f0f3f7');
+    grad.addColorStop(0.82, '#d6dce7');
+    grad.addColorStop(1,    '#b8c2d4');
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2);
+    ctx.fillStyle = grad; ctx.fill();
+
+    const rim = ctx.createRadialGradient(cx, cy, R*0.72, cx, cy, R);
+    rim.addColorStop(0,   'rgba(255,255,255,0)');
+    rim.addColorStop(0.7, 'rgba(255,255,255,0)');
+    rim.addColorStop(1,   'rgba(255,255,255,0.55)');
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2);
+    ctx.fillStyle = rim; ctx.fill();
+
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2); ctx.clip();
+    ctx.strokeStyle = 'rgba(100,120,160,0.18)'; ctx.lineWidth = 0.4;
+    for (let i = 1; i < 7; i++) {
+        const phi = (i/7)*Math.PI, gy = cy - R*Math.cos(phi), rx = R*Math.sin(phi);
+        ctx.beginPath(); ctx.ellipse(cx, gy, rx, rx*0.27, 0, 0, Math.PI*2); ctx.stroke();
+    }
+    ctx.restore();
+}
+
+
+// Threat Map
+function initThreatMap() {
+    const canvas = document.getElementById('threatCanvas');
+    const logEl  = document.getElementById('threatLog');
+    const statEl = document.getElementById('statTotal');
+    if (!canvas) return;
+
+    const dpr  = Math.min(window.devicePixelRatio || 1, 2);
+    const SIZE = canvas.parentElement.clientWidth || 460;
+    canvas.width  = SIZE * dpr; canvas.height = SIZE * dpr;
+    canvas.style.width = SIZE + 'px'; canvas.style.height = SIZE + 'px';
+
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    const cx = SIZE/2, cy = SIZE/2, R = SIZE/2 - 16;
+    let angle = 0, dots = [], arcs = [], totalAttacks = 0, frame = 0;
+
+    const SOURCES = [
+        { name:'Russia',    code:'RU', lat: 55.7, lon:  37.6 },
+        { name:'China',     code:'CN', lat: 39.9, lon: 116.4 },
+        { name:'N. Korea',  code:'KP', lat: 39.0, lon: 125.8 },
+        { name:'Iran',      code:'IR', lat: 35.7, lon:  51.4 },
+        { name:'Vietnam',   code:'VN', lat: 21.0, lon: 105.8 },
+        { name:'Romania',   code:'RO', lat: 44.4, lon:  26.1 },
+        { name:'Brazil',    code:'BR', lat:-15.8, lon: -47.9 },
+    ].map(s => ({ ...s, lat: s.lat*Math.PI/180, lon: s.lon*Math.PI/180 }));
+
+    const TARGETS = [
+        { name:'London',    code:'GB', lat: 51.5, lon:  -0.1 },
+        { name:'New York',  code:'US', lat: 40.7, lon: -74.0 },
+        { name:'Tokyo',     code:'JP', lat: 35.7, lon: 139.7 },
+        { name:'Delhi',     code:'IN', lat: 28.6, lon:  77.2 },
+        { name:'Berlin',    code:'DE', lat: 52.5, lon:  13.4 },
+        { name:'Paris',     code:'FR', lat: 48.9, lon:   2.3 },
+        { name:'Singapore', code:'SG', lat:  1.3, lon: 103.8 },
+        { name:'Sydney',    code:'AU', lat:-33.9, lon: 151.2 },
+        { name:'Toronto',   code:'CA', lat: 43.7, lon: -79.4 },
+        { name:'Cape Town', code:'ZA', lat:-33.9, lon:  18.4 },
+    ].map(t => ({ ...t, lat: t.lat*Math.PI/180, lon: t.lon*Math.PI/180 }));
+
+    const ATTACK_TYPES = [
+        'SSH Brute Force','SQL Injection','Log4Shell (CVE-2021-44228)',
+        'RDP Exploit','Ransomware Deployment','Zero-Day Exploit',
+        'DDoS Flood','Credential Stuffing','CVE-2024-3400 (PAN-OS)',
+        'CVE-2024-21762 (FortiOS)','Phishing Campaign','Supply Chain Attack',
+    ];
+
+    function flag(code) {
+        return `<span class="fi fi-${code.toLowerCase()}" style="font-size:0.9em;border-radius:2px;"></span>`;
     }
 
-    function draw() {
-        ctx.clearRect(0, 0, SIZE, SIZE);
-        pulseT += 0.04;
+    function slerp(lat1, lon1, lat2, lon2, t) {
+        const v1 = [Math.cos(lat1)*Math.cos(lon1), Math.cos(lat1)*Math.sin(lon1), Math.sin(lat1)];
+        const v2 = [Math.cos(lat2)*Math.cos(lon2), Math.cos(lat2)*Math.sin(lon2), Math.sin(lat2)];
+        const dot = Math.max(-1, Math.min(1, v1[0]*v2[0]+v1[1]*v2[1]+v1[2]*v2[2]));
+        const omega = Math.acos(dot);
+        if (omega < 0.001) return [lat2, lon2];
+        const s = Math.sin(omega);
+        const a = Math.sin((1-t)*omega)/s, b = Math.sin(t*omega)/s;
+        return [Math.asin(Math.max(-1,Math.min(1, a*v1[2]+b*v2[2]))),
+                Math.atan2(a*v1[1]+b*v2[1], a*v1[0]+b*v2[0])];
+    }
 
-        // White glossy sphere
-        const grad = ctx.createRadialGradient(cx - R * 0.3, cy - R * 0.32, R * 0.02, cx, cy, R);
-        grad.addColorStop(0,    '#ffffff');
-        grad.addColorStop(0.45, '#f0f3f7');
-        grad.addColorStop(0.82, '#d6dce7');
-        grad.addColorStop(1,    '#b8c2d4');
-        ctx.beginPath();
-        ctx.arc(cx, cy, R, 0, Math.PI * 2);
-        ctx.fillStyle = grad;
-        ctx.fill();
+    // Project a pre-computed unit vector [dx,dy,dz] with current rotation
+    function projVec(dx, dy, dz) {
+        const x3 = dx*ca + dz*sa, z3 = dz*ca - dx*sa;
+        return { x: cx+R*x3, y: cy-R*dy, z: z3 };
+    }
+    function proj(lat, lon) {
+        const dx = Math.cos(lat)*Math.sin(lon), dy = Math.sin(lat), dz = Math.cos(lat)*Math.cos(lon);
+        return projVec(dx, dy, dz);
+    }
 
-        // Bright atmosphere rim (the white glow ring from the image)
-        const rim = ctx.createRadialGradient(cx, cy, R * 0.72, cx, cy, R);
-        rim.addColorStop(0,   'rgba(255,255,255,0)');
-        rim.addColorStop(0.7, 'rgba(255,255,255,0)');
-        rim.addColorStop(1,   'rgba(255,255,255,0.55)');
-        ctx.beginPath();
-        ctx.arc(cx, cy, R, 0, Math.PI * 2);
-        ctx.fillStyle = rim;
-        ctx.fill();
-
-        // Subtle grid lines
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(cx, cy, R, 0, Math.PI * 2);
-        ctx.clip();
-        ctx.strokeStyle = 'rgba(100,120,160,0.18)';
-        ctx.lineWidth   = 0.4;
-        for (let i = 1; i < 7; i++) {
-            const phi = (i / 7) * Math.PI;
-            const gy  = cy - R * Math.cos(phi);
-            const rx  = R * Math.sin(phi);
-            ctx.beginPath();
-            ctx.ellipse(cx, gy, rx, rx * 0.27, 0, 0, Math.PI * 2);
-            ctx.stroke();
+    function spawnArc() {
+        const src = SOURCES[Math.floor(Math.random()*SOURCES.length)];
+        let dst;
+        do { dst = TARGETS[Math.floor(Math.random()*TARGETS.length)]; } while (dst.code === src.code);
+        const type = ATTACK_TYPES[Math.floor(Math.random()*ATTACK_TYPES.length)];
+        arcs.push({ src, dst, type, progress: 0, speed: 0.004 + Math.random()*0.004 });
+        totalAttacks++;
+        if (statEl) statEl.textContent = totalAttacks;
+        if (logEl) {
+            const t = new Date().toLocaleTimeString('en-GB', { hour12: false });
+            const el = document.createElement('div');
+            el.className = 'threat-entry';
+            el.innerHTML = `<span class="t-time">${t}</span><span class="t-route"><span class="t-src">${flag(src.code)} ${src.code}</span><span class="t-arrow">→</span><span class="t-dst">${flag(dst.code)} ${dst.code}</span></span><span class="t-type">${type}</span>`;
+            if (logEl.firstChild?.classList?.contains('threat-placeholder')) logEl.innerHTML = '';
+            logEl.prepend(el);
+            while (logEl.children.length > 14) logEl.removeChild(logEl.lastChild);
         }
-        ctx.restore();
+    }
 
-        // Dark land dots
-        dots.forEach(([lat, lon]) => {
-            const rotLon = lon + angle;
-            const x3 = Math.cos(lat) * Math.sin(rotLon);
-            const y3 = Math.sin(lat);
-            const z3 = Math.cos(lat) * Math.cos(rotLon);
-            if (z3 < 0) return;
-            const sz = (z3 + 1) / 2;
-            ctx.globalAlpha = 0.22 + sz * 0.55;
-            ctx.beginPath();
-            ctx.arc(cx + R * x3, cy - R * y3, 0.8 + sz * 0.45, 0, Math.PI * 2);
-            ctx.fillStyle = '#1a2235';
-            ctx.fill();
-        });
-        ctx.globalAlpha = 1;
+    // Pre-render static sphere to offscreen canvas — only rebuilt on resize
+    let sphereCache = null;
+    function buildSphereCache() {
+        const oc = document.createElement('canvas');
+        oc.width = SIZE * dpr; oc.height = SIZE * dpr;
+        const ox = oc.getContext('2d');
+        ox.scale(dpr, dpr);
+        drawSphere(ox, cx, cy, R);
+        ox.beginPath(); ox.arc(cx, cy, R, 0, Math.PI*2);
+        ox.strokeStyle = 'rgba(160,175,200,0.5)'; ox.lineWidth = 1; ox.stroke();
+        sphereCache = oc;
+    }
 
-        // Red pulsing target markers
-        targets.forEach(([lat, lon], i) => {
-            const rotLon = lon + angle;
-            const x3 = Math.cos(lat) * Math.sin(rotLon);
-            const y3 = Math.sin(lat);
-            const z3 = Math.cos(lat) * Math.cos(rotLon);
-            if (z3 < 0) return;
-            const sz = (z3 + 1) / 2;
-            const sx = cx + R * x3;
-            const sy = cy - R * y3;
+    // ca/sa updated once per frame — shared by proj, projVec, and dot loop
+    let ca = 1, sa = 0;
 
-            // Stagger each target's pulse phase
-            const p = (Math.sin(pulseT + i * 0.9) + 1) / 2;
+    // Offscreen canvas for land dots — only redrawn every 2nd frame
+    const dotsOC = document.createElement('canvas');
+    dotsOC.width = SIZE * dpr; dotsOC.height = SIZE * dpr;
+    const dotCtx = dotsOC.getContext('2d');
+    dotCtx.scale(dpr, dpr);
 
-            // Outer pulse ring
-            ctx.beginPath();
-            ctx.arc(sx, sy, 2.5 + p * 5, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(255,40,40,${0.08 + p * 0.14})`;
-            ctx.fill();
+    function redrawDots() {
+        dotCtx.clearRect(0, 0, SIZE, SIZE);
+        dotCtx.save();
+        dotCtx.beginPath(); dotCtx.arc(cx, cy, R - 1, 0, Math.PI*2); dotCtx.clip();
+        // Batch ALL dots into one path — single fill() call instead of thousands
+        dotCtx.beginPath();
+        const r = 1.3;
+        for (let i = 0; i < dots.length; i++) {
+            const dx = dots[i][0], dy = dots[i][1], dz = dots[i][2];
+            const x3 = dx*ca + dz*sa, z3 = dz*ca - dx*sa;
+            if (z3 < 0.08) continue;
+            const sx = cx + R*x3, sy = cy - R*dy;
+            dotCtx.moveTo(sx + r, sy);
+            dotCtx.arc(sx, sy, r, 0, Math.PI*2);
+        }
+        dotCtx.fillStyle = '#1a2235';
+        dotCtx.globalAlpha = 0.72;
+        dotCtx.fill();
+        dotCtx.restore();
+        dotCtx.globalAlpha = 1;
+    }
 
-            // Mid glow ring
-            ctx.beginPath();
-            ctx.arc(sx, sy, 2 + p * 2, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(255,60,60,${0.15 + p * 0.1})`;
-            ctx.fill();
-
-            // Core red dot
-            ctx.shadowColor = '#ff2020';
-            ctx.shadowBlur  = 8 * dpr;
-            ctx.globalAlpha = 0.75 + sz * 0.25;
-            ctx.beginPath();
-            ctx.arc(sx, sy, 2.2, 0, Math.PI * 2);
-            ctx.fillStyle = '#ff3333';
-            ctx.fill();
-
-            // Bright white centre
-            ctx.shadowBlur  = 0;
-            ctx.globalAlpha = 0.95;
-            ctx.beginPath();
-            ctx.arc(sx, sy, 0.8, 0, Math.PI * 2);
-            ctx.fillStyle = '#ffffff';
-            ctx.fill();
-        });
-        ctx.shadowBlur  = 0;
-        ctx.globalAlpha = 1;
-
-        // Outer stroke ring
+    function drawArc(arc) {
+        const steps = 40;
+        const maxT  = Math.min(arc.progress, 1);
+        const fade  = arc.progress > 1.3 ? Math.max(0, (2 - arc.progress) / 0.7) : 1;
+        ctx.strokeStyle = `rgba(255,60,60,${fade*0.85})`; ctx.lineWidth = 1.5;
+        let started = false;
         ctx.beginPath();
-        ctx.arc(cx, cy, R, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(160,175,200,0.5)';
-        ctx.lineWidth   = 1;
+        for (let i = 0; i <= steps*maxT; i++) {
+            const [lat, lon] = slerp(arc.src.lat, arc.src.lon, arc.dst.lat, arc.dst.lon, i/steps);
+            const p = proj(lat, lon);
+            if (p.z < 0.05) { started = false; continue; }
+            if (!started) { ctx.moveTo(p.x, p.y); started = true; } else ctx.lineTo(p.x, p.y);
+        }
         ctx.stroke();
+        if (arc.progress < 1) {
+            const [tl, tn] = slerp(arc.src.lat, arc.src.lon, arc.dst.lat, arc.dst.lon, arc.progress);
+            const tp = proj(tl, tn);
+            if (tp.z > 0.05) {
+                ctx.beginPath(); ctx.arc(tp.x, tp.y, 3.5, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(255,160,80,${fade})`; ctx.fill();
+                ctx.beginPath(); ctx.arc(tp.x, tp.y, 1.5, 0, Math.PI*2);
+                ctx.fillStyle = '#fff'; ctx.fill();
+            }
+        }
+    }
 
-        angle  += 0.005;
+    let lastFrame = 0;
+    let visible = false;
+
+    function draw(ts = 0) {
+        if (!visible) return;
+        // Throttle to ~30fps
+        if (ts - lastFrame < 32) { requestAnimationFrame(draw); return; }
+        lastFrame = ts;
+
+        // Update rotation trig once per frame
+        ca = Math.cos(angle); sa = Math.sin(angle);
+
+        if (!sphereCache) buildSphereCache();
+        ctx.drawImage(sphereCache, 0, 0, SIZE, SIZE);
+
+        // Dots: redraw offscreen every 2nd frame, then blit — one drawImage vs thousands of fill() calls
+        if (dots.length && frame % 2 === 0) redrawDots();
+        if (dots.length) ctx.drawImage(dotsOC, 0, 0, SIZE, SIZE);
+
+        // Arcs — no shadowBlur (too expensive), rely on colour contrast
+        arcs.forEach(drawArc);
+        arcs.forEach(a => { a.progress += a.speed; });
+        arcs = arcs.filter(a => a.progress < 2);
+
+        // Source markers
+        SOURCES.forEach(s => {
+            const p = proj(s.lat, s.lon);
+            if (p.z < 0.05) return;
+            ctx.globalAlpha = 0.9;
+            ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2);
+            ctx.fillStyle = '#ff9f43'; ctx.fill();
+            ctx.globalAlpha = 1;
+            ctx.beginPath(); ctx.arc(p.x, p.y, 1, 0, Math.PI*2);
+            ctx.fillStyle = '#fff'; ctx.fill();
+        });
+
+        // Target markers
+        TARGETS.forEach(t => {
+            const p = proj(t.lat, t.lon);
+            if (p.z < 0.05) return;
+            ctx.globalAlpha = 0.9;
+            ctx.beginPath(); ctx.arc(p.x, p.y, 3.5, 0, Math.PI*2);
+            ctx.fillStyle = '#ff3333'; ctx.fill();
+            ctx.globalAlpha = 1;
+            ctx.beginPath(); ctx.arc(p.x, p.y, 1.2, 0, Math.PI*2);
+            ctx.fillStyle = '#fff'; ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+
+        frame++;
+        if (frame % 90 === 0) spawnArc();
+        angle += 0.003;
         requestAnimationFrame(draw);
     }
 
-    draw();
-    loadDots().then(d => { dots = d; });
+    // Pause animation when section is off-screen
+    const observer = new IntersectionObserver(entries => {
+        visible = entries[0].isIntersecting;
+        if (visible) requestAnimationFrame(draw);
+    }, { threshold: 0.1 });
+    observer.observe(canvas);
+
+    setTimeout(() => { spawnArc(); }, 600);
+    setTimeout(() => { spawnArc(); }, 1500);
+    setTimeout(() => { spawnArc(); }, 2500);
+
+    // Convert dots to pre-computed unit vectors [dx, dy, dz]
+    getLandDots().then(raw => {
+        dots = raw.map(([lat, lon]) => [
+            Math.cos(lat)*Math.sin(lon),
+            Math.sin(lat),
+            Math.cos(lat)*Math.cos(lon),
+        ]);
+    });
 }
 
-initGlobe();
+initThreatMap();
 
 // Discord copy
 function copyDiscord() {

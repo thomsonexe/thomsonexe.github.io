@@ -12,7 +12,7 @@
     display: flex; align-items: center; gap: 0.75rem;
     text-decoration: none;
 }
-.writeup-logo svg { flex-shrink: 0; filter: drop-shadow(0 0 6px rgba(0,255,136,0.3)); }
+.writeup-logo .nav-mouse { flex-shrink: 0; filter: drop-shadow(0 0 6px rgba(0,255,136,0.3)); }
 .logo-wordmark {
     font-family: var(--font-mono); font-size: 1.1rem;
     font-weight: 700; color: var(--text-primary);
