@@ -19,136 +19,365 @@ function updateThemeIcon(theme) {
 }
 
 
-// Terminal sequence animation
+// Particle background
+function initParticles() {
+    const canvas = document.getElementById('particles-bg');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    const COUNT    = window.innerWidth < 768 ? 35 : 65;
+    const MAX_DIST = 130;
+
+    let W, H, particles, rafId;
+
+    function resize() {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        W = canvas.width  = rect.width;
+        H = canvas.height = rect.height;
+    }
+
+    function rgb() {
+        return document.documentElement.getAttribute('data-theme') === 'light'
+            ? '9,105,218'
+            : '0,255,136';
+    }
+
+    function makeParticle() {
+        return {
+            x:  Math.random() * W,
+            y:  Math.random() * H,
+            vx: (Math.random() - 0.5) * 0.35,
+            vy: (Math.random() - 0.5) * 0.35,
+            r:  Math.random() * 1.2 + 0.5,
+            op: Math.random() * 0.35 + 0.1,
+        };
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const c = rgb();
+
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const d  = Math.sqrt(dx * dx + dy * dy);
+                if (d < MAX_DIST) {
+                    ctx.strokeStyle = `rgba(${c},${(1 - d / MAX_DIST) * 0.12})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        particles.forEach(p => {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${c},${p.op})`;
+            ctx.fill();
+
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.x < -10) p.x = W + 10;
+            if (p.x > W + 10) p.x = -10;
+            if (p.y < -10) p.y = H + 10;
+            if (p.y > H + 10) p.y = -10;
+        });
+
+        rafId = requestAnimationFrame(draw);
+    }
+
+    resize();
+    particles = Array.from({ length: COUNT }, makeParticle);
+    draw();
+
+    window.addEventListener('resize', () => {
+        resize();
+        particles.forEach(p => {
+            if (p.x > W) p.x = Math.random() * W;
+            if (p.y > H) p.y = Math.random() * H;
+        });
+    });
+}
+
+initParticles();
+
+// Terminal — interactive
 function initTerminal() {
     const body = document.querySelector('.terminal-body');
     if (!body) return;
 
     const PROMPT = 'ben@thomson.cx:~$';
+    let cmdHistory = [];
+    let histIdx = -1;
+    let activeInput = null;
+
+    // --- Commands ---
+    const CMDS = {
+        help: () => [
+            '<span class="t-accent">commands</span>',
+            '',
+            '  <span class="t-key">whoami</span>              who is ben',
+            '  <span class="t-key">id</span>                  uid / groups',
+            '  <span class="t-key">ls</span> / <span class="t-key">ls -la</span>         list home directory',
+            '  <span class="t-key">cat</span> <em>&lt;file&gt;</em>          about.txt  skills.txt  certs.txt  contact.txt',
+            '  <span class="t-key">sudo -l</span>             sudo permissions',
+            '  <span class="t-key">neofetch</span>            system info',
+            '  <span class="t-key">nmap localhost</span>      port scan',
+            '  <span class="t-key">date</span>                current date/time',
+            '  <span class="t-key">history</span>             command history',
+            '  <span class="t-key">clear</span>               clear terminal',
+        ],
+        whoami: () => ['ben'],
+        id: () => [
+            '<span class="t-key">uid=</span><span class="t-val">1000</span><span class="t-dim">(ben)</span> ' +
+            '<span class="t-key">gid=</span><span class="t-val">1000</span><span class="t-dim">(ben)</span> ' +
+            '<span class="t-key">groups=</span><span class="t-val">27</span><span class="t-dim">(sudo)</span>,' +
+            '<span class="t-val">1001</span><span class="t-dim">(soc-team)</span>',
+        ],
+        ls: (args) => {
+            if (args.some(a => a.includes('l'))) {
+                return [
+                    '<span class="t-dim">total 32</span>',
+                    '<span class="t-dim">-rw-r--r--  ben ben  2.0K</span>  <span class="t-accent">about.txt</span>',
+                    '<span class="t-dim">-rw-r--r--  ben ben  4.1K</span>  <span class="t-accent">skills.txt</span>',
+                    '<span class="t-dim">-rw-r--r--  ben ben  1.0K</span>  <span class="t-accent">certs.txt</span>',
+                    '<span class="t-dim">-rw-r--r--  ben ben   512</span>  <span class="t-accent">contact.txt</span>',
+                    '<span class="t-dim">-rwxr-xr-x  ben ben  8.0K</span>  <span style="color:#ff9940">portfolio.sh</span>',
+                ];
+            }
+            return ['<span class="t-accent">about.txt</span>  <span class="t-accent">skills.txt</span>  <span class="t-accent">certs.txt</span>  <span class="t-accent">contact.txt</span>  <span style="color:#ff9940">portfolio.sh</span>'];
+        },
+        cat: (args) => {
+            const file = (args[0] || '').toLowerCase();
+            if (file === 'about.txt') return [
+                '<span class="t-accent">## Ben Thomson</span>', '',
+                'Junior Security Analyst — Computer Forensics & Security.',
+                'Blue team focus: threat detection, incident response,',
+                'log analysis, and vulnerability management.',
+                '', 'Building skills one lab at a time.',
+            ];
+            if (file === 'skills.txt') return [
+                '<span class="t-accent">## Skills</span>', '',
+                '<span class="t-key">SIEM      </span>  Microsoft Sentinel · Splunk · Elastic',
+                '<span class="t-key">Endpoint  </span>  Defender for Endpoint · Cortex XDR · XSOAR',
+                '<span class="t-key">Forensics </span>  Wireshark · Volatility · Autopsy · FTK Imager',
+                '<span class="t-key">Languages </span>  KQL · Python · PowerShell · Bash',
+                '<span class="t-key">Platforms </span>  Azure · Active Directory · Entra ID',
+            ];
+            if (file === 'certs.txt') return [
+                '<span class="t-accent">## Certifications</span>', '',
+                '<span class="t-val">[✓]</span>  CompTIA Network+',
+                '<span class="t-val">[✓]</span>  CompTIA Security+',
+                '<span class="t-val">[✓]</span>  BTL1 — Blue Team Level 1',
+                '<span class="t-dim">[ ]  CompTIA SecurityX — in progress</span>',
+            ];
+            if (file === 'contact.txt') return [
+                '<span class="t-accent">## Contact</span>', '',
+                '<span class="t-key">GitHub </span>  github.com/thomsonexe',
+                '<span class="t-key">Email  </span>  benthomsonwork@gmail.com',
+                '<span class="t-key">Site   </span>  thomson.cx',
+            ];
+            return [`<span style="color:#ff5f56">cat: ${args[0] || ''}: No such file or directory</span>`];
+        },
+        sudo: (args) => {
+            if (args[0] === '-l') return CMDS['sudo -l']();
+            if (args.join(' ').includes('rm')) return ['<span style="color:#ff5f56">nice try.</span>'];
+            return [
+                '<span style="color:#ffbd2e">[sudo] password for ben: </span>',
+                '<span style="color:#ff5f56">sudo: permission denied.</span>',
+            ];
+        },
+        'sudo -l': () => [
+            '<span class="t-dim">Matching Defaults entries for ben on thomson.cx:</span>',
+            '<span class="t-dim">    env_reset, mail_badpass</span>',
+            '<span class="t-dim">User ben may run the following commands on thomson.cx:</span>',
+            '    <span class="t-dim">(ALL)</span> <span style="color:#ff9940">NOPASSWD:</span> <span class="t-key">/usr/bin/tcpdump</span>, <span class="t-key">/usr/bin/nmap</span>, <span class="t-key">/usr/bin/wireshark</span>',
+        ],
+        neofetch: () => [
+            '      <span class="t-accent">██████╗ ███████╗███╗  ██╗</span>   <span class="t-key">ben</span>@<span class="t-key">thomson.cx</span>',
+            '      <span class="t-accent">██╔══██╗██╔════╝████╗ ██║</span>   ─────────────────────',
+            '      <span class="t-accent">██████╔╝█████╗  ██╔██╗██║</span>   <span class="t-key">OS</span>      Kali Linux x86_64',
+            '      <span class="t-accent">██╔══██╗██╔══╝  ██║╚████║</span>   <span class="t-key">Shell</span>   zsh 5.9',
+            '      <span class="t-accent">██████╔╝███████╗██║  ╚███║</span>   <span class="t-key">DE</span>      i3wm',
+            '      <span class="t-accent">╚═════╝ ╚══════╝╚═╝   ╚══╝</span>   <span class="t-key">CPU</span>     Threat Analyst v2.0',
+            '                                  <span class="t-key">RAM</span>     too much caffeine',
+        ],
+        nmap: () => [
+            'Starting Nmap 7.94 ( https://nmap.org )',
+            'Nmap scan report for localhost (127.0.0.1)',
+            'Host is up (0.0000090s latency).',
+            '',
+            '<span class="t-dim">PORT     STATE  SERVICE</span>',
+            '<span class="t-accent">22/tcp   open   ssh</span>',
+            '<span class="t-accent">80/tcp   open   http</span>',
+            '<span class="t-accent">443/tcp  open   https</span>',
+            '<span class="t-dim">1337/tcp open   ???</span>',
+            '',
+            'Nmap done: 1 IP address (1 host up) scanned in 0.09s',
+        ],
+        date:     () => [new Date().toString()],
+        pwd:      () => ['/home/ben'],
+        hostname: () => ['thomson.cx'],
+        uname:    (args) => args.includes('-a')
+            ? ['Linux thomson.cx 6.1.0-kali9-amd64 #1 SMP PREEMPT_DYNAMIC x86_64 GNU/Linux']
+            : ['Linux'],
+        history: () => cmdHistory.length
+            ? cmdHistory.map((c, i) => `  ${String(i + 1).padStart(3)}  ${c}`)
+            : ['<span class="t-dim">(no history yet)</span>'],
+        exit: () => ['<span class="t-dim">there is no escape.</span>'],
+    };
+
+    // --- DOM helpers ---
+    function addLine(cls, html) {
+        const el = document.createElement('p');
+        el.className = cls;
+        el.innerHTML = html;
+        body.appendChild(el);
+        return el;
+    }
+    function addOutput(lines) { lines.forEach(l => addLine('terminal-output', l)); }
+    function scrollBottom() { body.scrollTop = body.scrollHeight; }
+
+    function loginStamp() {
+        const d = new Date(Date.now() - ((Math.floor(Math.random() * 9) + 4) * 3600000));
+        const days  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        const mons  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const hh = String(d.getHours()).padStart(2,'0');
+        const mm = String(d.getMinutes()).padStart(2,'0');
+        const ss = String(d.getSeconds()).padStart(2,'0');
+        return `Last login: ${days[d.getDay()]} ${mons[d.getMonth()]} ${d.getDate()} ${hh}:${mm}:${ss} ${d.getFullYear()} from 192.168.1.1`;
+    }
+
+    // --- Command runner ---
+    function runCmd(raw) {
+        const parts = raw.trim().split(/\s+/);
+        const cmd  = parts[0].toLowerCase();
+        const args = parts.slice(1);
+        const full = raw.toLowerCase().trim();
+
+        if (cmd === 'clear')  { body.innerHTML = ''; return; }
+        if (cmd === 'echo')   { addOutput([args.join(' ')]); scrollBottom(); return; }
+
+        const handler = CMDS[full] || CMDS[cmd];
+        if (!handler) {
+            addOutput([
+                `<span style="color:#ff5f56">bash: ${cmd}: command not found</span>`,
+                `<span class="t-dim">type <span class="t-key">help</span> to see available commands</span>`,
+            ]);
+            scrollBottom();
+            return;
+        }
+        const needsArgs = ['ls','cat','sudo','uname'].includes(cmd);
+        const out = needsArgs ? handler(args) : handler();
+        if (out) { addOutput(out); scrollBottom(); }
+    }
+
+    // --- Interactive input ---
+    function attachInput() {
+        const row = document.createElement('p');
+        row.className = 'terminal-line input-line';
+        row.innerHTML = `<span class="prompt">${PROMPT}</span>`;
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.className = 'term-input';
+        inp.setAttribute('autocomplete', 'off');
+        inp.setAttribute('spellcheck', 'false');
+        inp.setAttribute('autocorrect', 'off');
+        row.appendChild(inp);
+        body.appendChild(row);
+        scrollBottom();
+        inp.focus();
+        activeInput = inp;
+
+        inp.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const raw = inp.value.trim();
+                row.className = 'terminal-line';
+                row.innerHTML = `<span class="prompt">${PROMPT}</span> <span class="cmd">${raw}</span>`;
+                activeInput = null;
+                if (raw) { cmdHistory.push(raw); histIdx = -1; runCmd(raw); }
+                attachInput();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (!cmdHistory.length) return;
+                histIdx = histIdx === -1 ? cmdHistory.length - 1 : Math.max(0, histIdx - 1);
+                inp.value = cmdHistory[histIdx];
+                requestAnimationFrame(() => inp.setSelectionRange(inp.value.length, inp.value.length));
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (histIdx === -1) return;
+                histIdx++;
+                inp.value = histIdx < cmdHistory.length ? cmdHistory[histIdx] : (histIdx = -1, '');
+            } else if (e.key === 'l' && e.ctrlKey) {
+                e.preventDefault();
+                body.innerHTML = '';
+                attachInput();
+            } else if (e.key === 'c' && e.ctrlKey) {
+                e.preventDefault();
+                row.className = 'terminal-line';
+                row.innerHTML = `<span class="prompt">${PROMPT}</span> <span class="cmd">${inp.value}^C</span>`;
+                activeInput = null;
+                attachInput();
+            }
+        });
+    }
+
+    // --- Intro animation ---
     const ID_HTML =
         '<span class="t-key">uid=</span><span class="t-val">1000</span><span class="t-dim">(ben)</span> ' +
         '<span class="t-key">gid=</span><span class="t-val">1000</span><span class="t-dim">(ben)</span> ' +
-        '<span class="t-key">groups=</span><span class="t-val">27</span><span class="t-dim">(sudo)</span>' +
-        ',<span class="t-val">1001</span><span class="t-dim">(soc-team)</span>';
-    const SUDO_HTML =
-        '<span class="t-dim">Matching Defaults entries for ben on thomson.cx:</span><br>' +
-        '<span class="t-dim">    env_reset, mail_badpass</span><br>' +
-        '<span class="t-dim">User ben may run the following commands on thomson.cx:</span><br>' +
-        '    <span class="t-dim">(ALL)</span> <span class="t-accent">NOPASSWD:</span> <span class="t-key">/usr/bin/tcpdump</span>, <span class="t-key">/usr/bin/nmap</span>, <span class="t-key">/usr/bin/wireshark</span>';
+        '<span class="t-key">groups=</span><span class="t-val">27</span><span class="t-dim">(sudo)</span>,' +
+        '<span class="t-val">1001</span><span class="t-dim">(soc-team)</span>';
 
-    const steps = [
+    const introSteps = [
         { type: 'login' },
-        { type: 'cmd',      text: 'whoami' },
-        { type: 'out',      text: 'ben' },
-        { type: 'cmd',      text: 'id' },
+        { type: 'cmd', text: 'whoami' },
+        { type: 'out', text: 'ben' },
+        { type: 'cmd', text: 'id' },
         { type: 'out-html', html: ID_HTML },
-        { type: 'cmd',      text: 'sudo -l' },
-        { type: 'out-html', html: SUDO_HTML },
-        { type: 'final' },
+        { type: 'done' },
     ];
 
-    function loginTimestamp() {
-        const offset = (Math.floor(Math.random() * 9) + 4) * 60 * 60 * 1000;
-        const past = new Date(Date.now() - offset);
-        const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-        const hh = String(past.getHours()).padStart(2, '0');
-        const mm = String(past.getMinutes()).padStart(2, '0');
-        const ss = String(past.getSeconds()).padStart(2, '0');
-        return `Last login: ${days[past.getDay()]} ${months[past.getMonth()]} ${past.getDate()} ${hh}:${mm}:${ss} ${past.getFullYear()} from 192.168.1.1`;
-    }
-
-    function makeEl(step) {
-        switch (step.type) {
-            case 'login': {
-                const el = document.createElement('p');
-                el.className = 'terminal-login';
-                el.textContent = loginTimestamp();
-                return el;
-            }
-            case 'cmd': {
-                const el = document.createElement('p');
-                el.className = 'terminal-line';
-                el.innerHTML = `<span class="prompt">${PROMPT}</span> <span class="cmd">${step.text}</span>`;
-                return el;
-            }
-            case 'out': {
-                const el = document.createElement('p');
-                el.className = 'terminal-output';
-                el.textContent = step.text;
-                return el;
-            }
-            case 'out-html': {
-                const el = document.createElement('p');
-                el.className = 'terminal-output';
-                el.innerHTML = step.html;
-                return el;
-            }
-            case 'final': {
-                const el = document.createElement('p');
-                el.className = 'terminal-line mt';
-                el.innerHTML = `<span class="prompt">${PROMPT}</span> <span class="cursor-blink"></span>`;
-                return el;
-            }
-        }
-    }
-
-    // Pre-render invisibly to lock in the final height
-    body.innerHTML = '';
-    body.style.visibility = 'hidden';
-    steps.forEach(s => body.appendChild(makeEl(s)));
-    const lockedHeight = body.scrollHeight;
-    body.style.height = lockedHeight + 'px';
-    body.style.overflow = 'hidden';
-    body.style.visibility = 'visible';
-    body.innerHTML = '';
-
-    // Now animate into the fixed-size box
-    let i = 0;
-
-    function next() {
-        if (i >= steps.length) return;
-        const step = steps[i++];
-
-        switch (step.type) {
-            case 'login': {
-                body.appendChild(makeEl(step));
-                setTimeout(next, 900);
-                break;
-            }
-            case 'cmd': {
-                const el = document.createElement('p');
-                el.className = 'terminal-line';
-                el.innerHTML = `<span class="prompt">${PROMPT}</span> <span class="cmd"></span>`;
-                body.appendChild(el);
-                typeText(el.querySelector('.cmd'), step.text, 72, () => setTimeout(next, 400));
-                break;
-            }
-            case 'out':
-            case 'out-html': {
-                body.appendChild(makeEl(step));
-                setTimeout(next, 550);
-                break;
-            }
-            case 'final': {
-                body.appendChild(makeEl(step));
-                break;
-            }
-        }
-    }
-
-    function typeText(el, text, speed, cb) {
+    function typeText(el, text, cb) {
         let j = 0;
-        function tick() {
-            if (j < text.length) {
-                el.textContent += text[j++];
-                setTimeout(tick, speed + Math.random() * 30 - 15);
-            } else if (cb) cb();
-        }
-        tick();
+        (function tick() {
+            if (j < text.length) { el.textContent += text[j++]; setTimeout(tick, 65 + Math.random() * 25 - 12); }
+            else if (cb) cb();
+        })();
     }
 
-    setTimeout(next, 700);
+    function runIntro(steps, i) {
+        if (i >= steps.length) return;
+        const step = steps[i];
+        const next = () => setTimeout(() => runIntro(steps, i + 1), 380);
+
+        if (step.type === 'login') {
+            addLine('terminal-login', loginStamp());
+            setTimeout(() => runIntro(steps, i + 1), 850);
+        } else if (step.type === 'cmd') {
+            const el = addLine('terminal-line', `<span class="prompt">${PROMPT}</span> <span class="cmd"></span>`);
+            scrollBottom();
+            typeText(el.querySelector('.cmd'), step.text, next);
+        } else if (step.type === 'out') {
+            addLine('terminal-output', step.text);
+            scrollBottom();
+            next();
+        } else if (step.type === 'out-html') {
+            addLine('terminal-output', step.html);
+            scrollBottom();
+            next();
+        } else if (step.type === 'done') {
+            setTimeout(attachInput, 500);
+        }
+    }
+
+    body.addEventListener('click', () => activeInput && activeInput.focus());
+    runIntro(introSteps, 0);
 }
 
 initTerminal();
