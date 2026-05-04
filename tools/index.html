@@ -27,7 +27,7 @@
                 <li><a href="/threats" class="nav-link">threats</a></li>
                 <li><a href="/map" class="nav-link">map</a></li>
                 <li><a href="/intel" class="nav-link">intel</a></li>
-                <li><a href="/lookup" class="nav-link">lookup</a></li>
+                
                 <li><a href="/guestbook" class="nav-link">guestbook</a></li>
                 <li><a href="/tools" class="nav-link">tools</a></li>
             </ul>
@@ -43,9 +43,9 @@
     <!-- Page Hero -->
     <section class="page-hero">
         <div class="container">
-            <p class="page-hero-prompt"><span class="prompt">ben@thomson.cx:~$</span> ./tools --hash --url --breach</p>
+            <p class="page-hero-prompt"><span class="prompt">ben@thomson.cx:~$</span> ./tools --ip --hash --url --password</p>
             <h1 class="page-hero-title">Security Tools</h1>
-            <p class="page-hero-sub">Hash lookup, URL scanning, and password breach checking &mdash; powered by VirusTotal &amp; Have I Been Pwned.</p>
+            <p class="page-hero-sub">IP reputation, hash lookup, URL scanning, and password breach checking &mdash; powered by VirusTotal &amp; Have I Been Pwned.</p>
         </div>
         <div class="grid-overlay"></div>
     </section>
@@ -56,7 +56,10 @@
 
             <!-- Tab bar -->
             <div class="tools-tabs">
-                <button class="tools-tab active" data-panel="hash">
+                <button class="tools-tab active" data-panel="ip">
+                    <i class="fas fa-globe"></i> IP
+                </button>
+                <button class="tools-tab" data-panel="hash">
                     <i class="fas fa-fingerprint"></i> Hash
                 </button>
                 <button class="tools-tab" data-panel="url">
@@ -67,8 +70,21 @@
                 </button>
             </div>
 
+            <!-- IP Panel -->
+            <div class="tools-panel active" id="panel-ip">
+                <p class="tools-panel-desc">Check any IP address against 70+ security vendors via VirusTotal.</p>
+                <div class="ip-search-wrap">
+                    <input type="text" id="ipInput" class="ip-input" placeholder="Enter an IP address &mdash; e.g. 1.2.3.4" autocomplete="off" spellcheck="false">
+                    <button class="ip-search-btn" id="ipSearchBtn"><i class="fas fa-magnifying-glass"></i> Check</button>
+                </div>
+                <div class="ip-actions">
+                    <button class="ip-myip-btn" id="ipMyIpBtn"><i class="fas fa-location-crosshairs"></i> Use my IP</button>
+                </div>
+                <div class="ip-results" id="ipResults"></div>
+            </div>
+
             <!-- Hash Panel -->
-            <div class="tools-panel active" id="panel-hash">
+            <div class="tools-panel" id="panel-hash">
                 <p class="tools-panel-desc">Paste an MD5, SHA-1, or SHA-256 hash to check it against 70+ security vendors via VirusTotal.</p>
                 <div class="ip-search-wrap">
                     <input type="text" id="hashInput" class="ip-input" placeholder="MD5, SHA-1, or SHA-256 hash&hellip;" autocomplete="off" spellcheck="false">
