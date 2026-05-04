@@ -2125,7 +2125,7 @@ initGuestbook();
                     <div class="breach-result-card" style="border-color:#ff4d4d">
                         <div class="breach-summary">
                             <i class="fas fa-triangle-exclamation breach-warn-icon"></i>
-                            Found <strong>${count.toLocaleString()}</strong> time${count !== 1 ? 's' : ''} in known data breaches &mdash; do not use this password.
+                            <i class="fas fa-thumbs-down"></i> Found <strong>${count.toLocaleString()}</strong> time${count !== 1 ? 's' : ''} in known data breaches &mdash; do not use this password.
                         </div>
                         <div style="padding:1rem 1.5rem;font-size:0.85rem;color:var(--text-secondary)">
                             This password appears in breach databases and should be changed anywhere it is used.
