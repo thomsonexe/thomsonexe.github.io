@@ -1,9 +1,4 @@
-// Remove trailing slash added by GitHub Pages directory serving
-if (location.pathname !== '/' && location.pathname.endsWith('/')) {
-    history.replaceState(null, '', location.pathname.slice(0, -1) + location.search + location.hash);
-}
-
-// Theme toggle
+﻿// Theme toggle
 const themeToggle = document.getElementById('themeToggle');
 const savedTheme = localStorage.getItem('theme') || 'dark';
 document.documentElement.setAttribute('data-theme', savedTheme);
