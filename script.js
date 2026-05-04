@@ -1312,51 +1312,45 @@ async function fetchThreatData() {
         };
     }
 
-    // 1. Cloudflare Worker — Feodo Tracker botnet C2 data
+    // 1. Feodo Tracker (C2s) + URLhaus (malware delivery) combined
     try {
-        const res = await tryFetch('https://threat-proxy.zeusthegoat.workers.dev/');
-        if (res.ok) {
-            const json = await res.json();
-            const pairs = [];
+        const [workerRes, urlhausRes] = await Promise.allSettled([
+            tryFetch('https://threat-proxy.zeusthegoat.workers.dev/'),
+            tryFetch('https://urlhaus-api.abuse.ch/v1/urls/recent/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'limit=500',
+            }),
+        ]);
 
+        const pairs = [];
+        let feodoTotal = 0, urlhausTotal = 0;
+
+        if (workerRes.status === 'fulfilled' && workerRes.value.ok) {
+            const json = await workerRes.value.json();
             if (json.feodo?.length) {
+                feodoTotal = json.feodo.length;
                 json.feodo.forEach(e => pairs.push([e.country, e.malware || 'Botnet C2']));
             }
+        }
 
-            const { sources, malware } = buildResult(pairs);
-            if (sources.length >= 2) {
-                const feodoTotal = json.feodo?.length || 0;
-                if (labelEl)   labelEl.textContent   = `Live data: Feodo Tracker (${feodoTotal} C2s)`;
-                if (sourcesEl) sourcesEl.textContent = sources.length;
-                if (malwareEl) malwareEl.textContent = malware.length || '—';
-                initThreatMap(sources, malware.length ? malware : undefined);
-                return;
+        if (urlhausRes.status === 'fulfilled' && urlhausRes.value.ok) {
+            const json = await urlhausRes.value.json();
+            if (json.query_status === 'ok' && json.urls?.length) {
+                urlhausTotal = json.urls.length;
+                json.urls
+                    .filter(u => u.country_code && u.country_code !== 'unknown')
+                    .forEach(u => pairs.push([u.country_code, u.tags?.[0] || u.threat || 'Malware Delivery']));
             }
         }
-    } catch { /* fall through to URLhaus */ }
 
-    // 2. URLhaus direct (CORS open, no proxy needed)
-    try {
-        const res = await tryFetch('https://urlhaus-api.abuse.ch/v1/urls/recent/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: 'limit=500',
-        });
-        if (res.ok) {
-            const json = await res.json();
-            if (json.query_status === 'ok' && json.urls?.length) {
-                const pairs = json.urls
-                    .filter(u => u.country_code && u.country_code !== 'unknown')
-                    .map(u => [u.country_code, u.tags?.[0] || u.threat || 'Malware Delivery']);
-                const { sources, malware } = buildResult(pairs);
-                if (sources.length >= 3) {
-                    if (labelEl)   labelEl.textContent   = `Live data: URLhaus — ${json.urls.length} malware URLs`;
-                    if (sourcesEl) sourcesEl.textContent = sources.length;
-                    if (malwareEl) malwareEl.textContent = malware.length || '—';
-                    initThreatMap(sources, malware.length ? malware : undefined);
-                    return;
-                }
-            }
+        const { sources, malware } = buildResult(pairs);
+        if (sources.length >= 2) {
+            if (labelEl)   labelEl.textContent   = `Live data: Feodo Tracker (${feodoTotal} C2s) + URLhaus (${urlhausTotal} URLs)`;
+            if (sourcesEl) sourcesEl.textContent = sources.length;
+            if (malwareEl) malwareEl.textContent = malware.length || '—';
+            initThreatMap(sources, malware.length ? malware : undefined);
+            return;
         }
     } catch { /* fall through */ }
 
