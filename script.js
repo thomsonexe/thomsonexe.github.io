@@ -468,42 +468,117 @@ fadeEls.forEach(el => {
 
 // CVE Feed
 async function initKEVFeed() {
-    const grid   = document.getElementById('cveGrid');
+    const grid        = document.getElementById('cveGrid');
     if (!grid) return;
+
+    const searchEl    = document.getElementById('cveSearch');
+    const sortEl      = document.getElementById('cveSort');
+    const rangeEl     = document.getElementById('cveRange');
+    const infoEl      = document.getElementById('cveInfo');
+    const subtitleEl  = document.getElementById('cveSubtitle');
+    const loadMoreWrap = document.getElementById('cveLoadMore');
+    const loadMoreBtn  = document.getElementById('cveLoadMoreBtn');
+    const filterBtns  = document.querySelectorAll('.cve-filter-btn');
+
+    const PER_PAGE = 2000;
+    let activeSev    = 'all';
+    let allVulns     = [];
+    let totalResults = 0;
+    let loadedCount  = 0;
+    let activeDays   = 30;
+    let isLoading    = false;
 
     const pad = n => String(n).padStart(2, '0');
     const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T00:00:00.000`;
-    const now = new Date();
-    const ago = new Date(Date.now() - 30 * 86400000);
-    const NVD_URL = `https://services.nvd.nist.gov/rest/json/cves/2.0?pubStartDate=${fmt(ago)}&pubEndDate=${fmt(now)}&resultsPerPage=100`;
 
-    const ctrl = new AbortController();
-    const tid  = setTimeout(() => ctrl.abort(), 30000);
-    let data;
-    try {
-        const res = await fetch(NVD_URL, { signal: ctrl.signal });
-        clearTimeout(tid);
-        if (!res.ok) throw new Error(res.status);
-        data = await res.json();
-    } catch (e) {
-        clearTimeout(tid);
-        grid.innerHTML = '<p class="cve-loading">Unable to load CVE feed. Try refreshing.</p>';
-        return;
+    const RANGE_LABELS = { 7: '7 days', 30: '30 days', 90: '3 months', 180: '6 months', 365: '1 year' };
+
+    async function fetchPage(days, startIndex) {
+        const now = new Date();
+        const ago = new Date(Date.now() - days * 86400000);
+        const url = `https://services.nvd.nist.gov/rest/json/cves/2.0?pubStartDate=${fmt(ago)}&pubEndDate=${fmt(now)}&resultsPerPage=${PER_PAGE}&startIndex=${startIndex}`;
+        const ctrl = new AbortController();
+        const tid  = setTimeout(() => ctrl.abort(), 30000);
+        try {
+            const res = await fetch(url, { signal: ctrl.signal });
+            clearTimeout(tid);
+            if (!res.ok) throw new Error(res.status);
+            return await res.json();
+        } catch (e) {
+            clearTimeout(tid);
+            throw e;
+        }
     }
 
-    const allVulns = (data.vulnerabilities || [])
-        .sort((a, b) => new Date(b.cve.published) - new Date(a.cve.published));
-
-    if (!allVulns.length) {
-        grid.innerHTML = '<p class="cve-loading">No recent vulnerabilities found.</p>';
-        return;
+    function updateLoadMoreBtn() {
+        if (!loadMoreWrap || !loadMoreBtn) return;
+        const remaining = totalResults - loadedCount;
+        if (remaining > 0) {
+            const next = Math.min(PER_PAGE, remaining);
+            loadMoreBtn.innerHTML = `<i class="fas fa-plus"></i> Load ${next.toLocaleString()} more <span class="cve-load-remaining">(${remaining.toLocaleString()} remaining)</span>`;
+            loadMoreWrap.style.display = 'flex';
+        } else {
+            loadMoreWrap.style.display = 'none';
+        }
     }
 
-    const searchEl  = document.getElementById('cveSearch');
-    const sortEl    = document.getElementById('cveSort');
-    const infoEl    = document.getElementById('cveInfo');
-    const filterBtns = document.querySelectorAll('.cve-filter-btn');
-    let activeSev = 'all';
+    async function loadRange(days) {
+        if (isLoading) return;
+        isLoading   = true;
+        activeDays  = days;
+        allVulns    = [];
+        totalResults = 0;
+        loadedCount  = 0;
+        grid.innerHTML = `<p class="cve-loading"><i class="fas fa-circle-notch fa-spin"></i> Fetching CVEs from the last ${RANGE_LABELS[days]}&hellip;</p>`;
+        if (loadMoreWrap) loadMoreWrap.style.display = 'none';
+        if (infoEl) infoEl.textContent = '';
+        if (subtitleEl) subtitleEl.textContent = `Showing CVEs from the last ${RANGE_LABELS[days]} — search by CVE ID or keyword, filter by severity, sort by date or score.`;
+
+        try {
+            const data   = await fetchPage(days, 0);
+            totalResults = data.totalResults || 0;
+            const vulns  = data.vulnerabilities || [];
+            loadedCount  = vulns.length;
+            allVulns     = vulns.sort((a, b) => new Date(b.cve.published) - new Date(a.cve.published));
+
+            if (!allVulns.length) {
+                grid.innerHTML = '<p class="cve-loading">No vulnerabilities found for this period.</p>';
+                isLoading = false;
+                return;
+            }
+            updateLoadMoreBtn();
+            applyFilters();
+        } catch (e) {
+            grid.innerHTML = '<p class="cve-loading">Unable to load CVE feed. Try refreshing.</p>';
+        }
+        isLoading = false;
+    }
+
+    loadMoreBtn?.addEventListener('click', async () => {
+        if (isLoading) return;
+        isLoading = true;
+        loadMoreBtn.disabled = true;
+        loadMoreBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Loading&hellip;';
+        try {
+            const data  = await fetchPage(activeDays, loadedCount);
+            const vulns = data.vulnerabilities || [];
+            loadedCount += vulns.length;
+            allVulns = [...allVulns, ...vulns]
+                .sort((a, b) => new Date(b.cve.published) - new Date(a.cve.published));
+            updateLoadMoreBtn();
+            applyFilters();
+        } catch (e) {
+            loadMoreBtn.innerHTML = '<i class="fas fa-triangle-exclamation"></i> Failed — try again';
+            loadMoreWrap.style.display = 'flex';
+        }
+        loadMoreBtn.disabled = false;
+        isLoading = false;
+    });
+
+    rangeEl?.addEventListener('change', () => loadRange(parseInt(rangeEl.value)));
+
+    // initial load
+    loadRange(30);
 
     function getSev(cve) {
         return (cve.metrics?.cvssMetricV31?.[0]?.cvssData?.baseSeverity
@@ -633,7 +708,8 @@ async function initKEVFeed() {
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal?.classList.contains('active')) closeModal(); });
 
     function renderGrid(vulns) {
-        if (infoEl) infoEl.textContent = `showing ${vulns.length} of ${allVulns.length} vulnerabilities`;
+        const loadedStr = loadedCount < totalResults ? ` — ${loadedCount.toLocaleString()} of ${totalResults.toLocaleString()} loaded` : ` — all ${totalResults.toLocaleString()} loaded`;
+        if (infoEl) infoEl.textContent = `showing ${vulns.length.toLocaleString()} of ${allVulns.length.toLocaleString()} vulnerabilities${loadedStr}`;
         if (!vulns.length) {
             grid.innerHTML = '<p class="cve-loading">No matches found.</p>';
             return;

@@ -42,7 +42,7 @@
     <!-- Page Hero -->
     <section class="page-hero">
         <div class="container">
-            <p class="page-hero-prompt"><span class="prompt">ben@thomson.cx:~$</span> nvd-query --recent --limit 100 --format json</p>
+            <p class="page-hero-prompt"><span class="prompt">ben@thomson.cx:~$</span> nvd-query --days 30 --limit 2000 --paginate --format json</p>
             <h1 class="page-hero-title">CVE Tracker</h1>
             <p class="page-hero-sub">Live vulnerability data pulled directly from the National Vulnerability Database.</p>
         </div>
@@ -82,7 +82,7 @@
     <section id="cves" class="section">
         <div class="container">
             <h2 class="section-title"><span class="title-prefix">// </span>Recent CVEs</h2>
-            <p class="cve-subtitle">Last 30 days from the NVD — search by CVE ID or keyword, filter by severity, sort by date or score.</p>
+            <p class="cve-subtitle" id="cveSubtitle">Pulling from the NVD &mdash; search by CVE ID or keyword, filter by severity, sort by date or score.</p>
             <div class="cve-controls">
                 <input type="text" id="cveSearch" class="cve-search" placeholder="search CVE ID or description..." autocomplete="off">
                 <div class="cve-filter-btns">
@@ -92,6 +92,13 @@
                     <button class="cve-filter-btn" data-sev="medium">Medium</button>
                     <button class="cve-filter-btn" data-sev="low">Low</button>
                 </div>
+                <select id="cveRange" class="cve-sort-select">
+                    <option value="7">Last 7 days</option>
+                    <option value="30" selected>Last 30 days</option>
+                    <option value="90">Last 3 months</option>
+                    <option value="180">Last 6 months</option>
+                    <option value="365">Last year</option>
+                </select>
                 <select id="cveSort" class="cve-sort-select">
                     <option value="newest">Newest first</option>
                     <option value="score">Highest score</option>
@@ -100,6 +107,9 @@
             <p class="cve-results-info" id="cveInfo"></p>
             <div class="cve-grid" id="cveGrid">
                 <p class="cve-loading"><i class="fas fa-circle-notch fa-spin"></i> Fetching vulnerabilities...</p>
+            </div>
+            <div class="cve-load-more-wrap" id="cveLoadMore">
+                <button class="cve-load-more-btn" id="cveLoadMoreBtn"></button>
             </div>
         </div>
     </section>

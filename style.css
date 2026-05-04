@@ -683,6 +683,11 @@ body {
 .cve-sort-select { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem 0.75rem; font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-primary); cursor: pointer; outline: none; transition: border-color 0.2s; }
 .cve-sort-select:focus { border-color: var(--border-accent); }
 .cve-results-info { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 1rem; min-height: 1em; }
+.cve-load-more-wrap { display: none; justify-content: center; margin-top: 2.5rem; }
+.cve-load-more-btn { background: none; border: 1px solid var(--border-accent); color: var(--accent); font-family: var(--font-mono); font-size: 0.85rem; padding: 0.7rem 2rem; border-radius: 6px; cursor: pointer; transition: background var(--transition), box-shadow var(--transition); display: flex; align-items: center; gap: 0.5rem; }
+.cve-load-more-btn:hover:not(:disabled) { background: rgba(0,255,136,0.07); box-shadow: var(--glow); }
+.cve-load-more-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.cve-load-remaining { opacity: 0.6; font-size: 0.8rem; }
 .cve-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
 .cve-loading { color: var(--text-secondary); font-family: var(--font-mono); font-size: 0.9rem; display: flex; align-items: center; gap: 0.6rem; }
 .cve-card {
