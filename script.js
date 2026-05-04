@@ -1968,56 +1968,52 @@ initGuestbook();
         input.addEventListener('keydown', e => { if (e.key === 'Enter') scan(input.value); });
     })();
 
-    // Breach check
+    // Password breach check — k-anonymity via HIBP free API (no key required)
     (function() {
         const input = document.getElementById('breachInput');
         const btn   = document.getElementById('breachSearchBtn');
         const out   = document.getElementById('breachResults');
         if (!input) return;
 
-        async function check(email) {
-            email = email.trim();
-            if (!email) return;
-            out.innerHTML = '<div class="ip-loading"><i class="fas fa-circle-notch fa-spin"></i> Checking breaches&hellip;</div>';
+        async function sha1hex(str) {
+            const buf = await crypto.subtle.digest('SHA-1', new TextEncoder().encode(str));
+            return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+        }
+
+        async function check(password) {
+            if (!password) return;
+            out.innerHTML = '<div class="ip-loading"><i class="fas fa-circle-notch fa-spin"></i> Checking&hellip;</div>';
             try {
-                const r    = await fetch(WORKER + '?email=' + encodeURIComponent(email));
-                const data = await r.json();
-                if (data.error) throw new Error(typeof data.error === 'string' ? data.error : 'API error');
-                const breaches = data.breaches || [];
-                if (breaches.length === 0) {
+                const hash   = await sha1hex(password);
+                const prefix = hash.slice(0, 5);
+                const suffix = hash.slice(5);
+                const r      = await fetch('https://api.pwnedpasswords.com/range/' + prefix);
+                if (!r.ok) throw new Error('API error ' + r.status);
+                const lines = (await r.text()).split('\n');
+                const match = lines.find(l => l.toUpperCase().startsWith(suffix));
+                const count = match ? parseInt(match.split(':')[1], 10) : 0;
+
+                if (count === 0) {
                     out.innerHTML = `
                     <div class="breach-result-card breach-clean">
                         <div class="breach-status-icon"><i class="fas fa-shield-check"></i></div>
-                        <div class="breach-status-text"><strong>No breaches found</strong> &mdash; this address wasn't found in any known data breach.</div>
-                    </div>`;
-                    return;
-                }
-                const cards = breaches.map(b => {
-                    const shown   = (b.DataClasses || []).slice(0, 6);
-                    const extra   = (b.DataClasses || []).length - 6;
-                    const classes = shown.map(c => `<span class="breach-class-tag">${c}</span>`).join('');
-                    const more    = extra > 0 ? `<span class="breach-class-tag breach-more">+${extra} more</span>` : '';
-                    const flags   = [b.IsVerified && 'Verified', b.IsSensitive && 'Sensitive', b.IsFabricated && 'Fabricated'].filter(Boolean).join(' · ');
-                    return `
-                    <div class="breach-card">
-                        <div class="breach-card-header">
-                            <span class="breach-card-name">${b.Name}</span>
-                            ${b.Domain ? `<span class="breach-card-domain">${b.Domain}</span>` : ''}
+                        <div class="breach-status-text">
+                            <strong>Not found in any breaches</strong> &mdash; this password hasn't appeared in any known data breach.
                         </div>
-                        <div class="breach-card-date"><i class="fas fa-calendar-xmark"></i> ${b.BreachDate || 'Date unknown'}</div>
-                        <div class="breach-classes">${classes}${more}</div>
-                        ${flags ? `<div class="breach-flags">${flags}</div>` : ''}
                     </div>`;
-                }).join('');
-                out.innerHTML = `
-                <div class="breach-result-card">
-                    <div class="breach-summary">
-                        <i class="fas fa-triangle-exclamation breach-warn-icon"></i>
-                        Found in <strong>${breaches.length}</strong> breach${breaches.length !== 1 ? 'es' : ''}
-                    </div>
-                    <div class="breach-grid">${cards}</div>
-                    <p class="ip-attribution">Data provided by <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned</a></p>
-                </div>`;
+                } else {
+                    out.innerHTML = `
+                    <div class="breach-result-card" style="border-color:#ff4d4d">
+                        <div class="breach-summary">
+                            <i class="fas fa-triangle-exclamation breach-warn-icon"></i>
+                            Found <strong>${count.toLocaleString()}</strong> time${count !== 1 ? 's' : ''} in known data breaches &mdash; do not use this password.
+                        </div>
+                        <div style="padding:1rem 1.5rem;font-size:0.85rem;color:var(--text-secondary)">
+                            This password appears in breach databases and should be changed anywhere it is used.
+                        </div>
+                        <p class="ip-attribution">Data provided by <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned</a> &mdash; password hashed locally, never transmitted</p>
+                    </div>`;
+                }
             } catch (e) {
                 out.innerHTML = `<div class="ip-error"><i class="fas fa-triangle-exclamation"></i> ${e.message || 'Check failed.'}</div>`;
             }

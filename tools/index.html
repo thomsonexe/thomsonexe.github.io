@@ -45,7 +45,7 @@
         <div class="container">
             <p class="page-hero-prompt"><span class="prompt">ben@thomson.cx:~$</span> ./tools --hash --url --breach</p>
             <h1 class="page-hero-title">Security Tools</h1>
-            <p class="page-hero-sub">Hash lookup, URL scanning, and breach checking &mdash; powered by VirusTotal &amp; Have I Been Pwned.</p>
+            <p class="page-hero-sub">Hash lookup, URL scanning, and password breach checking &mdash; powered by VirusTotal &amp; Have I Been Pwned.</p>
         </div>
         <div class="grid-overlay"></div>
     </section>
@@ -63,7 +63,7 @@
                     <i class="fas fa-link"></i> URL
                 </button>
                 <button class="tools-tab" data-panel="breach">
-                    <i class="fas fa-user-secret"></i> Breach
+                    <i class="fas fa-key"></i> Password
                 </button>
             </div>
 
@@ -87,11 +87,11 @@
                 <div id="urlResults"></div>
             </div>
 
-            <!-- Breach Panel -->
+            <!-- Password Panel -->
             <div class="tools-panel" id="panel-breach">
-                <p class="tools-panel-desc">Check if an email address has appeared in any known data breach, powered by Have I Been Pwned.</p>
+                <p class="tools-panel-desc">Check if a password has appeared in a known data breach. Uses k-anonymity &mdash; only the first 5 characters of a SHA-1 hash are sent. Your password never leaves your browser.</p>
                 <div class="ip-search-wrap">
-                    <input type="email" id="breachInput" class="ip-input" placeholder="email@example.com" autocomplete="off" spellcheck="false">
+                    <input type="password" id="breachInput" class="ip-input" placeholder="Enter a password to check&hellip;" autocomplete="off" spellcheck="false">
                     <button class="ip-search-btn" id="breachSearchBtn"><i class="fas fa-magnifying-glass"></i> Check</button>
                 </div>
                 <div id="breachResults"></div>
