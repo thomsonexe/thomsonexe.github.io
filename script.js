@@ -2115,10 +2115,11 @@ initGuestbook();
                 if (count === 0) {
                     out.innerHTML = `
                     <div class="breach-result-card breach-clean">
-                        <div class="breach-status-icon"><i class="fas fa-shield-check"></i></div>
                         <div class="breach-status-text">
-                            <i class="fas fa-thumbs-up"></i> <strong>Not found in any breaches</strong> &mdash; this password hasn't appeared in any known data breach.
+                            <strong>Password not pwned.</strong>
+                            <span>This password wasn't found in any known data breach — safe to use.</span>
                         </div>
+                        <div class="breach-thumbs-up"><i class="fas fa-thumbs-up"></i></div>
                     </div>`;
                 } else {
                     out.innerHTML = `
