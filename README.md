@@ -1,7 +1,7 @@
 <div align="center">
   <img src="mouse_t.png" width="80" alt="Logo">
   <h1>thomson.cx</h1>
-  <p>Personal cybersecurity portfolio — built from scratch in vanilla HTML, CSS & JavaScript.</p>
+  <p>Website made for fun — built from scratch in vanilla HTML, CSS & JavaScript.</p>
 
   <a href="https://thomson.cx/home">🌐 Live Site</a> &nbsp;·&nbsp;
   <a href="https://thomson.cx/threats">🛡️ CVE Tracker</a> &nbsp;·&nbsp;
