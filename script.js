@@ -1813,3 +1813,217 @@ initGuestbook();
 
     els.forEach(el => observer.observe(el));
 })();
+
+// Tools Page — Hash / URL / Breach
+(function initToolsPage() {
+    const tabs = document.querySelectorAll('.tools-tab');
+    if (!tabs.length) return;
+
+    const WORKER = 'https://ip-check.zeusthegoat.workers.dev/';
+
+    tabs.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tools-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+        });
+    });
+
+    function scoreClass(mal, total) {
+        const pct = total ? mal / total : 0;
+        if (mal === 0)   return 'score-low';
+        if (pct < 0.15)  return 'score-medium';
+        if (pct < 0.4)   return 'score-high';
+        return 'score-critical';
+    }
+    function scoreLabel(mal) {
+        if (mal === 0)  return 'Clean';
+        if (mal <= 3)   return 'Suspicious';
+        if (mal <= 10)  return 'Malicious';
+        return 'Critical';
+    }
+
+    function renderVt(data, displayLabel, extraRows) {
+        const a     = data.data.attributes;
+        const stats = a.last_analysis_stats || {};
+        const mal   = stats.malicious  || 0;
+        const sus   = stats.suspicious || 0;
+        const har   = stats.harmless   || 0;
+        const und   = stats.undetected || 0;
+        const total = mal + sus + har + und + (stats.timeout || 0);
+        const pct   = total ? Math.round((mal / total) * 100) : 0;
+        const cls   = scoreClass(mal, total);
+        const lbl   = scoreLabel(mal);
+
+        const extraHtml = extraRows.map(({ icon, name, val }) =>
+            val != null && val !== '' ? `
+            <div class="ip-info-card">
+                <span class="ip-info-label"><i class="${icon}"></i> ${name}</span>
+                <span class="ip-info-val">${val}</span>
+            </div>` : ''
+        ).join('');
+
+        return `
+        <div class="ip-result-card">
+            <div class="ip-score-section ${cls}">
+                <div class="ip-score-val">${mal}<span class="ip-score-denom"> / ${total}</span></div>
+                <div class="ip-score-bar-wrap"><div class="ip-score-bar" style="width:${pct}%"></div></div>
+                <div class="ip-score-label">${lbl} &mdash; vendors flagged this as malicious</div>
+            </div>
+            <div class="ip-address-display">${displayLabel}</div>
+            <div class="ip-info-grid">
+                <div class="ip-info-card">
+                    <span class="ip-info-label"><i class="fas fa-circle-xmark" style="color:#ff4d4d"></i> Malicious</span>
+                    <span class="ip-info-val">${mal}</span>
+                </div>
+                <div class="ip-info-card">
+                    <span class="ip-info-label"><i class="fas fa-circle-exclamation" style="color:#ffb400"></i> Suspicious</span>
+                    <span class="ip-info-val">${sus}</span>
+                </div>
+                <div class="ip-info-card">
+                    <span class="ip-info-label"><i class="fas fa-circle-check" style="color:#00c864"></i> Harmless</span>
+                    <span class="ip-info-val">${har}</span>
+                </div>
+                <div class="ip-info-card">
+                    <span class="ip-info-label"><i class="fas fa-circle" style="color:var(--text-muted)"></i> Undetected</span>
+                    <span class="ip-info-val">${und}</span>
+                </div>
+                ${extraHtml}
+            </div>
+            <p class="ip-attribution">Data provided by <a href="https://www.virustotal.com" target="_blank" rel="noopener">VirusTotal</a></p>
+        </div>`;
+    }
+
+    // Hash lookup
+    (function() {
+        const input = document.getElementById('hashInput');
+        const btn   = document.getElementById('hashSearchBtn');
+        const out   = document.getElementById('hashResults');
+        if (!input) return;
+
+        async function lookup(hash) {
+            hash = hash.trim();
+            if (!hash) return;
+            out.innerHTML = '<div class="ip-loading"><i class="fas fa-circle-notch fa-spin"></i> Looking up hash&hellip;</div>';
+            try {
+                const r    = await fetch(WORKER + '?hash=' + encodeURIComponent(hash));
+                const data = await r.json();
+                if (data.error) throw new Error(data.error.message || 'Hash not found in VirusTotal');
+                if (!data.data) throw new Error('No data returned');
+                const a = data.data.attributes;
+                out.innerHTML = renderVt(data, a.meaningful_name || hash, [
+                    { icon: 'fas fa-file',           name: 'Type',    val: a.type_description || a.type_tag },
+                    { icon: 'fas fa-weight-hanging', name: 'Size',    val: a.size ? (a.size / 1024).toFixed(1) + ' KB' : null },
+                    { icon: 'fas fa-hashtag',        name: 'MD5',     val: a.md5 },
+                    { icon: 'fas fa-hashtag',        name: 'SHA-1',   val: a.sha1 },
+                    { icon: 'fas fa-hashtag',        name: 'SHA-256', val: a.sha256 },
+                    { icon: 'fas fa-tags',           name: 'Tags',    val: (a.tags || []).slice(0, 5).join(', ') || null },
+                ]);
+            } catch (e) {
+                out.innerHTML = `<div class="ip-error"><i class="fas fa-triangle-exclamation"></i> ${e.message || 'Lookup failed.'}</div>`;
+            }
+        }
+
+        btn.addEventListener('click', () => lookup(input.value));
+        input.addEventListener('keydown', e => { if (e.key === 'Enter') lookup(input.value); });
+    })();
+
+    // URL scan
+    (function() {
+        const input = document.getElementById('urlInput');
+        const btn   = document.getElementById('urlSearchBtn');
+        const out   = document.getElementById('urlResults');
+        if (!input) return;
+
+        async function scan(raw) {
+            raw = raw.trim();
+            if (!raw) return;
+            const url = /^https?:\/\//i.test(raw) ? raw : 'https://' + raw;
+            out.innerHTML = '<div class="ip-loading"><i class="fas fa-circle-notch fa-spin"></i> Scanning URL&hellip;</div>';
+            try {
+                const r    = await fetch(WORKER + '?url=' + encodeURIComponent(url));
+                const data = await r.json();
+                if (data._submitted) {
+                    out.innerHTML = '<div class="ip-error" style="color:var(--accent-cyan)"><i class="fas fa-circle-info"></i> URL submitted for scanning &mdash; check back in a moment.</div>';
+                    return;
+                }
+                if (data.error) throw new Error(data.error.message || 'URL not found in VirusTotal');
+                if (!data.data) throw new Error('No data returned');
+                const a = data.data.attributes;
+                const cats = a.categories ? Object.values(a.categories).slice(0, 2).join(', ') : null;
+                out.innerHTML = renderVt(data, a.url || url, [
+                    { icon: 'fas fa-globe',  name: 'Final URL',   val: a.final_url !== a.url ? a.final_url : null },
+                    { icon: 'fas fa-heading',name: 'Page Title',  val: a.title },
+                    { icon: 'fas fa-server', name: 'HTTP Status', val: a.last_http_response_code },
+                    { icon: 'fas fa-star',   name: 'Reputation',  val: a.reputation != null ? a.reputation : null },
+                    { icon: 'fas fa-tag',    name: 'Category',    val: cats },
+                ]);
+            } catch (e) {
+                out.innerHTML = `<div class="ip-error"><i class="fas fa-triangle-exclamation"></i> ${e.message || 'Scan failed.'}</div>`;
+            }
+        }
+
+        btn.addEventListener('click', () => scan(input.value));
+        input.addEventListener('keydown', e => { if (e.key === 'Enter') scan(input.value); });
+    })();
+
+    // Breach check
+    (function() {
+        const input = document.getElementById('breachInput');
+        const btn   = document.getElementById('breachSearchBtn');
+        const out   = document.getElementById('breachResults');
+        if (!input) return;
+
+        async function check(email) {
+            email = email.trim();
+            if (!email) return;
+            out.innerHTML = '<div class="ip-loading"><i class="fas fa-circle-notch fa-spin"></i> Checking breaches&hellip;</div>';
+            try {
+                const r    = await fetch(WORKER + '?email=' + encodeURIComponent(email));
+                const data = await r.json();
+                if (data.error) throw new Error(typeof data.error === 'string' ? data.error : 'API error');
+                const breaches = data.breaches || [];
+                if (breaches.length === 0) {
+                    out.innerHTML = `
+                    <div class="breach-result-card breach-clean">
+                        <div class="breach-status-icon"><i class="fas fa-shield-check"></i></div>
+                        <div class="breach-status-text"><strong>No breaches found</strong> &mdash; this address wasn't found in any known data breach.</div>
+                    </div>`;
+                    return;
+                }
+                const cards = breaches.map(b => {
+                    const shown   = (b.DataClasses || []).slice(0, 6);
+                    const extra   = (b.DataClasses || []).length - 6;
+                    const classes = shown.map(c => `<span class="breach-class-tag">${c}</span>`).join('');
+                    const more    = extra > 0 ? `<span class="breach-class-tag breach-more">+${extra} more</span>` : '';
+                    const flags   = [b.IsVerified && 'Verified', b.IsSensitive && 'Sensitive', b.IsFabricated && 'Fabricated'].filter(Boolean).join(' · ');
+                    return `
+                    <div class="breach-card">
+                        <div class="breach-card-header">
+                            <span class="breach-card-name">${b.Name}</span>
+                            ${b.Domain ? `<span class="breach-card-domain">${b.Domain}</span>` : ''}
+                        </div>
+                        <div class="breach-card-date"><i class="fas fa-calendar-xmark"></i> ${b.BreachDate || 'Date unknown'}</div>
+                        <div class="breach-classes">${classes}${more}</div>
+                        ${flags ? `<div class="breach-flags">${flags}</div>` : ''}
+                    </div>`;
+                }).join('');
+                out.innerHTML = `
+                <div class="breach-result-card">
+                    <div class="breach-summary">
+                        <i class="fas fa-triangle-exclamation breach-warn-icon"></i>
+                        Found in <strong>${breaches.length}</strong> breach${breaches.length !== 1 ? 'es' : ''}
+                    </div>
+                    <div class="breach-grid">${cards}</div>
+                    <p class="ip-attribution">Data provided by <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned</a></p>
+                </div>`;
+            } catch (e) {
+                out.innerHTML = `<div class="ip-error"><i class="fas fa-triangle-exclamation"></i> ${e.message || 'Check failed.'}</div>`;
+            }
+        }
+
+        btn.addEventListener('click', () => check(input.value));
+        input.addEventListener('keydown', e => { if (e.key === 'Enter') check(input.value); });
+    })();
+})();
