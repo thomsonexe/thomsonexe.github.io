@@ -1285,17 +1285,17 @@ body {
 .ip-input::placeholder { color: var(--text-muted); }
 .ip-search-btn {
     padding: 0.85rem 1.4rem;
-    background: var(--accent);
-    color: #fff;
-    border: none;
+    background: none;
+    color: var(--accent);
+    border: 1px solid var(--border-accent);
     border-radius: 8px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.9rem;
     cursor: pointer;
     white-space: nowrap;
-    transition: opacity 0.2s;
+    transition: background var(--transition), box-shadow var(--transition);
 }
-.ip-search-btn:hover { opacity: 0.85; }
+.ip-search-btn:hover { background: rgba(0,255,136,0.08); box-shadow: var(--glow); }
 .ip-actions {
     display: flex;
     justify-content: center;
