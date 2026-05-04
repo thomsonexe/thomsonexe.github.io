@@ -2036,14 +2036,24 @@ initGuestbook();
                 if (data.error) throw new Error(data.error.message || 'Hash not found in VirusTotal');
                 if (!data.data) throw new Error('No data returned');
                 const a = data.data.attributes;
+                const hashes = [
+                    { label: 'MD5',     val: a.md5 },
+                    { label: 'SHA-1',   val: a.sha1 },
+                    { label: 'SHA-256', val: a.sha256 },
+                ].filter(h => h.val);
+                const hashSection = hashes.length ? `
+                <div class="hash-details">
+                    ${hashes.map(h => `
+                    <div class="hash-row">
+                        <span class="hash-label">${h.label}</span>
+                        <span class="hash-val">${h.val}</span>
+                    </div>`).join('')}
+                </div>` : '';
                 out.innerHTML = renderVt(data, a.meaningful_name || hash, [
-                    { icon: 'fas fa-file',           name: 'Type',    val: a.type_description || a.type_tag },
-                    { icon: 'fas fa-weight-hanging', name: 'Size',    val: a.size ? (a.size / 1024).toFixed(1) + ' KB' : null },
-                    { icon: 'fas fa-hashtag',        name: 'MD5',     val: a.md5 },
-                    { icon: 'fas fa-hashtag',        name: 'SHA-1',   val: a.sha1 },
-                    { icon: 'fas fa-hashtag',        name: 'SHA-256', val: a.sha256 },
-                    { icon: 'fas fa-tags',           name: 'Tags',    val: (a.tags || []).slice(0, 5).join(', ') || null },
-                ]);
+                    { icon: 'fas fa-file',           name: 'Type', val: a.type_description || a.type_tag },
+                    { icon: 'fas fa-weight-hanging', name: 'Size', val: a.size ? (a.size / 1024).toFixed(1) + ' KB' : null },
+                    { icon: 'fas fa-tags',           name: 'Tags', val: (a.tags || []).slice(0, 5).join(', ') || null },
+                ]) + hashSection;
             } catch (e) {
                 out.innerHTML = `<div class="ip-error"><i class="fas fa-triangle-exclamation"></i> ${e.message || 'Lookup failed.'}</div>`;
             }
