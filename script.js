@@ -1255,6 +1255,122 @@ if (document.getElementById('threatCanvas')) {
     initThreatMap();
 }
 
+// IP Lookup Page
+(function initIpLookup() {
+    const input     = document.getElementById('ipInput');
+    const searchBtn = document.getElementById('ipSearchBtn');
+    const myIpBtn   = document.getElementById('ipMyIpBtn');
+    const results   = document.getElementById('ipResults');
+    if (!input) return;
+
+    const WORKER = 'https://ip-check.zeusthegoat.workers.dev/?ip=';
+
+    function scoreClass(s) {
+        if (s <= 10) return 'score-low';
+        if (s <= 50) return 'score-medium';
+        if (s <= 90) return 'score-high';
+        return 'score-critical';
+    }
+    function scoreLabel(s) {
+        if (s <= 10) return 'Clean';
+        if (s <= 50) return 'Suspicious';
+        if (s <= 90) return 'Malicious';
+        return 'Critical';
+    }
+    function fmtDate(str) {
+        if (!str) return 'Never';
+        return new Date(str).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    function render(data) {
+        const d     = data.data;
+        const score = d.abuseConfidenceScore;
+        const cls   = scoreClass(score);
+        const lbl   = scoreLabel(score);
+        const flag  = d.countryCode ? `<span class="fi fi-${d.countryCode.toLowerCase()}"></span>` : '';
+
+        results.innerHTML = `
+        <div class="ip-result-card">
+            <div class="ip-score-section ${cls}">
+                <div class="ip-score-val">${score}</div>
+                <div class="ip-score-bar-wrap"><div class="ip-score-bar" style="width:${score}%"></div></div>
+                <div class="ip-score-label">${lbl} &mdash; Abuse Confidence Score</div>
+            </div>
+            <div class="ip-address-display">${d.ipAddress}</div>
+            <div class="ip-info-grid">
+                <div class="ip-info-card">
+                    <span class="ip-info-label"><i class="fas fa-flag"></i> Country</span>
+                    <span class="ip-info-val">${flag} ${d.countryCode || '&mdash;'}</span>
+                </div>
+                <div class="ip-info-card">
+                    <span class="ip-info-label"><i class="fas fa-building"></i> ISP</span>
+                    <span class="ip-info-val">${d.isp || '&mdash;'}</span>
+                </div>
+                <div class="ip-info-card">
+                    <span class="ip-info-label"><i class="fas fa-globe"></i> Domain</span>
+                    <span class="ip-info-val">${d.domain || '&mdash;'}</span>
+                </div>
+                <div class="ip-info-card">
+                    <span class="ip-info-label"><i class="fas fa-server"></i> Usage Type</span>
+                    <span class="ip-info-val">${d.usageType || '&mdash;'}</span>
+                </div>
+                <div class="ip-info-card">
+                    <span class="ip-info-label"><i class="fas fa-triangle-exclamation"></i> Total Reports</span>
+                    <span class="ip-info-val">${d.totalReports.toLocaleString()}</span>
+                </div>
+                <div class="ip-info-card">
+                    <span class="ip-info-label"><i class="fas fa-users"></i> Distinct Reporters</span>
+                    <span class="ip-info-val">${d.numDistinctUsers.toLocaleString()}</span>
+                </div>
+                <div class="ip-info-card">
+                    <span class="ip-info-label"><i class="fas fa-clock"></i> Last Reported</span>
+                    <span class="ip-info-val">${fmtDate(d.lastReportedAt)}</span>
+                </div>
+                <div class="ip-info-card">
+                    <span class="ip-info-label"><i class="fas fa-code-branch"></i> IP Version</span>
+                    <span class="ip-info-val">IPv${d.ipVersion}</span>
+                </div>
+                ${d.isTor ? `<div class="ip-info-card ip-tor-flag">
+                    <span class="ip-info-label"><i class="fas fa-shield-halved"></i> Tor Exit Node</span>
+                    <span class="ip-info-val">Yes</span>
+                </div>` : ''}
+            </div>
+            <p class="ip-attribution">Data provided by <a href="https://www.abuseipdb.com" target="_blank" rel="noopener">AbuseIPDB</a></p>
+        </div>`;
+    }
+
+    async function lookup(ip) {
+        ip = ip.trim();
+        if (!ip) return;
+        results.innerHTML = '<div class="ip-loading"><i class="fas fa-circle-notch fa-spin"></i> Checking reputation&hellip;</div>';
+        try {
+            const r    = await fetch(WORKER + encodeURIComponent(ip));
+            const data = await r.json();
+            if (data.errors) throw new Error(data.errors[0]?.detail || 'API error');
+            if (!data.data)  throw new Error('No data returned');
+            render(data);
+        } catch (e) {
+            results.innerHTML = `<div class="ip-error"><i class="fas fa-triangle-exclamation"></i> ${e.message || 'Lookup failed — check the IP and try again.'}</div>`;
+        }
+    }
+
+    searchBtn.addEventListener('click', () => lookup(input.value));
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') lookup(input.value); });
+
+    myIpBtn.addEventListener('click', async () => {
+        myIpBtn.disabled = true;
+        try {
+            const { ip } = await fetch('https://api.ipify.org?format=json').then(r => r.json());
+            input.value = ip;
+            lookup(ip);
+        } catch {
+            input.placeholder = 'Could not detect your IP';
+        } finally {
+            myIpBtn.disabled = false;
+        }
+    });
+})();
+
 // Discord copy
 // Threat Intel Page
 (function initIntelPage() {

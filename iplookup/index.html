@@ -1,15 +1,16 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guestbook | Ben Thomson</title>
+    <title>IP Lookup | Ben Thomson</title>
     <link rel="icon" type="image/png" href="/mouse_t.png">
     <link rel="stylesheet" href="/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css">
 </head>
 <body>
 
@@ -22,12 +23,12 @@
             <ul class="nav-links" id="navLinks">
                 <li><a href="/" class="nav-link">home</a></li>
                 <li><a href="/about" class="nav-link">about</a></li>
-                
                 <li><a href="/labs" class="nav-link">labs</a></li>
                 <li><a href="/threats" class="nav-link">threats</a></li>
                 <li><a href="/map" class="nav-link">map</a></li>
-                <li><a href="/intel" class="nav-link">intel</a></li><li><a href="/lookup" class="nav-link">lookup</a></li><li><a href="/guestbook" class="nav-link">guestbook</a></li>
-                
+                <li><a href="/intel" class="nav-link">intel</a></li>
+                <li><a href="/lookup" class="nav-link">lookup</a></li>
+                <li><a href="/guestbook" class="nav-link">guestbook</a></li>
             </ul>
             <div class="nav-right">
                 <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
@@ -41,32 +42,24 @@
     <!-- Page Hero -->
     <section class="page-hero">
         <div class="container">
-            <p class="page-hero-prompt"><span class="prompt">ben@thomson.cx:~$</span> cat guestbook.db</p>
-            <h1 class="page-hero-title">Guestbook</h1>
-            <p class="page-hero-sub">Leave a message — say hi, ask something, or just drop a flag.</p>
+            <p class="page-hero-prompt"><span class="prompt">ben@thomson.cx:~$</span> abuseipdb --check $IP --days 90 --verbose</p>
+            <h1 class="page-hero-title">IP Reputation</h1>
+            <p class="page-hero-sub">Check any IP address against the AbuseIPDB threat intelligence database.</p>
         </div>
         <div class="grid-overlay"></div>
     </section>
 
-    <!-- Guestbook -->
-    <section id="guestbook" class="section">
+    <!-- Lookup Tool -->
+    <section class="section">
         <div class="container">
-            <div class="gb-layout">
-                <div class="gb-form-wrap">
-                    <input type="text" id="gbName" class="gb-input" placeholder="your name" maxlength="50" autocomplete="off">
-                    <textarea id="gbMsg" class="gb-textarea" placeholder="leave a message..." maxlength="300" rows="4"></textarea>
-                    <div class="gb-form-footer">
-                        <span class="gb-char-count"><span id="gbCount">300</span> chars left</span>
-                        <button class="gb-submit" id="gbSubmit">
-                            <i class="fas fa-paper-plane"></i> submit
-                        </button>
-                    </div>
-                    <p class="gb-status" id="gbStatus"></p>
-                </div>
-                <div class="gb-entries" id="gbEntries">
-                    <p class="gb-loading">Loading messages…</p>
-                </div>
+            <div class="ip-search-wrap">
+                <input type="text" id="ipInput" class="ip-input" placeholder="Enter an IP address — e.g. 1.2.3.4" autocomplete="off" spellcheck="false">
+                <button class="ip-search-btn" id="ipSearchBtn"><i class="fas fa-magnifying-glass"></i> Check</button>
             </div>
+            <div class="ip-actions">
+                <button class="ip-myip-btn" id="ipMyIpBtn"><i class="fas fa-location-crosshairs"></i> Use my IP</button>
+            </div>
+            <div class="ip-results" id="ipResults"></div>
         </div>
     </section>
 
@@ -89,7 +82,7 @@
                 <span class="egg-dot red"></span>
                 <span class="egg-dot yellow"></span>
                 <span class="egg-dot green"></span>
-                <span class="egg-title">root@thomson.cx — bash</span>
+                <span class="egg-title">root@thomson.cx &mdash; bash</span>
             </div>
             <div class="egg-body" id="eggBody"></div>
         </div>
