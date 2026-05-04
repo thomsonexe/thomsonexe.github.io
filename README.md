@@ -119,9 +119,8 @@ All external API calls that require CORS handling or API keys go through Cloudfl
 
 - CompTIA Security+
 - CompTIA Network+
-- CompTIA SecurityX (CAS-005)
 - Blue Team Labs Level 1 (BTL1)
-- Rapid7 InsightVM Certified Administrator
+- CompTIA SecurityX (CAS-005) (IN PROGRESS)
 
 ---
 
