@@ -2123,15 +2123,13 @@ initGuestbook();
                     </div>`;
                 } else {
                     out.innerHTML = `
-                    <div class="breach-result-card" style="border-color:#ff4d4d">
-                        <div class="breach-summary">
-                            <i class="fas fa-triangle-exclamation breach-warn-icon"></i>
-                            <i class="fas fa-thumbs-down"></i> Found <strong>${count.toLocaleString()}</strong> time${count !== 1 ? 's' : ''} in known data breaches &mdash; do not use this password.
+                    <div class="breach-result-card breach-pwned">
+                        <div class="breach-status-text">
+                            <strong>Password pwned.</strong>
+                            <span>Found <strong>${count.toLocaleString()}</strong> time${count !== 1 ? 's' : ''} in known data breaches &mdash; do not use this password.</span>
+                            <span style="font-size:0.82rem;color:var(--text-secondary);margin-top:0.2rem">Change it anywhere it's used.</span>
                         </div>
-                        <div style="padding:1rem 1.5rem;font-size:0.85rem;color:var(--text-secondary)">
-                            This password appears in breach databases and should be changed anywhere it is used.
-                        </div>
-                        <p class="ip-attribution">Data provided by <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned</a> &mdash; password hashed locally, never transmitted</p>
+                        <div class="breach-thumbs-down"><i class="fas fa-thumbs-down"></i></div>
                     </div>`;
                 }
             } catch (e) {

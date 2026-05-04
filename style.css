@@ -1514,6 +1514,15 @@ body {
 }
 .breach-status-text strong { font-size: 1.05rem; }
 .breach-thumbs-up { font-size: 3rem; color: #00c864; flex-shrink: 0; }
+.breach-pwned {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    padding: 2rem;
+    border-color: #ff4d4d;
+}
+.breach-thumbs-down { font-size: 3rem; color: #ff4d4d; flex-shrink: 0; }
 .breach-summary {
     padding: 1rem 1.5rem;
     font-size: 1rem;
