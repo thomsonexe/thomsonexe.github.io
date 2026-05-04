@@ -2117,7 +2117,7 @@ initGuestbook();
                     <div class="breach-result-card breach-clean">
                         <div class="breach-status-icon"><i class="fas fa-shield-check"></i></div>
                         <div class="breach-status-text">
-                            <strong>Not found in any breaches</strong> &mdash; this password hasn't appeared in any known data breach.
+                            <i class="fas fa-thumbs-up"></i> <strong>Not found in any breaches</strong> &mdash; this password hasn't appeared in any known data breach.
                         </div>
                     </div>`;
                 } else {
