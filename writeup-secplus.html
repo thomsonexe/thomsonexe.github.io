@@ -1,0 +1,424 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CompTIA Security+ SY0-701 Revision | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="mouse_t.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo writeup-logo">
+                <img src="mouse_t.png" class="nav-mouse" alt="">
+            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="labs.html" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Labs
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="writeup-hero">
+        <div class="container">
+            <div class="writeup-meta">
+                <span class="ctf-platform revision">Revision</span>
+                <span class="ctf-difficulty easy">Beginner – Intermediate</span>
+                <span class="writeup-category"><i class="fas fa-tag"></i> CompTIA / Certification / Exam Prep</span>
+            </div>
+            <h1 class="writeup-title">CompTIA Security+ SY0-701</h1>
+            <p class="writeup-subtitle">A revision reference for the Security+ SY0-701 exam — covering all five domains, key concepts, important terminology, and exam strategy tips. Based on the official CompTIA exam objectives.</p>
+            <div class="writeup-stats">
+                <span><i class="fas fa-clock"></i> 90 questions / 90 mins</span>
+                <span><i class="fas fa-star"></i> Pass mark: 750 / 900</span>
+                <span><i class="fas fa-certificate"></i> CompTIA</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="writeup-body">
+        <div class="container writeup-container">
+
+            <aside class="writeup-toc">
+                <div class="toc-card">
+                    <h3 class="toc-title"><i class="fas fa-list"></i> Contents</h3>
+                    <ul class="toc-links">
+                        <li><a href="#overview">Exam Overview</a></li>
+                        <li><a href="#domain1">Domain 1 — General Security</a></li>
+                        <li><a href="#domain2">Domain 2 — Threats &amp; Vulnerabilities</a></li>
+                        <li><a href="#domain3">Domain 3 — Security Architecture</a></li>
+                        <li><a href="#domain4">Domain 4 — Security Operations</a></li>
+                        <li><a href="#domain5">Domain 5 — Program Management</a></li>
+                        <li><a href="#acronyms">Key Acronyms</a></li>
+                        <li><a href="#tips">Exam Tips</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <article class="writeup-content">
+
+                <section id="overview" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Exam Overview</h2>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Detail</th><th>Value</th></tr></thead>
+                            <tbody>
+                                <tr><td>Exam code</td><td>SY0-701</td></tr>
+                                <tr><td>Number of questions</td><td>Up to 90 (multiple choice + performance-based)</td></tr>
+                                <tr><td>Duration</td><td>90 minutes</td></tr>
+                                <tr><td>Passing score</td><td>750 out of 900</td></tr>
+                                <tr><td>Recommended experience</td><td>2 years IT with a security focus, CompTIA Network+ recommended</td></tr>
+                                <tr><td>Renewal</td><td>Every 3 years via CEs or retake</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="concept-grid">
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-lock"></i></div>
+                            <h4>Domain 1</h4>
+                            <p>General Security Concepts — <strong>12%</strong></p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-bug"></i></div>
+                            <h4>Domain 2</h4>
+                            <p>Threats, Vulnerabilities &amp; Mitigations — <strong>22%</strong></p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-sitemap"></i></div>
+                            <h4>Domain 3</h4>
+                            <p>Security Architecture — <strong>18%</strong></p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-shield-alt"></i></div>
+                            <h4>Domain 4</h4>
+                            <p>Security Operations — <strong>28%</strong></p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-clipboard-list"></i></div>
+                            <h4>Domain 5</h4>
+                            <p>Security Program Management &amp; Oversight — <strong>20%</strong></p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="domain1" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Domain 1 — General Security Concepts (12%)</h2>
+
+                    <h3 class="sub-heading">CIA Triad</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Principle</th><th>Definition</th><th>Example control</th></tr></thead>
+                            <tbody>
+                                <tr><td>Confidentiality</td><td>Only authorised parties can access information</td><td>Encryption, access controls, MFA</td></tr>
+                                <tr><td>Integrity</td><td>Data is accurate and has not been tampered with</td><td>Hashing, digital signatures, version control</td></tr>
+                                <tr><td>Availability</td><td>Systems and data are accessible when needed</td><td>Redundancy, backups, DDoS mitigation</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Authentication factors</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Factor</th><th>What it is</th><th>Examples</th></tr></thead>
+                            <tbody>
+                                <tr><td>Something you know</td><td>Knowledge factor</td><td>Password, PIN, security question</td></tr>
+                                <tr><td>Something you have</td><td>Possession factor</td><td>Smart card, hardware token, OTP app</td></tr>
+                                <tr><td>Something you are</td><td>Inherence factor</td><td>Fingerprint, facial recognition, iris scan</td></tr>
+                                <tr><td>Somewhere you are</td><td>Location factor</td><td>Geolocation, IP restriction</td></tr>
+                                <tr><td>Something you do</td><td>Behaviour factor</td><td>Typing pattern, gait analysis</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Encryption types</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Type</th><th>Key model</th><th>Examples</th><th>Use case</th></tr></thead>
+                            <tbody>
+                                <tr><td>Symmetric</td><td>Same key for encrypt &amp; decrypt</td><td>AES, 3DES, RC4</td><td>Fast — bulk data encryption</td></tr>
+                                <tr><td>Asymmetric</td><td>Public/private key pair</td><td>RSA, ECC, Diffie-Hellman</td><td>Key exchange, digital signatures, PKI</td></tr>
+                                <tr><td>Hashing</td><td>One-way, no key</td><td>SHA-256, MD5 (insecure), bcrypt</td><td>Integrity verification, password storage</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Key controls to know</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Control type</th><th>Definition</th><th>Examples</th></tr></thead>
+                            <tbody>
+                                <tr><td>Preventive</td><td>Stops an incident happening</td><td>Firewall, MFA, encryption, access control</td></tr>
+                                <tr><td>Detective</td><td>Identifies when an incident has occurred</td><td>IDS, SIEM, audit logs, cameras</td></tr>
+                                <tr><td>Corrective</td><td>Reduces impact / restores after incident</td><td>Backups, patch management, IR plan</td></tr>
+                                <tr><td>Deterrent</td><td>Discourages attackers</td><td>Warning banners, security cameras, policies</td></tr>
+                                <tr><td>Compensating</td><td>Alternative when primary control can't be used</td><td>Network isolation for unpatched legacy system</td></tr>
+                                <tr><td>Directive</td><td>Tells people what to do</td><td>Policies, procedures, training</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="domain2" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Domain 2 — Threats, Vulnerabilities &amp; Mitigations (22%)</h2>
+
+                    <h3 class="sub-heading">Malware types</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Type</th><th>Definition</th></tr></thead>
+                            <tbody>
+                                <tr><td>Virus</td><td>Attaches to legitimate files and spreads when the file is run — requires host file, user action to spread</td></tr>
+                                <tr><td>Worm</td><td>Self-replicates across networks without user interaction — exploits vulnerabilities automatically</td></tr>
+                                <tr><td>Trojan</td><td>Disguised as legitimate software — creates backdoor, RAT, or drops additional malware</td></tr>
+                                <tr><td>Ransomware</td><td>Encrypts files and demands payment for decryption key</td></tr>
+                                <tr><td>Rootkit</td><td>Hides malware, processes, or attacker presence at OS or kernel level</td></tr>
+                                <tr><td>Keylogger</td><td>Records keystrokes — captures credentials, sensitive data</td></tr>
+                                <tr><td>Spyware</td><td>Monitors user activity and sends data to attacker without consent</td></tr>
+                                <tr><td>Botnet</td><td>Network of infected hosts controlled by a C2 server — used for DDoS, spam, cryptomining</td></tr>
+                                <tr><td>Logic bomb</td><td>Triggers malicious action when a specific condition is met (date, event, login)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Attack types to know</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Attack</th><th>How it works</th></tr></thead>
+                            <tbody>
+                                <tr><td>SQL Injection</td><td>Malicious SQL injected via input fields — manipulates database queries</td></tr>
+                                <tr><td>XSS (Cross-Site Scripting)</td><td>Malicious script injected into web pages viewed by other users</td></tr>
+                                <tr><td>CSRF</td><td>Forces authenticated user to perform unintended actions on a trusted site</td></tr>
+                                <tr><td>Buffer overflow</td><td>More data written to a buffer than it can hold — overwrites adjacent memory</td></tr>
+                                <tr><td>Man-in-the-Middle (MitM)</td><td>Attacker intercepts and potentially modifies communication between two parties</td></tr>
+                                <tr><td>Pass-the-Hash</td><td>NTLM hash used to authenticate without knowing the plaintext password</td></tr>
+                                <tr><td>Kerberoasting</td><td>Service ticket requested and cracked offline to get service account password</td></tr>
+                                <tr><td>Credential stuffing</td><td>Leaked username/password combos tried at scale against multiple services</td></tr>
+                                <tr><td>Birthday attack</td><td>Exploits hash collision probability — finds two inputs producing the same hash</td></tr>
+                                <tr><td>Rainbow table attack</td><td>Pre-computed hash table used to reverse hash values — mitigated by salting</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="domain3" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Domain 3 — Security Architecture (18%)</h2>
+
+                    <h3 class="sub-heading">Network security concepts</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Concept</th><th>Definition</th></tr></thead>
+                            <tbody>
+                                <tr><td>DMZ (Demilitarised Zone)</td><td>Network segment between internal network and internet — hosts public-facing services (web servers, mail)</td></tr>
+                                <tr><td>Zero Trust</td><td>Never trust, always verify — every access request authenticated and authorised regardless of location</td></tr>
+                                <tr><td>Network segmentation</td><td>Dividing a network into isolated segments using VLANs or firewalls — limits lateral movement</td></tr>
+                                <tr><td>Microsegmentation</td><td>Fine-grained segmentation extending to individual workloads — common in cloud and SDN environments</td></tr>
+                                <tr><td>Air gap</td><td>Physical isolation — no network connection to external systems</td></tr>
+                                <tr><td>VPN (Virtual Private Network)</td><td>Encrypted tunnel over an untrusted network — site-to-site or remote access</td></tr>
+                                <tr><td>SD-WAN</td><td>Software-defined WAN — manages multiple WAN links with centralised control and policy</td></tr>
+                                <tr><td>SASE</td><td>Secure Access Service Edge — converges networking and security into a cloud-delivered service</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Cloud security</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Model</th><th>Provider manages</th><th>Customer manages</th></tr></thead>
+                            <tbody>
+                                <tr><td>IaaS (Infrastructure)</td><td>Physical, network, hypervisor</td><td>OS, middleware, runtime, apps, data</td></tr>
+                                <tr><td>PaaS (Platform)</td><td>Physical through runtime</td><td>Applications and data</td></tr>
+                                <tr><td>SaaS (Software)</td><td>Everything</td><td>Data and user access</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="domain4" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Domain 4 — Security Operations (28%)</h2>
+                    <p>Domain 4 is the largest and covers day-to-day SOC and security operations work. High weight — spend the most time here.</p>
+
+                    <h3 class="sub-heading">Incident response phases</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Phase</th><th>Key activities</th></tr></thead>
+                            <tbody>
+                                <tr><td>1. Preparation</td><td>IR plan, tools, team training, playbooks, communication channels</td></tr>
+                                <tr><td>2. Detection &amp; Analysis</td><td>Alert triage, log analysis, determine scope and severity, declare incident</td></tr>
+                                <tr><td>3. Containment</td><td>Short-term containment (isolate), evidence preservation, long-term containment</td></tr>
+                                <tr><td>4. Eradication</td><td>Remove malware, patch vulnerability, reset credentials</td></tr>
+                                <tr><td>5. Recovery</td><td>Restore systems, verify clean state, monitor for re-infection</td></tr>
+                                <tr><td>6. Lessons Learned</td><td>Post-incident review, update playbooks, improve detection</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Vulnerability management</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Term</th><th>Definition</th></tr></thead>
+                            <tbody>
+                                <tr><td>CVE</td><td>Common Vulnerabilities and Exposures — unique identifier for a known vulnerability</td></tr>
+                                <tr><td>CVSS</td><td>Common Vulnerability Scoring System — 0–10 severity score based on exploitability and impact</td></tr>
+                                <tr><td>Zero-day</td><td>Vulnerability unknown to the vendor — no patch exists at time of exploitation</td></tr>
+                                <tr><td>Patch management</td><td>Process for identifying, testing, and deploying patches across the environment</td></tr>
+                                <tr><td>Vulnerability scan</td><td>Automated scan identifying known vulnerabilities — non-intrusive, no exploitation</td></tr>
+                                <tr><td>Penetration test</td><td>Authorised simulated attack — actively exploits vulnerabilities to demonstrate real impact</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Digital forensics order of volatility</h3>
+                    <p>Collect the most volatile evidence first — it disappears fastest.</p>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Order</th><th>Source</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>CPU registers, cache</td></tr>
+                                <tr><td>2</td><td>RAM (running processes, network connections, open files)</td></tr>
+                                <tr><td>3</td><td>Swap / pagefile</td></tr>
+                                <tr><td>4</td><td>Network state (ARP cache, routing table)</td></tr>
+                                <tr><td>5</td><td>Running processes</td></tr>
+                                <tr><td>6</td><td>Disk (filesystem, logs)</td></tr>
+                                <tr><td>7</td><td>Remote logging and monitoring data</td></tr>
+                                <tr><td>8</td><td>Physical configuration, network topology</td></tr>
+                                <tr><td>9</td><td>Archival media (backups, optical)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="domain5" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Domain 5 — Security Program Management &amp; Oversight (20%)</h2>
+
+                    <h3 class="sub-heading">Risk management</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Term</th><th>Definition</th></tr></thead>
+                            <tbody>
+                                <tr><td>Risk</td><td>Likelihood × Impact — the potential for harm from a threat exploiting a vulnerability</td></tr>
+                                <tr><td>Threat</td><td>Potential cause of an incident (attacker, natural disaster, insider)</td></tr>
+                                <tr><td>Vulnerability</td><td>Weakness that could be exploited by a threat</td></tr>
+                                <tr><td>Risk acceptance</td><td>Acknowledging and accepting the risk without additional controls</td></tr>
+                                <tr><td>Risk avoidance</td><td>Eliminating the activity that creates the risk</td></tr>
+                                <tr><td>Risk transference</td><td>Shifting risk to a third party — cyber insurance, outsourcing</td></tr>
+                                <tr><td>Risk mitigation</td><td>Implementing controls to reduce likelihood or impact</td></tr>
+                                <tr><td>SLE</td><td>Single Loss Expectancy = Asset Value × Exposure Factor</td></tr>
+                                <tr><td>ALE</td><td>Annual Loss Expectancy = SLE × Annual Rate of Occurrence</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Compliance frameworks</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Framework / Regulation</th><th>Scope</th></tr></thead>
+                            <tbody>
+                                <tr><td>NIST CSF</td><td>Cybersecurity framework — Identify, Protect, Detect, Respond, Recover</td></tr>
+                                <tr><td>ISO 27001</td><td>International ISMS standard — risk-based approach to information security</td></tr>
+                                <tr><td>PCI DSS</td><td>Payment Card Industry — organisations handling cardholder data</td></tr>
+                                <tr><td>HIPAA</td><td>US healthcare — protecting patient health information (PHI)</td></tr>
+                                <tr><td>GDPR</td><td>EU — personal data protection and privacy rights</td></tr>
+                                <tr><td>SOC 2</td><td>Service organisation controls — security, availability, confidentiality, privacy</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="acronyms" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Key Acronyms</h2>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Acronym</th><th>Full form</th></tr></thead>
+                            <tbody>
+                                <tr><td>AAA</td><td>Authentication, Authorisation, Accounting</td></tr>
+                                <tr><td>ACL</td><td>Access Control List</td></tr>
+                                <tr><td>BYOD</td><td>Bring Your Own Device</td></tr>
+                                <tr><td>CASB</td><td>Cloud Access Security Broker</td></tr>
+                                <tr><td>DAC</td><td>Discretionary Access Control</td></tr>
+                                <tr><td>DLP</td><td>Data Loss Prevention</td></tr>
+                                <tr><td>EDR</td><td>Endpoint Detection and Response</td></tr>
+                                <tr><td>HSM</td><td>Hardware Security Module</td></tr>
+                                <tr><td>IAM</td><td>Identity and Access Management</td></tr>
+                                <tr><td>IDS / IPS</td><td>Intrusion Detection / Prevention System</td></tr>
+                                <tr><td>MAC</td><td>Mandatory Access Control</td></tr>
+                                <tr><td>MDM</td><td>Mobile Device Management</td></tr>
+                                <tr><td>MFA</td><td>Multi-Factor Authentication</td></tr>
+                                <tr><td>NAC</td><td>Network Access Control</td></tr>
+                                <tr><td>PKI</td><td>Public Key Infrastructure</td></tr>
+                                <tr><td>RBAC</td><td>Role-Based Access Control</td></tr>
+                                <tr><td>SIEM</td><td>Security Information and Event Management</td></tr>
+                                <tr><td>SOAR</td><td>Security Orchestration, Automation and Response</td></tr>
+                                <tr><td>SOC</td><td>Security Operations Centre</td></tr>
+                                <tr><td>TTP</td><td>Tactics, Techniques, and Procedures</td></tr>
+                                <tr><td>UAT</td><td>User Acceptance Testing</td></tr>
+                                <tr><td>UEBA</td><td>User and Entity Behaviour Analytics</td></tr>
+                                <tr><td>WAF</td><td>Web Application Firewall</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="tips" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Exam Tips</h2>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Domain 4 is 28% of the exam.</strong> Security Operations is the biggest domain — prioritise it. Focus on incident response phases, threat hunting, log analysis, vulnerability management, and digital forensics concepts.</p>
+                    </div>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Performance-based questions (PBQs) appear first.</strong> These are drag-and-drop, simulation, or scenario questions. They take longer — if you're stuck, flag and come back. Don't let one PBQ eat up 20 minutes.</p>
+                    </div>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Read every answer before choosing.</strong> Security+ loves "best answer" questions where multiple options are technically correct — the right answer is the most appropriate for the given scenario and security principle.</p>
+                    </div>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p><strong>Know your acronyms cold.</strong> The exam doesn't always spell out what acronyms stand for. If you see CASB, UEBA, or SOAR in a question and you don't know what they mean, you can't answer it correctly.</p>
+                    </div>
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Think like a security professional, not a hacker.</strong> Security+ tests your ability to select appropriate security controls and respond correctly — not how to exploit systems. When in doubt, the least-privilege, most-controlled option is usually correct.</p>
+                    </div>
+                </section>
+
+            </article>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+    </script>
+</body>
+</html>

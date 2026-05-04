@@ -1,0 +1,379 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTL1 — Blue Team Level 1 Revision | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="mouse_t.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo writeup-logo">
+                <img src="mouse_t.png" class="nav-mouse" alt="">
+            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="labs.html" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Labs
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="writeup-hero">
+        <div class="container">
+            <div class="writeup-meta">
+                <span class="ctf-platform revision">Revision</span>
+                <span class="ctf-difficulty medium">Intermediate</span>
+                <span class="writeup-category"><i class="fas fa-tag"></i> BTL1 / Certification / Exam Prep</span>
+            </div>
+            <h1 class="writeup-title">BTL1 — Blue Team Level 1</h1>
+            <p class="writeup-subtitle">A revision reference for the Security Blue Team BTL1 certification — a 24-hour practical exam covering phishing analysis, threat intelligence, DFIR, SIEM, and incident response. Notes, key tools, and practical tips for each domain.</p>
+            <div class="writeup-stats">
+                <span><i class="fas fa-clock"></i> 24-hour practical exam</span>
+                <span><i class="fas fa-star"></i> Pass mark: 70% (Silver 80%, Gold 90%)</span>
+                <span><i class="fas fa-certificate"></i> Security Blue Team</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="writeup-body">
+        <div class="container writeup-container">
+
+            <aside class="writeup-toc">
+                <div class="toc-card">
+                    <h3 class="toc-title"><i class="fas fa-list"></i> Contents</h3>
+                    <ul class="toc-links">
+                        <li><a href="#overview">Exam Overview</a></li>
+                        <li><a href="#phishing">Phishing Analysis</a></li>
+                        <li><a href="#threatintel">Threat Intelligence</a></li>
+                        <li><a href="#dfir">Digital Forensics &amp; IR</a></li>
+                        <li><a href="#siem">SIEM (Splunk)</a></li>
+                        <li><a href="#ir">Incident Response</a></li>
+                        <li><a href="#tools">Key Tools</a></li>
+                        <li><a href="#tips">Exam Tips</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <article class="writeup-content">
+
+                <section id="overview" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Exam Overview</h2>
+                    <p>BTL1 is a practical, hands-on certification from Security Blue Team. Unlike CompTIA exams, there are no multiple-choice questions — you're given a real incident scenario and must investigate, answer questions, and write a report within 24 hours.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Detail</th><th>Value</th></tr></thead>
+                            <tbody>
+                                <tr><td>Exam format</td><td>24-hour practical lab environment + report submission</td></tr>
+                                <tr><td>Pass mark</td><td>70% (Silver: 80%, Gold: 90%)</td></tr>
+                                <tr><td>Exam domains</td><td>Phishing Analysis, Threat Intelligence, DFIR, SIEM, Incident Response</td></tr>
+                                <tr><td>Primary SIEM tool</td><td>Splunk</td></tr>
+                                <tr><td>Primary forensics tool</td><td>Autopsy</td></tr>
+                                <tr><td>Report required</td><td>Yes — write up findings as an incident report</td></tr>
+                                <tr><td>Open book</td><td>Yes — you can use notes, Google, and reference materials during the exam</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p><strong>The exam is open book.</strong> This means the challenge is not memorising facts — it's knowing how to use tools effectively, how to interpret what you find, and how to write clear, professional findings. Speed and methodology matter more than rote knowledge.</p>
+                    </div>
+                </section>
+
+                <section id="phishing" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Phishing Analysis</h2>
+                    <p>One of the core BTL1 domains. You'll analyse suspicious emails, extract artefacts, check them against threat intel, and write up your findings.</p>
+
+                    <h3 class="sub-heading">Phishing analysis process</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Step</th><th>Action</th></tr></thead>
+                            <tbody>
+                                <tr><td>1. Safe handling</td><td>Open the email in a sandbox environment — never click links or open attachments on a live machine</td></tr>
+                                <tr><td>2. Examine headers</td><td>Check SPF / DKIM / DMARC results, trace Received chain, note sending IP and domain</td></tr>
+                                <tr><td>3. Check From vs Reply-To</td><td>Mismatch is a strong spoofing indicator</td></tr>
+                                <tr><td>4. Extract URLs</td><td>Defang and check against VirusTotal, URLscan.io, PhishTank</td></tr>
+                                <tr><td>5. Extract attachments</td><td>Hash the file (MD5 + SHA256), check VirusTotal, submit to Any.run sandbox</td></tr>
+                                <tr><td>6. Check domains</td><td>WHOIS registration date, MXToolbox, VirusTotal passive DNS</td></tr>
+                                <tr><td>7. Document IOCs</td><td>List all IPs, domains, URLs, hashes in defanged format</td></tr>
+                                <tr><td>8. Determine verdict</td><td>Phishing / Spear phishing / Benign — with justification</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Email artefact types</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Artefact</th><th>Where to find it</th></tr></thead>
+                            <tbody>
+                                <tr><td>Sending IP</td><td>First external Received header (bottom of chain you trust)</td></tr>
+                                <tr><td>Sending domain</td><td>From header, Return-Path, MAIL FROM in headers</td></tr>
+                                <tr><td>URLs</td><td>Email body — hover without clicking, or view source</td></tr>
+                                <tr><td>Attachment hash</td><td>Save file, run <code>Get-FileHash -Algorithm SHA256</code> (Windows) or <code>sha256sum</code> (Linux)</td></tr>
+                                <tr><td>X-Originating-IP</td><td>Some providers include the sender's actual IP here</td></tr>
+                                <tr><td>X-Mailer</td><td>Tool used to send — phishing toolkits leave identifiable strings</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="threatintel" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Threat Intelligence</h2>
+                    <p>BTL1 tests your ability to use threat intelligence platforms to enrich IOCs and understand the threat context behind them.</p>
+
+                    <h3 class="sub-heading">Key platforms to know</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Platform</th><th>What to use it for</th></tr></thead>
+                            <tbody>
+                                <tr><td>VirusTotal</td><td>Hash, URL, IP, domain lookups — see detections from 70+ AV engines and OSINT context</td></tr>
+                                <tr><td>AbuseIPDB</td><td>IP reputation — check reports of malicious activity for a given IP</td></tr>
+                                <tr><td>URLscan.io</td><td>Submit URLs for sandboxed rendering — see what a page looks like, redirects, and scripts</td></tr>
+                                <tr><td>Shodan</td><td>Internet scan data — see open ports and services on a given IP, identify the host type</td></tr>
+                                <tr><td>MITRE ATT&amp;CK</td><td>Map attacker behaviour to techniques and tactics — use for threat actor profiling</td></tr>
+                                <tr><td>MXToolbox</td><td>Email header analysis, DNS record lookups, SPF/DKIM/DMARC checking, blacklist lookup</td></tr>
+                                <tr><td>Any.run</td><td>Interactive malware sandbox — run suspicious files and see behaviour in real time</td></tr>
+                                <tr><td>Talos Intelligence</td><td>Cisco's threat intelligence — email sender reputation, IP/domain reputation, threat advisories</td></tr>
+                                <tr><td>WHOIS</td><td>Domain registration info — check creation date, registrar, contact details</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">IOC defanging reference</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">IOC Defanging Examples</span></div>
+                        <pre><code>URL:    hxxp://evil[.]com/payload.exe
+IP:     185[.]220[.]101[.]42
+Email:  attacker[@]evil[.]com
+Domain: malware[.]ru</code></pre>
+                    </div>
+                </section>
+
+                <section id="dfir" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Digital Forensics &amp; Incident Response</h2>
+                    <p>BTL1 DFIR tasks typically involve Autopsy for disk forensics and Volatility for memory forensics. You'll be given an image or memory dump and asked specific investigative questions.</p>
+
+                    <h3 class="sub-heading">Autopsy — key actions</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Task</th><th>How to do it in Autopsy</th></tr></thead>
+                            <tbody>
+                                <tr><td>Create a case</td><td>File → New Case → add data source (disk image, local disk, logical files)</td></tr>
+                                <tr><td>Find deleted files</td><td>Data Sources → right-click image → Extract Unallocated Space, or browse file tree with "Del" indicator</td></tr>
+                                <tr><td>Browse file system</td><td>File tree in left panel — navigate to directories of interest (/Users, /Windows/Temp, etc.)</td></tr>
+                                <tr><td>Timeline analysis</td><td>Tools → Timeline — view file system activity over time, filter by date range</td></tr>
+                                <tr><td>Extract browser history</td><td>Results → Extracted Content → Web History / Web Downloads / Web Cookies</td></tr>
+                                <tr><td>Search for keywords</td><td>Keyword Search module — search across all indexed content</td></tr>
+                                <tr><td>View registry hives</td><td>Windows registry files auto-parsed — check Results → OS Accounts, Recent Documents, USB Devices</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Volatility — common commands</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">Volatility 3</span></div>
+                        <pre><code># Identify the OS from the memory dump
+python3 vol.py -f memory.vmem windows.info
+
+# List running processes
+python3 vol.py -f memory.vmem windows.pslist
+python3 vol.py -f memory.vmem windows.pstree
+
+# List network connections
+python3 vol.py -f memory.vmem windows.netstat
+
+# Scan for injected code / hidden processes
+python3 vol.py -f memory.vmem windows.malfind
+
+# Dump a process for further analysis
+python3 vol.py -f memory.vmem windows.dumpfiles --pid 1234
+
+# Check loaded DLLs for a process
+python3 vol.py -f memory.vmem windows.dlllist --pid 1234
+
+# Extract command-line arguments for processes
+python3 vol.py -f memory.vmem windows.cmdline
+
+# Check registry hives loaded
+python3 vol.py -f memory.vmem windows.registry.hivelist
+
+# Extract hashed credentials
+python3 vol.py -f memory.vmem windows.hashdump</code></pre>
+                    </div>
+                </section>
+
+                <section id="siem" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>SIEM — Splunk</h2>
+                    <p>BTL1 uses Splunk for SIEM tasks. You'll need to search across log data to answer investigative questions — know your SPL fundamentals.</p>
+
+                    <h3 class="sub-heading">Core SPL commands</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">Splunk SPL</span></div>
+                        <pre><code># Basic search — all events from a source
+index=windows sourcetype=WinEventLog
+
+# Search with field filters
+index=windows EventCode=4625 user=admin
+
+# Count events by field
+index=windows EventCode=4625 | stats count by src_ip
+
+# Find top values
+index=windows | top limit=10 user
+
+# Time-based search
+index=windows earliest=-24h@h latest=now EventCode=4688
+
+# Search for a string across all indexes
+index=* "192.168.1.100"
+
+# Rename fields and format output
+index=windows EventCode=4625 | stats count as FailedLogins by src_ip, user | sort -FailedLogins
+
+# Rex — extract fields with regex
+index=web_logs | rex field=_raw "(?P<src_ip>\d+\.\d+\.\d+\.\d+)"
+
+# Transaction — group related events
+index=windows EventCode=4625 OR EventCode=4624 | transaction user maxspan=5m
+
+# Timechart — events over time
+index=windows EventCode=4625 | timechart count span=1h</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">Common log sourcetypes in BTL1</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Sourcetype</th><th>Contains</th></tr></thead>
+                            <tbody>
+                                <tr><td>WinEventLog</td><td>Windows Event Log — Security, System, Application logs</td></tr>
+                                <tr><td>syslog</td><td>Linux system logs</td></tr>
+                                <tr><td>access_combined</td><td>Apache/web server access logs</td></tr>
+                                <tr><td>suricata</td><td>Suricata IDS alerts from network traffic</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="ir" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Incident Response</h2>
+                    <p>BTL1 IR tasks ask you to apply the incident response lifecycle to a given scenario — determining what happened, when, and how to respond.</p>
+
+                    <h3 class="sub-heading">IR phases (PICERL)</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Phase</th><th>Key actions for BTL1</th></tr></thead>
+                            <tbody>
+                                <tr><td>Preparation</td><td>Know your tools, playbooks, and escalation paths — this happens before the exam</td></tr>
+                                <tr><td>Identification</td><td>Analyse alerts, logs, artefacts — determine if an incident has occurred and what type</td></tr>
+                                <tr><td>Containment</td><td>Isolate affected systems, block malicious IPs/domains at the firewall, disable compromised accounts</td></tr>
+                                <tr><td>Eradication</td><td>Remove malware, revoke attacker access, patch the exploited vulnerability</td></tr>
+                                <tr><td>Recovery</td><td>Restore from clean backup, verify system integrity, return to production</td></tr>
+                                <tr><td>Lessons Learned</td><td>Document timeline, root cause, what worked, what didn't — update playbooks</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Incident report structure</h3>
+                    <p>BTL1 requires a written report. A strong report includes:</p>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Section</th><th>What to include</th></tr></thead>
+                            <tbody>
+                                <tr><td>Executive Summary</td><td>One paragraph — what happened, impact, current status. Non-technical.</td></tr>
+                                <tr><td>Incident Timeline</td><td>Chronological list of events with timestamps — when was it detected, what happened, what was done</td></tr>
+                                <tr><td>Technical Analysis</td><td>Detail of your investigation — what logs showed, tools used, what you found</td></tr>
+                                <tr><td>IOCs</td><td>All extracted indicators in defanged format — IPs, domains, hashes, URLs</td></tr>
+                                <tr><td>Containment actions</td><td>What was blocked/isolated and when</td></tr>
+                                <tr><td>Recommendations</td><td>Specific, actionable — patch X, block Y, implement Z control</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="tools" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Key Tools Summary</h2>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Tool</th><th>Domain</th><th>Purpose</th></tr></thead>
+                            <tbody>
+                                <tr><td>Autopsy</td><td>DFIR</td><td>Disk image forensics — file recovery, browser history, registry, timeline</td></tr>
+                                <tr><td>Volatility 3</td><td>DFIR</td><td>Memory forensics — processes, network, injected code, credentials</td></tr>
+                                <tr><td>Splunk</td><td>SIEM</td><td>Log searching and analysis using SPL queries</td></tr>
+                                <tr><td>Wireshark</td><td>DFIR / Network</td><td>PCAP analysis — packet inspection, stream following, protocol dissection</td></tr>
+                                <tr><td>VirusTotal</td><td>Threat Intel</td><td>File hash, IP, domain, URL reputation</td></tr>
+                                <tr><td>AbuseIPDB</td><td>Threat Intel</td><td>IP reputation and abuse reports</td></tr>
+                                <tr><td>URLscan.io</td><td>Phishing</td><td>Safe URL inspection and rendering</td></tr>
+                                <tr><td>MXToolbox</td><td>Phishing</td><td>Email headers, SPF/DKIM/DMARC, DNS lookup</td></tr>
+                                <tr><td>Any.run</td><td>Phishing / DFIR</td><td>Interactive malware sandbox</td></tr>
+                                <tr><td>MITRE ATT&amp;CK Navigator</td><td>Threat Intel</td><td>Map findings to TTPs, identify coverage gaps</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="tips" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Exam Tips</h2>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Read all the questions before starting.</strong> With 24 hours you have time — scan through all the questions first. Some answers you'll find incidentally while investigating something else. Knowing what you're looking for shapes your investigation.</p>
+                    </div>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Write your report as you go.</strong> Don't leave the report to the end. Document each finding as you discover it — timeline entries, tool outputs, IOCs. You'll thank yourself at hour 20 when you're tired.</p>
+                    </div>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Note timestamps carefully.</strong> BTL1 questions often ask when something happened. Always record the full timestamp (including timezone) for every event you find. UTC vs local time errors are a common mistake.</p>
+                    </div>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p><strong>The Silver coin matters.</strong> A pass (70%) earns your certification, but Silver (80%) unlocks the BTL1 coin — a physical coin sent to your door. Worth pushing for. Gold (90%) is a stretch goal for the most prepared candidates.</p>
+                    </div>
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Practice with the SBT labs before exam day.</strong> Security Blue Team provides training labs for each domain as part of the BTL1 course. Don't skip them — the exam scenarios are built around the same toolset and methodology. If you can complete the labs confidently, you're ready.</p>
+                    </div>
+                </section>
+
+            </article>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+    </script>
+</body>
+</html>

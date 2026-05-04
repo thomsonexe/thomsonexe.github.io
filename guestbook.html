@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guestbook | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="mouse_t.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo writeup-logo">
+                <img src="mouse_t.png" class="nav-mouse" alt="">
+                <span class="glitch glitch-nav glitch-brand" data-text="thomsoN">thomsoN</span>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html" class="nav-link">home</a></li>
+                <li><a href="about.html" class="nav-link">about</a></li>
+                <li><a href="certs.html" class="nav-link">certs</a></li>
+                <li><a href="labs.html" class="nav-link">labs</a></li>
+                <li><a href="threats.html" class="nav-link">threats</a></li>
+                <li><a href="threatmap.html" class="nav-link">map</a></li>
+                <li><a href="intel.html" class="nav-link">intel</a></li><li><a href="guestbook.html" class="nav-link">guestbook</a></li>
+                
+            </ul>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Hero -->
+    <section class="page-hero">
+        <div class="container">
+            <p class="page-hero-prompt"><span class="prompt">ben@thomson.cx:~$</span> cat guestbook.db</p>
+            <h1 class="page-hero-title">Guestbook</h1>
+            <p class="page-hero-sub">Leave a message — say hi, ask something, or just drop a flag.</p>
+        </div>
+        <div class="grid-overlay"></div>
+    </section>
+
+    <!-- Guestbook -->
+    <section id="guestbook" class="section">
+        <div class="container">
+            <div class="gb-layout">
+                <div class="gb-form-wrap">
+                    <input type="text" id="gbName" class="gb-input" placeholder="your name" maxlength="50" autocomplete="off">
+                    <textarea id="gbMsg" class="gb-textarea" placeholder="leave a message..." maxlength="300" rows="4"></textarea>
+                    <div class="gb-form-footer">
+                        <span class="gb-char-count"><span id="gbCount">300</span> chars left</span>
+                        <button class="gb-submit" id="gbSubmit">
+                            <i class="fas fa-paper-plane"></i> submit
+                        </button>
+                    </div>
+                    <p class="gb-status" id="gbStatus"></p>
+                </div>
+                <div class="gb-entries" id="gbEntries">
+                    <p class="gb-loading">Loading messages…</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- Easter egg overlay -->
+    <div id="eggOverlay" class="egg-overlay" aria-hidden="true">
+        <div class="egg-terminal">
+            <div class="egg-header">
+                <span class="egg-dot red"></span>
+                <span class="egg-dot yellow"></span>
+                <span class="egg-dot green"></span>
+                <span class="egg-title">root@thomson.cx — bash</span>
+            </div>
+            <div class="egg-body" id="eggBody"></div>
+        </div>
+        <p class="egg-dismiss">press <kbd>esc</kbd> or click anywhere to close</p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

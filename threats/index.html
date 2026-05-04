@@ -1,0 +1,149 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVE Tracker | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo writeup-logo">
+                <img src="/mouse_t.png" class="nav-mouse" alt="">
+                <span class="glitch glitch-nav glitch-brand" data-text="thomsoN">thomsoN</span>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/" class="nav-link">home</a></li>
+                <li><a href="/about" class="nav-link">about</a></li>
+                <li><a href="/certs" class="nav-link">certs</a></li>
+                <li><a href="/labs" class="nav-link">labs</a></li>
+                <li><a href="/threats" class="nav-link">threats</a></li>
+                <li><a href="/map" class="nav-link">map</a></li>
+                <li><a href="/intel" class="nav-link">intel</a></li><li><a href="/guestbook" class="nav-link">guestbook</a></li>
+                
+            </ul>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Hero -->
+    <section class="page-hero">
+        <div class="container">
+            <p class="page-hero-prompt"><span class="prompt">ben@thomson.cx:~$</span> nvd-query --recent --limit 100 --format json</p>
+            <h1 class="page-hero-title">CVE Tracker</h1>
+            <p class="page-hero-sub">Live vulnerability data pulled directly from the National Vulnerability Database.</p>
+        </div>
+        <div class="grid-overlay"></div>
+    </section>
+
+    <!-- CVE Explainer -->
+    <section class="section section-alt">
+        <div class="container">
+            <div class="cve-explainer-grid">
+                <div class="cve-explainer-card">
+                    <div class="cve-explainer-icon"><i class="fas fa-tag"></i></div>
+                    <h3>What is a CVE?</h3>
+                    <p>A <strong>Common Vulnerability and Exposure</strong> is a standardised identifier for a publicly known security flaw. Maintained by MITRE, each CVE ID gives researchers and defenders a shared reference point for a specific vulnerability.</p>
+                </div>
+                <div class="cve-explainer-card">
+                    <div class="cve-explainer-icon"><i class="fas fa-chart-bar"></i></div>
+                    <h3>What is CVSS?</h3>
+                    <p>The <strong>Common Vulnerability Scoring System</strong> rates severity on a 0–10 scale. Scores consider attack vector, complexity, privileges required, and impact. A score of 9.0+ is Critical — often meaning remote exploitation with no authentication.</p>
+                    <div class="cvss-scale">
+                        <span class="cvss-pill cvss-critical">Critical 9–10</span>
+                        <span class="cvss-pill cvss-high">High 7–8.9</span>
+                        <span class="cvss-pill cvss-medium">Medium 4–6.9</span>
+                        <span class="cvss-pill cvss-low">Low 0.1–3.9</span>
+                    </div>
+                </div>
+                <div class="cve-explainer-card">
+                    <div class="cve-explainer-icon"><i class="fas fa-database"></i></div>
+                    <h3>What is the NVD?</h3>
+                    <p>The <strong>National Vulnerability Database</strong> is NIST's official CVE repository. It enriches raw CVE entries with CVSS scores, CWE weakness classifications, affected product lists, and remediation references.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CVE Feed -->
+    <section id="cves" class="section">
+        <div class="container">
+            <h2 class="section-title"><span class="title-prefix">// </span>Recent CVEs</h2>
+            <p class="cve-subtitle">Last 30 days from the NVD — search by CVE ID or keyword, filter by severity, sort by date or score.</p>
+            <div class="cve-controls">
+                <input type="text" id="cveSearch" class="cve-search" placeholder="search CVE ID or description..." autocomplete="off">
+                <div class="cve-filter-btns">
+                    <button class="cve-filter-btn active" data-sev="all">All</button>
+                    <button class="cve-filter-btn" data-sev="critical">Critical</button>
+                    <button class="cve-filter-btn" data-sev="high">High</button>
+                    <button class="cve-filter-btn" data-sev="medium">Medium</button>
+                    <button class="cve-filter-btn" data-sev="low">Low</button>
+                </div>
+                <select id="cveSort" class="cve-sort-select">
+                    <option value="newest">Newest first</option>
+                    <option value="score">Highest score</option>
+                </select>
+            </div>
+            <p class="cve-results-info" id="cveInfo"></p>
+            <div class="cve-grid" id="cveGrid">
+                <p class="cve-loading"><i class="fas fa-circle-notch fa-spin"></i> Fetching vulnerabilities...</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- CVE Detail Modal -->
+    <div id="cveModal" class="cve-modal-overlay" aria-hidden="true">
+        <div class="cve-modal" role="dialog">
+            <div class="cve-modal-header">
+                <div class="cve-modal-title-row">
+                    <span id="cveModalId" class="cve-modal-id"></span>
+                    <span id="cveModalBadge" class="cve-badge"></span>
+                </div>
+                <button class="cve-modal-close" id="cveModalClose" aria-label="Close">&times;</button>
+            </div>
+            <div class="cve-modal-body" id="cveModalBody"></div>
+        </div>
+    </div>
+
+    <!-- Easter egg overlay -->
+    <div id="eggOverlay" class="egg-overlay" aria-hidden="true">
+        <div class="egg-terminal">
+            <div class="egg-header">
+                <span class="egg-dot red"></span>
+                <span class="egg-dot yellow"></span>
+                <span class="egg-dot green"></span>
+                <span class="egg-title">root@thomson.cx — bash</span>
+            </div>
+            <div class="egg-body" id="eggBody"></div>
+        </div>
+        <p class="egg-dismiss">press <kbd>esc</kbd> or click anywhere to close</p>
+    </div>
+
+    <script src="/script.js"></script>
+</body>
+</html>

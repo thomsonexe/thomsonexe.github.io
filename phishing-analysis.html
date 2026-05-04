@@ -1,0 +1,419 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phishing Analysis | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="mouse_t.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo writeup-logo">
+                <img src="mouse_t.png" class="nav-mouse" alt="">
+            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="index.html#ctf" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Labs
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="writeup-hero">
+        <div class="container">
+            <div class="writeup-meta">
+                <span class="ctf-platform btlo">BTLO</span>
+                <span class="ctf-difficulty easy">Easy</span>
+                <span class="writeup-category"><i class="fas fa-tag"></i> Email Analysis / Threat Intel</span>
+            </div>
+            <h1 class="writeup-title">Phishing Analysis</h1>
+            <p class="writeup-subtitle">A practical guide to analysing phishing emails — tools, techniques, and methodology for blue teamers.</p>
+            <div class="writeup-stats">
+                <span><i class="fas fa-clock"></i> 15 min read</span>
+                <span><i class="fas fa-tools"></i> 10+ tools covered</span>
+                <span><i class="fas fa-shield-alt"></i> Blue Team</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="writeup-body">
+        <div class="container writeup-container">
+
+            <aside class="writeup-toc">
+                <div class="toc-card">
+                    <h3 class="toc-title"><i class="fas fa-list"></i> Contents</h3>
+                    <ul class="toc-links">
+                        <li><a href="#methodology">Methodology</a></li>
+                        <li><a href="#reputation">Reputation Lookup</a></li>
+                        <li><a href="#headers">Header Analysis</a></li>
+                        <li><a href="#urls">URL Inspection</a></li>
+                        <li><a href="#sandboxes">Sandboxes</a></li>
+                        <li><a href="#eml">Working with .eml Files</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <article class="writeup-content">
+
+                <section id="methodology" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Methodology</h2>
+                    <p>Phishing analysis follows a clear order of priority. Start with reputation services — they are fast, passive, and often sufficient to confirm a verdict. Only move to sandboxes when you need to observe active behaviour, such as a macro executing or a payload dropping.</p>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Never click links or open attachments on your host machine. Always use a sandbox or isolated VM.</p>
+                    </div>
+                    <div class="methodology-flow">
+                        <div class="flow-step">
+                            <span class="flow-num">01</span>
+                            <div>
+                                <strong>Triage the email</strong>
+                                <p>Check headers, sender address, reply-to, and subject for red flags.</p>
+                            </div>
+                        </div>
+                        <div class="flow-arrow"><i class="fas fa-chevron-down"></i></div>
+                        <div class="flow-step">
+                            <span class="flow-num">02</span>
+                            <div>
+                                <strong>Reputation lookup</strong>
+                                <p>Cross-reference all IPs, URLs, domains, and hashes against threat intel services.</p>
+                            </div>
+                        </div>
+                        <div class="flow-arrow"><i class="fas fa-chevron-down"></i></div>
+                        <div class="flow-step">
+                            <span class="flow-num">03</span>
+                            <div>
+                                <strong>Header analysis</strong>
+                                <p>Parse the delivery path and validate SPF, DKIM, and DMARC alignment.</p>
+                            </div>
+                        </div>
+                        <div class="flow-arrow"><i class="fas fa-chevron-down"></i></div>
+                        <div class="flow-step">
+                            <span class="flow-num">04</span>
+                            <div>
+                                <strong>URL inspection</strong>
+                                <p>Safely preview any links without visiting them directly.</p>
+                            </div>
+                        </div>
+                        <div class="flow-arrow"><i class="fas fa-chevron-down"></i></div>
+                        <div class="flow-step">
+                            <span class="flow-num">05</span>
+                            <div>
+                                <strong>Sandbox</strong>
+                                <p>Detonate attachments or URLs to observe live behaviour if needed.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="reputation" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Reputation Lookup</h2>
+                    <p>Reputation services are your first stop. They are passive — you are querying existing databases, not interacting with malicious infrastructure. Use these for every indicator you extract from the email.</p>
+                    <div class="tool-grid">
+                        <div class="tool-card">
+                            <div class="tool-header">
+                                <i class="fas fa-virus-slash tool-icon"></i>
+                                <div>
+                                    <h3>VirusTotal</h3>
+                                    <span class="tool-url">virustotal.com</span>
+                                </div>
+                            </div>
+                            <p>Cross-references URLs, IPs, domains, and file hashes across 70+ detection engines simultaneously. Also maps relationships between indicators — useful for pivoting from a URL to its hosting IP to other URLs on the same infrastructure.</p>
+                            <div class="tool-tags">
+                                <span class="tag">URLs</span>
+                                <span class="tag">IPs</span>
+                                <span class="tag">Domains</span>
+                                <span class="tag">Hashes</span>
+                            </div>
+                        </div>
+                        <div class="tool-card">
+                            <div class="tool-header">
+                                <i class="fas fa-link tool-icon"></i>
+                                <div>
+                                    <h3>URLhaus</h3>
+                                    <span class="tool-url">urlhaus.abuse.ch</span>
+                                </div>
+                            </div>
+                            <p>Tracks URLs actively used for malware distribution. Useful for context on suspicious links found in phishing emails — if the URL is listed, you have strong evidence of malicious intent and can see what malware family it is associated with.</p>
+                            <div class="tool-tags">
+                                <span class="tag">URLs</span>
+                                <span class="tag">Malware Distribution</span>
+                            </div>
+                        </div>
+                        <div class="tool-card">
+                            <div class="tool-header">
+                                <i class="fas fa-server tool-icon"></i>
+                                <div>
+                                    <h3>AbuseIPDB</h3>
+                                    <span class="tool-url">abuseipdb.com</span>
+                                </div>
+                            </div>
+                            <p>Community-reported IP reputation database covering spam, C2 traffic, brute force, and scanning activity. Use this against source IPs extracted from email headers to determine if the sending server has a history of abuse.</p>
+                            <div class="tool-tags">
+                                <span class="tag">IPs</span>
+                                <span class="tag">C2</span>
+                                <span class="tag">Spam</span>
+                            </div>
+                        </div>
+                        <div class="tool-card">
+                            <div class="tool-header">
+                                <i class="fas fa-satellite-dish tool-icon"></i>
+                                <div>
+                                    <h3>OTX AlienVault</h3>
+                                    <span class="tool-url">otx.alienvault.com</span>
+                                </div>
+                            </div>
+                            <p>Broader threat intelligence platform with community-contributed pulses. Each pulse contains IOCs, TTPs, and MITRE ATT&amp;CK mappings. Good for understanding the wider campaign context behind an indicator you have found.</p>
+                            <div class="tool-tags">
+                                <span class="tag">IOCs</span>
+                                <span class="tag">TTPs</span>
+                                <span class="tag">MITRE ATT&amp;CK</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="headers" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Header Analysis</h2>
+                    <p>Email headers contain the full delivery path of a message. They can reveal spoofed sender addresses, relay servers, and authentication failures. Copy the raw headers from the email client and paste into one of the tools below.</p>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>What to look for:</strong> SPF fail, DKIM fail, DMARC fail, mismatched From vs. Return-Path, unexpected relay hops, unusual sending times or geolocation.</p>
+                    </div>
+                    <div class="tool-grid">
+                        <div class="tool-card">
+                            <div class="tool-header">
+                                <i class="fas fa-envelope-open-text tool-icon"></i>
+                                <div>
+                                    <h3>MxToolbox Header Analyzer</h3>
+                                    <span class="tool-url">mxtoolbox.com/EmailHeaders.aspx</span>
+                                </div>
+                            </div>
+                            <p>Paste raw headers and it parses the full delivery path with a clear visual timeline. Produces clean SPF, DKIM, and DMARC output with pass/fail indicators. One of the clearest interfaces for header analysis.</p>
+                            <div class="tool-tags">
+                                <span class="tag">SPF</span>
+                                <span class="tag">DKIM</span>
+                                <span class="tag">DMARC</span>
+                                <span class="tag">Delivery Path</span>
+                            </div>
+                        </div>
+                        <div class="tool-card">
+                            <div class="tool-header">
+                                <i class="fab fa-google tool-icon"></i>
+                                <div>
+                                    <h3>Google Messageheader</h3>
+                                    <span class="tool-url">toolbox.googleapps.com/apps/messageheader</span>
+                                </div>
+                            </div>
+                            <p>Google's equivalent header parser. Works with any email headers — not limited to Gmail. Useful as a second opinion or when MxToolbox is unavailable.</p>
+                            <div class="tool-tags">
+                                <span class="tag">SPF</span>
+                                <span class="tag">DKIM</span>
+                                <span class="tag">DMARC</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="urls" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>URL Inspection</h2>
+                    <p>Never visit a suspicious URL directly. These tools let you see what is behind a link without your browser ever making the request.</p>
+                    <div class="tool-grid">
+                        <div class="tool-card">
+                            <div class="tool-header">
+                                <i class="fas fa-binoculars tool-icon"></i>
+                                <div>
+                                    <h3>URLScan.io</h3>
+                                    <span class="tool-url">urlscan.io</span>
+                                </div>
+                            </div>
+                            <p>Loads the URL in a safe, isolated environment and returns a full report — screenshot of the page, all contacted domains and IPs, technologies detected, and extracted IOCs. An essential tool for seeing exactly what a link leads to without any risk.</p>
+                            <div class="tool-tags">
+                                <span class="tag">URLs</span>
+                                <span class="tag">Screenshots</span>
+                                <span class="tag">IOC Extraction</span>
+                            </div>
+                        </div>
+                        <div class="tool-card">
+                            <div class="tool-header">
+                                <i class="fas fa-compress-arrows-alt tool-icon"></i>
+                                <div>
+                                    <h3>URL Expanders</h3>
+                                    <span class="tool-url">Search "URL expander"</span>
+                                </div>
+                            </div>
+                            <p>Shortened URLs (bit.ly, tinyurl, etc.) hide the real destination. Paste a shortened link into a URL expander to reveal the full URL before submitting it to URLScan or VirusTotal. Never click a shortened link directly.</p>
+                            <div class="tool-tags">
+                                <span class="tag">Shortened URLs</span>
+                                <span class="tag">Deobfuscation</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="sandboxes" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Sandboxes</h2>
+                    <p>Use sandboxes when reputation services are inconclusive and you need to observe active behaviour — macros executing, payloads dropping, network callbacks. All three options below have a free tier.</p>
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Files submitted to public sandboxes are visible to other users including threat actors. If you are handling a real incident at work, check your organisation's policy before submitting.</p>
+                    </div>
+                    <div class="tool-grid">
+                        <div class="tool-card">
+                            <div class="tool-header">
+                                <i class="fas fa-play-circle tool-icon"></i>
+                                <div>
+                                    <h3>Any.Run</h3>
+                                    <span class="tool-url">any.run</span>
+                                </div>
+                            </div>
+                            <p>Interactive sandbox — you can click inside the virtual machine in real time. Excellent for observing process trees, network connections, registry changes, and dropped files as they happen. Best choice when you need to interact with the sample.</p>
+                            <div class="tool-tags">
+                                <span class="tag">Interactive</span>
+                                <span class="tag">Process Tree</span>
+                                <span class="tag">Network</span>
+                                <span class="tag">Real-time</span>
+                            </div>
+                        </div>
+                        <div class="tool-card">
+                            <div class="tool-header">
+                                <i class="fas fa-microscope tool-icon"></i>
+                                <div>
+                                    <h3>Hybrid Analysis</h3>
+                                    <span class="tool-url">hybrid-analysis.com</span>
+                                </div>
+                            </div>
+                            <p>Combines static and dynamic analysis. Solid free tier with MITRE ATT&amp;CK tagging, PCAP export for network traffic analysis, and screenshot capture throughout execution. Good all-rounder for most samples.</p>
+                            <div class="tool-tags">
+                                <span class="tag">Static + Dynamic</span>
+                                <span class="tag">MITRE ATT&amp;CK</span>
+                                <span class="tag">PCAP</span>
+                            </div>
+                        </div>
+                        <div class="tool-card">
+                            <div class="tool-header">
+                                <i class="fas fa-flask tool-icon"></i>
+                                <div>
+                                    <h3>Triage</h3>
+                                    <span class="tool-url">tria.ge</span>
+                                </div>
+                            </div>
+                            <p>Supports both Windows and Linux targets. Generous free tier with strong IOC extraction. A good alternative when you need Linux analysis or want a second opinion alongside Hybrid Analysis.</p>
+                            <div class="tool-tags">
+                                <span class="tag">Windows</span>
+                                <span class="tag">Linux</span>
+                                <span class="tag">IOC Extraction</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="eml" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Working with .eml Files</h2>
+                    <p>If you have a raw <code>.eml</code> file rather than viewing the email in a client, you can parse it directly from the terminal. This gives you access to headers, body, and any embedded attachments.</p>
+
+                    <h3 class="sub-heading">Read headers and body</h3>
+                    <p>The simplest approach — pipe the file through <code>cat</code> to read the raw content including all headers:</p>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">bash</span>
+                            <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        </div>
+                        <pre><code><span class="code-comment"># Read full headers and body</span>
+cat suspicious.eml</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">Extract attachments</h3>
+                    <p>If the email contains attachments you need to extract for further analysis, use this Python snippet. It walks all MIME parts and saves any file with a filename to your working directory.</p>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">python</span>
+                            <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                        </div>
+                        <pre><code><span class="code-comment"># Extract attachments from a .eml file</span>
+python3 -c <span class="code-string">"
+import email, sys
+msg = email.message_from_file(open('suspicious.eml'))
+for part in msg.walk():
+    if part.get_filename():
+        open(part.get_filename(), 'wb').write(part.get_payload(decode=True))
+        print('Saved:', part.get_filename())
+"</span></code></pre>
+                    </div>
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Extracted attachments are live malware. Do not open them on your host machine. Move them into a sandbox or analyse statically with a tool like <code>file</code>, <code>strings</code>, or <code>olevba</code> for Office documents.</p>
+                    </div>
+                </section>
+
+                <div class="writeup-footer">
+                    <a href="index.html#ctf" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Labs</a>
+                </div>
+
+            </article>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <script>
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            updateThemeIcon(next);
+        });
+        function updateThemeIcon(theme) {
+            themeToggle.innerHTML = theme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        }
+        // Back to top
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            backToTop.classList.toggle('visible', window.scrollY > 400);
+        });
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Navbar scroll
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // Copy code blocks
+        function copyCode(btn) {
+            const code = btn.closest('.code-block').querySelector('code').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+                setTimeout(() => btn.innerHTML = '<i class="fas fa-copy"></i> Copy', 2000);
+            });
+        }
+    </script>
+</body>
+</html>
+

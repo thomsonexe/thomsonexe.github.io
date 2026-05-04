@@ -1,0 +1,392 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CompTIA Network+ N10-009 Revision | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo writeup-logo">
+                <img src="/mouse_t.png" class="nav-mouse" alt="">
+            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="/labs" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Labs
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="writeup-hero">
+        <div class="container">
+            <div class="writeup-meta">
+                <span class="ctf-platform revision">Revision</span>
+                <span class="ctf-difficulty easy">Beginner – Intermediate</span>
+                <span class="writeup-category"><i class="fas fa-tag"></i> CompTIA / Certification / Exam Prep</span>
+            </div>
+            <h1 class="writeup-title">CompTIA Network+ N10-009</h1>
+            <p class="writeup-subtitle">A revision reference for the Network+ N10-009 exam — covering networking fundamentals, subnetting, protocols and ports, network devices, wireless, security, and troubleshooting methodology. Based on official CompTIA exam objectives.</p>
+            <div class="writeup-stats">
+                <span><i class="fas fa-clock"></i> 90 questions / 90 mins</span>
+                <span><i class="fas fa-star"></i> Pass mark: 720 / 900</span>
+                <span><i class="fas fa-certificate"></i> CompTIA</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="writeup-body">
+        <div class="container writeup-container">
+
+            <aside class="writeup-toc">
+                <div class="toc-card">
+                    <h3 class="toc-title"><i class="fas fa-list"></i> Contents</h3>
+                    <ul class="toc-links">
+                        <li><a href="#overview">Exam Overview</a></li>
+                        <li><a href="#osi">OSI &amp; TCP/IP Models</a></li>
+                        <li><a href="#subnetting">Subnetting</a></li>
+                        <li><a href="#ports">Ports &amp; Protocols</a></li>
+                        <li><a href="#devices">Network Devices</a></li>
+                        <li><a href="#wireless">Wireless</a></li>
+                        <li><a href="#security">Network Security</a></li>
+                        <li><a href="#troubleshooting">Troubleshooting</a></li>
+                        <li><a href="#tips">Exam Tips</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <article class="writeup-content">
+
+                <section id="overview" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Exam Overview</h2>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Detail</th><th>Value</th></tr></thead>
+                            <tbody>
+                                <tr><td>Exam code</td><td>N10-009</td></tr>
+                                <tr><td>Number of questions</td><td>Up to 90 (multiple choice + performance-based)</td></tr>
+                                <tr><td>Duration</td><td>90 minutes</td></tr>
+                                <tr><td>Passing score</td><td>720 out of 900</td></tr>
+                                <tr><td>Recommended experience</td><td>9–12 months in IT with networking exposure, CompTIA A+ helpful</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="concept-grid">
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-network-wired"></i></div>
+                            <h4>Domain 1</h4>
+                            <p>Networking Fundamentals — <strong>23%</strong></p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-plug"></i></div>
+                            <h4>Domain 2</h4>
+                            <p>Network Implementation — <strong>19%</strong></p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-tools"></i></div>
+                            <h4>Domain 3</h4>
+                            <p>Network Operations — <strong>17%</strong></p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-shield-alt"></i></div>
+                            <h4>Domain 4</h4>
+                            <p>Network Security — <strong>16%</strong></p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-wrench"></i></div>
+                            <h4>Domain 5</h4>
+                            <p>Network Troubleshooting — <strong>25%</strong></p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="osi" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>OSI &amp; TCP/IP Models</h2>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>OSI Layer</th><th>Name</th><th>Protocols / Examples</th><th>TCP/IP layer</th></tr></thead>
+                            <tbody>
+                                <tr><td>7</td><td>Application</td><td>HTTP, FTP, DNS, SMTP, SNMP, Telnet</td><td>Application</td></tr>
+                                <tr><td>6</td><td>Presentation</td><td>SSL/TLS, JPEG, MPEG, ASCII encoding</td><td>Application</td></tr>
+                                <tr><td>5</td><td>Session</td><td>NetBIOS, RPC, SMB session management</td><td>Application</td></tr>
+                                <tr><td>4</td><td>Transport</td><td>TCP, UDP — segments, ports, flow control</td><td>Transport</td></tr>
+                                <tr><td>3</td><td>Network</td><td>IP, ICMP, OSPF, BGP — packets, routing</td><td>Internet</td></tr>
+                                <tr><td>2</td><td>Data Link</td><td>Ethernet, Wi-Fi (802.11), ARP, MAC addresses — frames</td><td>Network Access</td></tr>
+                                <tr><td>1</td><td>Physical</td><td>Cables, connectors, hubs, bits — electrical/optical signals</td><td>Network Access</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Mnemonic (top to bottom):</strong> "All People Seem To Need Data Processing" — Application, Presentation, Session, Transport, Network, Data Link, Physical.</p>
+                    </div>
+
+                    <h3 class="sub-heading">TCP vs UDP</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th></th><th>TCP</th><th>UDP</th></tr></thead>
+                            <tbody>
+                                <tr><td><strong>Connection</strong></td><td>Connection-oriented — 3-way handshake (SYN, SYN-ACK, ACK)</td><td>Connectionless — fire and forget</td></tr>
+                                <tr><td><strong>Reliability</strong></td><td>Guaranteed delivery — acknowledgements, retransmission</td><td>No guarantee — packets may be lost</td></tr>
+                                <tr><td><strong>Speed</strong></td><td>Slower — overhead of handshake and ACKs</td><td>Faster — no overhead</td></tr>
+                                <tr><td><strong>Use cases</strong></td><td>HTTP, HTTPS, FTP, SMTP, SSH — where accuracy matters</td><td>DNS, DHCP, streaming, VoIP, gaming — where speed matters</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="subnetting" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Subnetting</h2>
+                    <p>Subnetting is tested heavily — you need to be able to determine network address, broadcast address, usable host range, and subnet mask from a given IP/CIDR.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>CIDR</th><th>Subnet mask</th><th>Hosts per subnet</th><th>Subnets (from /24)</th></tr></thead>
+                            <tbody>
+                                <tr><td>/24</td><td>255.255.255.0</td><td>254</td><td>1</td></tr>
+                                <tr><td>/25</td><td>255.255.255.128</td><td>126</td><td>2</td></tr>
+                                <tr><td>/26</td><td>255.255.255.192</td><td>62</td><td>4</td></tr>
+                                <tr><td>/27</td><td>255.255.255.224</td><td>30</td><td>8</td></tr>
+                                <tr><td>/28</td><td>255.255.255.240</td><td>14</td><td>16</td></tr>
+                                <tr><td>/29</td><td>255.255.255.248</td><td>6</td><td>32</td></tr>
+                                <tr><td>/30</td><td>255.255.255.252</td><td>2</td><td>64</td></tr>
+                                <tr><td>/32</td><td>255.255.255.255</td><td>1 (host route)</td><td>—</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Private IP ranges (RFC 1918)</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Range</th><th>CIDR</th><th>Class</th></tr></thead>
+                            <tbody>
+                                <tr><td>10.0.0.0 – 10.255.255.255</td><td>10.0.0.0/8</td><td>A</td></tr>
+                                <tr><td>172.16.0.0 – 172.31.255.255</td><td>172.16.0.0/12</td><td>B</td></tr>
+                                <tr><td>192.168.0.0 – 192.168.255.255</td><td>192.168.0.0/16</td><td>C</td></tr>
+                                <tr><td>169.254.0.0 – 169.254.255.255</td><td>169.254.0.0/16</td><td>APIPA (link-local)</td></tr>
+                                <tr><td>127.0.0.0 – 127.255.255.255</td><td>127.0.0.0/8</td><td>Loopback</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p><strong>APIPA (169.254.x.x)</strong> — a device assigns itself this address when it fails to obtain one via DHCP. If you see a 169.254.x.x address during troubleshooting, DHCP is the problem.</p>
+                    </div>
+                </section>
+
+                <section id="ports" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Common Ports &amp; Protocols</h2>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Port</th><th>Protocol</th><th>Transport</th></tr></thead>
+                            <tbody>
+                                <tr><td>20 / 21</td><td>FTP (data / control)</td><td>TCP</td></tr>
+                                <tr><td>22</td><td>SSH / SFTP / SCP</td><td>TCP</td></tr>
+                                <tr><td>23</td><td>Telnet (unencrypted)</td><td>TCP</td></tr>
+                                <tr><td>25</td><td>SMTP (email sending)</td><td>TCP</td></tr>
+                                <tr><td>53</td><td>DNS</td><td>UDP (queries) / TCP (zone transfers)</td></tr>
+                                <tr><td>67 / 68</td><td>DHCP (server / client)</td><td>UDP</td></tr>
+                                <tr><td>69</td><td>TFTP</td><td>UDP</td></tr>
+                                <tr><td>80</td><td>HTTP</td><td>TCP</td></tr>
+                                <tr><td>110</td><td>POP3</td><td>TCP</td></tr>
+                                <tr><td>119</td><td>NNTP</td><td>TCP</td></tr>
+                                <tr><td>123</td><td>NTP (time sync)</td><td>UDP</td></tr>
+                                <tr><td>137–139</td><td>NetBIOS</td><td>UDP / TCP</td></tr>
+                                <tr><td>143</td><td>IMAP</td><td>TCP</td></tr>
+                                <tr><td>161 / 162</td><td>SNMP (get / trap)</td><td>UDP</td></tr>
+                                <tr><td>389</td><td>LDAP</td><td>TCP / UDP</td></tr>
+                                <tr><td>443</td><td>HTTPS</td><td>TCP</td></tr>
+                                <tr><td>445</td><td>SMB / Active Directory</td><td>TCP</td></tr>
+                                <tr><td>465 / 587</td><td>SMTPS / SMTP submission</td><td>TCP</td></tr>
+                                <tr><td>514</td><td>Syslog</td><td>UDP</td></tr>
+                                <tr><td>636</td><td>LDAPS (secure)</td><td>TCP</td></tr>
+                                <tr><td>993 / 995</td><td>IMAPS / POP3S</td><td>TCP</td></tr>
+                                <tr><td>1433</td><td>Microsoft SQL Server</td><td>TCP</td></tr>
+                                <tr><td>1723</td><td>PPTP VPN</td><td>TCP</td></tr>
+                                <tr><td>3306</td><td>MySQL</td><td>TCP</td></tr>
+                                <tr><td>3389</td><td>RDP</td><td>TCP</td></tr>
+                                <tr><td>5060 / 5061</td><td>SIP (VoIP)</td><td>UDP / TLS</td></tr>
+                                <tr><td>8080 / 8443</td><td>HTTP / HTTPS alternate</td><td>TCP</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="devices" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Network Devices</h2>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Device</th><th>OSI Layer</th><th>Function</th></tr></thead>
+                            <tbody>
+                                <tr><td>Hub</td><td>Layer 1</td><td>Repeats signals to all ports — creates a single collision domain. Legacy, not used in modern networks.</td></tr>
+                                <tr><td>Switch</td><td>Layer 2</td><td>Forwards frames based on MAC address — each port is its own collision domain. Builds MAC address table.</td></tr>
+                                <tr><td>Router</td><td>Layer 3</td><td>Routes packets between networks based on IP address — connects subnets and to the internet</td></tr>
+                                <tr><td>Multilayer switch (L3 switch)</td><td>Layer 2–3</td><td>Switches at L2 speed but can also route at L3 — used for inter-VLAN routing</td></tr>
+                                <tr><td>Firewall</td><td>Layer 3–7</td><td>Filters traffic based on rules — stateful (tracks connections) or stateless (filters packets individually)</td></tr>
+                                <tr><td>Proxy</td><td>Layer 7</td><td>Intermediary between clients and servers — caching, content filtering, anonymisation</td></tr>
+                                <tr><td>Load balancer</td><td>Layer 4–7</td><td>Distributes traffic across multiple servers — improves availability and scalability</td></tr>
+                                <tr><td>IDS / IPS</td><td>Layer 3–7</td><td>IDS detects and alerts, IPS blocks — inline (IPS) or passive (IDS). NIDS = network, HIDS = host.</td></tr>
+                                <tr><td>WAF</td><td>Layer 7</td><td>Application-aware firewall — blocks SQLi, XSS, and other web attacks at HTTP layer</td></tr>
+                                <tr><td>Access point (WAP)</td><td>Layer 2</td><td>Wireless to wired bridge — extends network wirelessly</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="wireless" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Wireless Standards</h2>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Standard</th><th>Name</th><th>Frequency</th><th>Max speed</th></tr></thead>
+                            <tbody>
+                                <tr><td>802.11a</td><td>Wi-Fi 1</td><td>5 GHz</td><td>54 Mbps</td></tr>
+                                <tr><td>802.11b</td><td>Wi-Fi 1</td><td>2.4 GHz</td><td>11 Mbps</td></tr>
+                                <tr><td>802.11g</td><td>Wi-Fi 3</td><td>2.4 GHz</td><td>54 Mbps</td></tr>
+                                <tr><td>802.11n</td><td>Wi-Fi 4</td><td>2.4 / 5 GHz</td><td>600 Mbps</td></tr>
+                                <tr><td>802.11ac</td><td>Wi-Fi 5</td><td>5 GHz</td><td>3.5 Gbps</td></tr>
+                                <tr><td>802.11ax</td><td>Wi-Fi 6 / 6E</td><td>2.4 / 5 / 6 GHz</td><td>9.6 Gbps</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Wireless security protocols</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Protocol</th><th>Status</th><th>Notes</th></tr></thead>
+                            <tbody>
+                                <tr><td>WEP</td><td>Broken — do not use</td><td>RC4-based — crackable in minutes with tools like aircrack-ng</td></tr>
+                                <tr><td>WPA</td><td>Weak — deprecated</td><td>TKIP encryption — improved over WEP but still vulnerable</td></tr>
+                                <tr><td>WPA2</td><td>Current minimum</td><td>AES-CCMP — KRACK vulnerability in 2017 but mitigated by patches</td></tr>
+                                <tr><td>WPA3</td><td>Recommended</td><td>SAE replaces PSK, protects against offline dictionary attacks, forward secrecy</td></tr>
+                                <tr><td>WPA2-Enterprise</td><td>Required for corporate</td><td>802.1X authentication against RADIUS — individual credentials, not shared PSK</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="security" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Network Security</h2>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Concept</th><th>Definition</th></tr></thead>
+                            <tbody>
+                                <tr><td>NAC (802.1X)</td><td>Network Access Control — authenticates devices before granting network access. Uses RADIUS server and supplicant on client.</td></tr>
+                                <tr><td>VLAN</td><td>Virtual LAN — logical network segmentation at Layer 2. Traffic between VLANs requires a router.</td></tr>
+                                <tr><td>ACL</td><td>Access Control List — firewall or router rules permitting or denying traffic based on IP, port, protocol</td></tr>
+                                <tr><td>VPN tunnelling protocols</td><td>IPSec (L3), SSL/TLS VPN (L7), OpenVPN, WireGuard, L2TP/IPSec (common combination)</td></tr>
+                                <tr><td>Port security</td><td>Switch feature — limits MAC addresses allowed on a port, disables port on violation</td></tr>
+                                <tr><td>DHCP snooping</td><td>Blocks rogue DHCP servers on switch ports not designated as trusted</td></tr>
+                                <tr><td>Dynamic ARP inspection</td><td>Validates ARP packets against DHCP snooping table — prevents ARP poisoning</td></tr>
+                                <tr><td>DNSSEC</td><td>Adds cryptographic signatures to DNS responses — prevents DNS spoofing</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="troubleshooting" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Troubleshooting Methodology</h2>
+                    <p>CompTIA's seven-step troubleshooting methodology is directly tested. Know the steps and order.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Step</th><th>Action</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>Identify the problem — gather information, identify symptoms, question users</td></tr>
+                                <tr><td>2</td><td>Establish a theory of probable cause — consider the obvious first</td></tr>
+                                <tr><td>3</td><td>Test the theory — if confirmed, proceed; if not, establish a new theory</td></tr>
+                                <tr><td>4</td><td>Establish a plan of action — consider effects of solution before implementing</td></tr>
+                                <tr><td>5</td><td>Implement the solution or escalate</td></tr>
+                                <tr><td>6</td><td>Verify full system functionality — ensure the problem is resolved and no new issues introduced</td></tr>
+                                <tr><td>7</td><td>Document findings, actions, and outcomes</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Troubleshooting tools</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Tool</th><th>Use</th></tr></thead>
+                            <tbody>
+                                <tr><td><code>ping</code></td><td>Tests ICMP connectivity — basic reachability check</td></tr>
+                                <tr><td><code>traceroute</code> / <code>tracert</code></td><td>Shows the path packets take — identifies where connectivity fails</td></tr>
+                                <tr><td><code>nslookup</code> / <code>dig</code></td><td>DNS resolution testing — checks if DNS is resolving correctly</td></tr>
+                                <tr><td><code>ipconfig</code> / <code>ifconfig</code></td><td>Shows IP configuration — check for APIPA (169.254.x.x = DHCP failure)</td></tr>
+                                <tr><td><code>netstat</code> / <code>ss</code></td><td>Active connections, listening ports</td></tr>
+                                <tr><td><code>arp -a</code></td><td>ARP cache — check for duplicate MAC entries (ARP poisoning)</td></tr>
+                                <tr><td><code>route print</code> / <code>ip route</code></td><td>Routing table — check for missing or incorrect routes</td></tr>
+                                <tr><td>Wireshark</td><td>Packet capture — full visibility into network traffic</td></tr>
+                                <tr><td>Cable tester</td><td>Physical layer — verifies cable continuity and wiring</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="tips" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Exam Tips</h2>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Domain 5 (Troubleshooting) is 25% of the exam.</strong> Master the 7-step methodology and know which tool to use for which type of problem. Scenario questions will describe a symptom and ask you to pick the right next step or tool.</p>
+                    </div>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Know your port numbers cold.</strong> The exam will list a protocol and ask the port, or show a port and ask what's running. Port questions appear frequently — write out the top 30 ports from memory as a daily exercise until they're automatic.</p>
+                    </div>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Subnetting will appear.</strong> Practice until you can calculate the network address, broadcast address, and host range quickly. Use the "magic number" method: subtract the last non-zero octet of the subnet mask from 256 to find the subnet increment.</p>
+                    </div>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p><strong>Understand the OSI model in context.</strong> Questions often describe a problem and ask at which layer it occurs. Physical issues = Layer 1. MAC/VLAN = Layer 2. IP routing = Layer 3. TCP/UDP/port = Layer 4. Application = Layers 5–7.</p>
+                    </div>
+                </section>
+
+            </article>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+    </script>
+</body>
+</html>

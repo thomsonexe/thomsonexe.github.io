@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certifications | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo writeup-logo">
+                <img src="/mouse_t.png" class="nav-mouse" alt="">
+                <span class="glitch glitch-nav glitch-brand" data-text="thomsoN">thomsoN</span>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/" class="nav-link">home</a></li>
+                <li><a href="/about" class="nav-link">about</a></li>
+                <li><a href="/certs" class="nav-link">certs</a></li>
+                <li><a href="/labs" class="nav-link">labs</a></li>
+                <li><a href="/threats" class="nav-link">threats</a></li>
+                <li><a href="/map" class="nav-link">map</a></li>
+                <li><a href="/intel" class="nav-link">intel</a></li><li><a href="/guestbook" class="nav-link">guestbook</a></li>
+                
+            </ul>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Hero -->
+    <section class="page-hero">
+        <div class="container">
+            <p class="page-hero-prompt"><span class="prompt">ben@thomson.cx:~$</span> ls ~/certs/</p>
+            <h1 class="page-hero-title">Certifications</h1>
+            <p class="page-hero-sub">Earned credentials and what's currently in progress.</p>
+        </div>
+        <div class="grid-overlay"></div>
+    </section>
+
+    <!-- Certifications -->
+    <section id="certifications" class="section">
+        <div class="container">
+            <div class="cert-grid">
+                <div class="cert-card">
+                    <div class="cert-card-top">
+                        <div class="cert-icon"><i class="fas fa-network-wired"></i></div>
+                        <div class="cert-info">
+                            <h3>CompTIA Network+</h3>
+                            <p>Network+ Certification</p>
+                            <span class="cert-issuer">CompTIA</span>
+                        </div>
+                    </div>
+                    <span class="cert-badge earned">Earned</span>
+                </div>
+                <div class="cert-card">
+                    <div class="cert-card-top">
+                        <div class="cert-icon"><i class="fas fa-lock"></i></div>
+                        <div class="cert-info">
+                            <h3>CompTIA Security+</h3>
+                            <p>Security+ Certification</p>
+                            <span class="cert-issuer">CompTIA</span>
+                        </div>
+                    </div>
+                    <span class="cert-badge earned">Earned</span>
+                </div>
+                <div class="cert-card">
+                    <div class="cert-card-top">
+                        <div class="cert-icon"><i class="fas fa-shield-alt"></i></div>
+                        <div class="cert-info">
+                            <h3>BTL1</h3>
+                            <p>Blue Team Level 1</p>
+                            <span class="cert-issuer">Security Blue Team</span>
+                        </div>
+                    </div>
+                    <span class="cert-badge earned">Earned</span>
+                </div>
+                <div class="cert-card">
+                    <div class="cert-card-top">
+                        <div class="cert-icon"><i class="fas fa-vault"></i></div>
+                        <div class="cert-info">
+                            <h3>CompTIA SecurityX</h3>
+                            <p>Advanced Security Practitioner</p>
+                            <span class="cert-issuer">CompTIA</span>
+                        </div>
+                    </div>
+                    <span class="cert-badge in-progress">In Progress</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- Easter egg overlay -->
+    <div id="eggOverlay" class="egg-overlay" aria-hidden="true">
+        <div class="egg-terminal">
+            <div class="egg-header">
+                <span class="egg-dot red"></span>
+                <span class="egg-dot yellow"></span>
+                <span class="egg-dot green"></span>
+                <span class="egg-title">root@thomson.cx — bash</span>
+            </div>
+            <div class="egg-body" id="eggBody"></div>
+        </div>
+        <p class="egg-dismiss">press <kbd>esc</kbd> or click anywhere to close</p>
+    </div>
+
+    <script src="/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,508 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volatility — Memory Forensics | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="mouse_t.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo writeup-logo">
+                <img src="mouse_t.png" class="nav-mouse" alt="">
+            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="index.html#ctf" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Labs
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="writeup-hero">
+        <div class="container">
+            <div class="writeup-meta">
+                <span class="ctf-platform forensics">Forensics</span>
+                <span class="ctf-difficulty medium">Intermediate</span>
+                <span class="writeup-category"><i class="fas fa-tag"></i> Memory Forensics / Malware Analysis / DFIR</span>
+            </div>
+            <h1 class="writeup-title">Volatility — Memory Forensics</h1>
+            <p class="writeup-subtitle">A practical guide to analysing memory dumps with Volatility 3 — covering process analysis, network connections, malware hunting, and artefact extraction.</p>
+            <div class="writeup-stats">
+                <span><i class="fas fa-clock"></i> 20 min read</span>
+                <span><i class="fas fa-terminal"></i> Hands-on</span>
+                <span><i class="fas fa-shield-alt"></i> Blue Team / DFIR</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="writeup-body">
+        <div class="container writeup-container">
+
+            <aside class="writeup-toc">
+                <div class="toc-card">
+                    <h3 class="toc-title"><i class="fas fa-list"></i> Contents</h3>
+                    <ul class="toc-links">
+                        <li><a href="#intro">What is Volatility?</a></li>
+                        <li><a href="#setup">Getting Started</a></li>
+                        <li><a href="#imageinfo">Identifying the Image</a></li>
+                        <li><a href="#processes">Process Analysis</a></li>
+                        <li><a href="#network">Network Connections</a></li>
+                        <li><a href="#malfind">Hunting Malware</a></li>
+                        <li><a href="#registry">Registry &amp; Files</a></li>
+                        <li><a href="#dumping">Dumping Artefacts</a></li>
+                        <li><a href="#tips">Tips &amp; Best Practices</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <article class="writeup-content">
+
+                <section id="intro" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>What is Volatility?</h2>
+                    <p>Volatility is an open-source memory forensics framework written in Python. It analyses raw memory dumps taken from a live system — giving you a snapshot of everything that was in RAM at the time of capture: running processes, open network connections, loaded DLLs, registry hives, injected shellcode, and more.</p>
+                    <p>Memory forensics is often the most valuable part of a malware investigation. Disk artefacts can be wiped or encrypted, but a memory dump captured mid-execution exposes exactly what the malware was doing — including code that never touched the disk.</p>
+
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>This guide covers <strong>Volatility 3</strong>, the current version. Vol3 no longer requires profiles — it automatically identifies the OS and uses symbol tables instead. Commands shown use <code>vol.py</code> but the tool may also be invoked as <code>vol</code> depending on your installation.</p>
+                    </div>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Supported memory sources</th><th>Notes</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Raw memory dump (<code>.raw</code>, <code>.mem</code>, <code>.dmp</code>)</td><td>Most common — produced by tools like WinPmem, DumpIt, Magnet RAM Capture</td></tr>
+                                <tr><td>Windows crash dump (<code>.dmp</code>)</td><td>Full kernel dumps include all physical memory</td></tr>
+                                <tr><td>Hibernation file (<code>hiberfil.sys</code>)</td><td>Compressed RAM snapshot from Windows hibernation</td></tr>
+                                <tr><td>VMware snapshot (<code>.vmem</code> + <code>.vmss</code>)</td><td>Virtualised environment memory — common in lab scenarios</td></tr>
+                                <tr><td>VirtualBox snapshot (<code>.sav</code>)</td><td>VirtualBox saved state files</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="setup" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Getting Started</h2>
+                    <p>Volatility 3 requires Python 3.7+ and can be installed via pip or run directly from the source repository.</p>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">bash</span></div>
+                        <pre><code># Clone the repository
+git clone https://github.com/volatilityfoundation/volatility3.git
+cd volatility3
+
+# Install dependencies
+pip3 install -r requirements.txt
+
+# Verify install
+python3 vol.py -h</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">Basic command structure</h3>
+                    <p>All Volatility 3 commands follow the same pattern. The <code>-f</code> flag specifies the memory image, followed by the plugin name.</p>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">bash</span></div>
+                        <pre><code>python3 vol.py -f &lt;memory.dmp&gt; &lt;plugin&gt; [options]
+
+# Example
+python3 vol.py -f memdump.raw windows.pslist</code></pre>
+                    </div>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Pipe output to a file.</strong> Volatility plugins often return hundreds of rows. Always redirect output so you can grep and search at leisure: <code>vol.py -f mem.raw windows.pslist &gt; pslist.txt</code></p>
+                    </div>
+
+                    <h3 class="sub-heading">Plugin namespaces</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Prefix</th><th>Target OS</th><th>Example</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>windows.</code></td><td>Windows</td><td><code>windows.pslist</code></td></tr>
+                                <tr><td><code>linux.</code></td><td>Linux</td><td><code>linux.pslist</code></td></tr>
+                                <tr><td><code>mac.</code></td><td>macOS</td><td><code>mac.pslist</code></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="imageinfo" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Identifying the Image</h2>
+                    <p>Before running analysis plugins, confirm what OS and architecture the dump is from. Volatility 3 handles this automatically in most cases, but <code>windows.info</code> gives you a clear summary.</p>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">bash</span></div>
+                        <pre><code># OS and kernel information
+python3 vol.py -f memdump.raw windows.info</code></pre>
+                    </div>
+
+                    <p>This returns the Windows version, build number, architecture, processor count, and base kernel offsets — useful context for the rest of the investigation.</p>
+
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p><strong>Volatility 2 difference:</strong> In Vol2 you had to manually specify <code>--profile=Win10x64_19041</code>. Vol3 replaces this with automatic symbol resolution using ISF (Intermediate Symbol Format) files downloaded on first use.</p>
+                    </div>
+                </section>
+
+                <section id="processes" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Process Analysis</h2>
+                    <p>Process analysis is usually the first step in a memory investigation. You want to understand what was running, how processes relate to each other, and whether anything looks out of place.</p>
+
+                    <h3 class="sub-heading">List running processes</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">bash</span></div>
+                        <pre><code># Walk the EPROCESS linked list — the standard process list
+python3 vol.py -f memdump.raw windows.pslist
+
+# Display as a tree showing parent-child relationships
+python3 vol.py -f memdump.raw windows.pstree</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">Scan for hidden processes</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">bash</span></div>
+                        <pre><code># Scan memory for EPROCESS structures directly — finds processes
+# unlinked from the list by rootkits
+python3 vol.py -f memdump.raw windows.psscan</code></pre>
+                    </div>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Compare pslist vs psscan.</strong> Any process that appears in <code>psscan</code> but not <code>pslist</code> has been deliberately unlinked from the process list — a strong indicator of a rootkit or advanced malware hiding itself.</p>
+                    </div>
+
+                    <h3 class="sub-heading">Command line arguments</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">bash</span></div>
+                        <pre><code># Show the full command line used to launch each process
+python3 vol.py -f memdump.raw windows.cmdline</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">DLLs loaded per process</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">bash</span></div>
+                        <pre><code># All DLLs loaded by every process
+python3 vol.py -f memdump.raw windows.dlllist
+
+# Filter to a specific PID
+python3 vol.py -f memdump.raw windows.dlllist --pid 1234</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">What to look for in processes</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Indicator</th><th>Why it matters</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Misspelled system process names (<code>svch0st.exe</code>, <code>lsass_.exe</code>)</td><td>Malware masquerading as a legitimate process</td></tr>
+                                <tr><td>System processes with unexpected parent PIDs</td><td>e.g. <code>lsass.exe</code> spawned by anything other than <code>wininit.exe</code></td></tr>
+                                <tr><td>Multiple instances of processes that should be singular</td><td>There should only be one <code>lsass.exe</code>, one <code>csrss.exe</code> per session</td></tr>
+                                <tr><td><code>cmd.exe</code> or <code>powershell.exe</code> as a child of an unexpected parent</td><td>e.g. spawned from <code>winword.exe</code> — macro execution</td></tr>
+                                <tr><td>Processes with no executable path on disk</td><td>Fileless malware running entirely in memory</td></tr>
+                                <tr><td>Process running from <code>Temp</code>, <code>AppData</code>, or unusual paths</td><td>Malware rarely runs from <code>System32</code></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Expected Windows process hierarchy</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Process</th><th>Expected parent</th><th>Expected count</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>smss.exe</code></td><td><code>System</code></td><td>1</td></tr>
+                                <tr><td><code>csrss.exe</code></td><td><code>smss.exe</code></td><td>1 per session</td></tr>
+                                <tr><td><code>wininit.exe</code></td><td><code>smss.exe</code></td><td>1</td></tr>
+                                <tr><td><code>winlogon.exe</code></td><td><code>smss.exe</code></td><td>1 per session</td></tr>
+                                <tr><td><code>lsass.exe</code></td><td><code>wininit.exe</code></td><td>1</td></tr>
+                                <tr><td><code>services.exe</code></td><td><code>wininit.exe</code></td><td>1</td></tr>
+                                <tr><td><code>svchost.exe</code></td><td><code>services.exe</code></td><td>Multiple (normal)</td></tr>
+                                <tr><td><code>explorer.exe</code></td><td><code>userinit.exe</code></td><td>1 per logged-in user</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="network" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Network Connections</h2>
+                    <p>Network plugins extract connection state from memory — showing active and recently closed TCP connections and UDP sockets, along with which process owns them.</p>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">bash</span></div>
+                        <pre><code># Active and recently closed TCP connections
+python3 vol.py -f memdump.raw windows.netstat
+
+# Scan memory for network structures (finds more, including closed connections)
+python3 vol.py -f memdump.raw windows.netscan</code></pre>
+                    </div>
+
+                    <p>Both plugins return: local address/port, remote address/port, connection state, owning PID, process name, and creation time.</p>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Prefer netscan over netstat.</strong> <code>netscan</code> scans physical memory directly and often surfaces connections that have been closed but not yet cleared, giving you a broader picture of network activity at the time of capture.</p>
+                    </div>
+
+                    <h3 class="sub-heading">Suspicious network indicators</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Indicator</th><th>Significance</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Outbound connection from <code>lsass.exe</code>, <code>svchost.exe</code>, or system processes</td><td>System processes don't make outbound connections — almost certainly malicious</td></tr>
+                                <tr><td>Connection to a non-standard port (4444, 1337, 8888, 443 to a non-CDN IP)</td><td>Reverse shell or C2 channel</td></tr>
+                                <tr><td>Large number of connections to the same external IP</td><td>Beaconing or data exfiltration</td></tr>
+                                <tr><td>Listening port opened by an unexpected process</td><td>Backdoor or bind shell</td></tr>
+                                <tr><td>Connection from a process with no on-disk executable</td><td>Fileless malware communicating outbound</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="malfind" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Hunting Malware</h2>
+                    <p>These plugins are specifically designed for detecting malicious code in memory — injected shellcode, hollowed processes, and hooked functions.</p>
+
+                    <h3 class="sub-heading">malfind — injected code detection</h3>
+                    <p><code>malfind</code> scans Virtual Address Descriptor (VAD) entries for memory regions that are executable, not backed by a file on disk, and contain code-like content. This is the primary way to find shellcode injection and process hollowing.</p>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">bash</span></div>
+                        <pre><code># Scan all processes for suspicious memory regions
+python3 vol.py -f memdump.raw windows.malfind
+
+# Limit to a specific process
+python3 vol.py -f memdump.raw windows.malfind --pid 1234
+
+# Dump suspicious regions to disk for further analysis
+python3 vol.py -f memdump.raw windows.malfind --dump</code></pre>
+                    </div>
+
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>malfind produces false positives.</strong> Legitimate software like browsers and .NET runtimes frequently JIT-compile code into anonymous RWX memory regions. Always verify hits manually — look for MZ headers, shellcode patterns, or recognisable C2 signatures in the hex output before concluding injection.</p>
+                    </div>
+
+                    <h3 class="sub-heading">Handles — open object references</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">bash</span></div>
+                        <pre><code># All open handles for a process (files, registry keys, mutexes, threads)
+python3 vol.py -f memdump.raw windows.handles --pid 1234</code></pre>
+                    </div>
+
+                    <p>Malware often uses named mutexes as an infection marker to avoid re-infecting the same host. Unique or randomly named mutexes in suspicious processes are worth noting.</p>
+
+                    <h3 class="sub-heading">Services</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">bash</span></div>
+                        <pre><code># Enumerate Windows services from memory
+python3 vol.py -f memdump.raw windows.svcscan</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">Suspicious memory region flags</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>VAD Protection</th><th>Meaning</th><th>Suspicion level</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>PAGE_EXECUTE_READWRITE</code></td><td>Memory is readable, writable, and executable simultaneously</td><td>High — legitimate code is rarely RWX</td></tr>
+                                <tr><td><code>PAGE_EXECUTE_READ</code></td><td>Readable and executable but not writable</td><td>Normal for mapped DLLs</td></tr>
+                                <tr><td><code>PAGE_NOACCESS</code></td><td>Reserved memory with no access</td><td>Low on its own</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">vadinfo — virtual address descriptor details</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">bash</span></div>
+                        <pre><code># Show VAD tree for a specific process
+python3 vol.py -f memdump.raw windows.vadinfo --pid 1234</code></pre>
+                    </div>
+                </section>
+
+                <section id="registry" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Registry &amp; Files</h2>
+                    <p>Registry hives are mapped into memory during runtime. Volatility can read them directly from the dump without needing the on-disk hive files.</p>
+
+                    <h3 class="sub-heading">List registry hives</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">bash</span></div>
+                        <pre><code># List all registry hives loaded in memory
+python3 vol.py -f memdump.raw windows.registry.hivelist</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">Print a registry key</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">bash</span></div>
+                        <pre><code># Read a specific key — useful for checking persistence locations
+python3 vol.py -f memdump.raw windows.registry.printkey \
+    --key "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
+
+# Read a user-specific Run key
+python3 vol.py -f memdump.raw windows.registry.printkey \
+    --key "SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce"</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">Common persistence registry keys</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Registry key</th><th>What malware does with it</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>...\CurrentVersion\Run</code></td><td>Execute on every user login — most common persistence mechanism</td></tr>
+                                <tr><td><code>...\CurrentVersion\RunOnce</code></td><td>Execute once on next login then delete the entry</td></tr>
+                                <tr><td><code>...\CurrentVersion\RunServices</code></td><td>Legacy service autostart</td></tr>
+                                <tr><td><code>SYSTEM\CurrentControlSet\Services</code></td><td>Malicious driver or service installation</td></tr>
+                                <tr><td><code>SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon</code></td><td>Modify <code>Shell</code> or <code>Userinit</code> values for persistence</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">File objects in memory</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">bash</span></div>
+                        <pre><code># Scan memory for FILE_OBJECT structures — finds open and recently closed files
+python3 vol.py -f memdump.raw windows.filescan
+
+# Filter output to find a specific file
+python3 vol.py -f memdump.raw windows.filescan | grep -i "\.exe\|\.dll\|\.bat\|temp"</code></pre>
+                    </div>
+                </section>
+
+                <section id="dumping" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Dumping Artefacts</h2>
+                    <p>Once you've identified suspicious processes, files, or memory regions, you can extract them from the dump for further analysis in tools like PE Studio, Ghidra, or a sandbox.</p>
+
+                    <h3 class="sub-heading">Dump a process executable</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">bash</span></div>
+                        <pre><code># Dump the executable image of a process from memory
+python3 vol.py -f memdump.raw windows.procdump --pid 1234 --dump-dir ./output/</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">Dump all process memory</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">bash</span></div>
+                        <pre><code># Dump the full memory map of a process (includes heap, stack, injected code)
+python3 vol.py -f memdump.raw windows.memmap --pid 1234 --dump</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">Dump files from memory</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">bash</span></div>
+                        <pre><code># Dump a file by its virtual offset (from filescan output)
+python3 vol.py -f memdump.raw windows.dumpfiles --virtaddr 0xXXXXXXXX
+
+# Dump all cached files matching a pattern
+python3 vol.py -f memdump.raw windows.dumpfiles --filter "\.exe$"</code></pre>
+                    </div>
+
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Handle dumped files as live malware.</strong> Any executable extracted from a malware capture should be treated as active. Open in an isolated VM or submit to a sandbox (Any.run, VirusTotal) rather than executing on your analysis machine.</p>
+                    </div>
+
+                    <h3 class="sub-heading">Full plugin reference</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Plugin</th><th>What it does</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>windows.info</code></td><td>OS version, architecture, kernel base address</td></tr>
+                                <tr><td><code>windows.pslist</code></td><td>Active processes via EPROCESS linked list</td></tr>
+                                <tr><td><code>windows.pstree</code></td><td>Process tree showing parent-child relationships</td></tr>
+                                <tr><td><code>windows.psscan</code></td><td>Scan for EPROCESS structures — finds hidden processes</td></tr>
+                                <tr><td><code>windows.cmdline</code></td><td>Command line arguments per process</td></tr>
+                                <tr><td><code>windows.dlllist</code></td><td>Loaded DLLs per process</td></tr>
+                                <tr><td><code>windows.handles</code></td><td>Open handles (files, keys, mutexes) per process</td></tr>
+                                <tr><td><code>windows.netscan</code></td><td>Network connections and sockets</td></tr>
+                                <tr><td><code>windows.netstat</code></td><td>Active TCP/UDP connections</td></tr>
+                                <tr><td><code>windows.malfind</code></td><td>Injected code and suspicious memory regions</td></tr>
+                                <tr><td><code>windows.vadinfo</code></td><td>Virtual address descriptor details per process</td></tr>
+                                <tr><td><code>windows.svcscan</code></td><td>Windows services from memory</td></tr>
+                                <tr><td><code>windows.registry.hivelist</code></td><td>Registry hives loaded in memory</td></tr>
+                                <tr><td><code>windows.registry.printkey</code></td><td>Print contents of a registry key</td></tr>
+                                <tr><td><code>windows.filescan</code></td><td>FILE_OBJECT structures — open and cached files</td></tr>
+                                <tr><td><code>windows.procdump</code></td><td>Dump process executable from memory</td></tr>
+                                <tr><td><code>windows.memmap</code></td><td>Full memory map of a process</td></tr>
+                                <tr><td><code>windows.dumpfiles</code></td><td>Extract cached files from memory</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="tips" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Tips &amp; Best Practices</h2>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Start with pslist, pstree, and netscan.</strong> These three plugins give you the broadest initial picture — what was running, how it was structured, and what it was communicating with. Build your investigation from what stands out here.</p>
+                    </div>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Always compare pslist and psscan.</strong> Discrepancies between the two are one of the most reliable indicators of a rootkit or process-hiding technique. A process in psscan but not pslist is hiding.</p>
+                    </div>
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Capture memory as early as possible.</strong> RAM is volatile — processes terminate, connections close, and injected code gets paged out. The sooner you capture memory after an incident is detected, the more evidence you'll recover.</p>
+                    </div>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p><strong>Correlate with disk artefacts.</strong> Memory forensics is most powerful when combined with disk analysis (Autopsy) and network logs (Wireshark/Sentinel). A process you find in memory can be cross-referenced against prefetch files, event logs, and network captures for a complete picture.</td></p>
+                    </div>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Check hashes of dumped files.</strong> After extracting a suspicious executable with procdump, run the file hash through VirusTotal and your threat intel platform before spending time on manual analysis. It may already be a known sample.</p>
+                    </div>
+                </section>
+
+            </article>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+    </script>
+</body>
+</html>

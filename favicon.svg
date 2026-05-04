@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="6" fill="#0d1117"/>
+  <!-- Ears (behind hat) -->
+  <circle cx="7" cy="13" r="6.5" fill="#b8ccd8"/>
+  <circle cx="7" cy="13.5" r="3.6" fill="#f09aaa" opacity="0.8"/>
+  <circle cx="25" cy="13" r="6.5" fill="#b8ccd8"/>
+  <circle cx="25" cy="13.5" r="3.6" fill="#f09aaa" opacity="0.8"/>
+  <!-- Head -->
+  <circle cx="16" cy="25" r="11" fill="#b8ccd8"/>
+  <!-- Hat dome -->
+  <rect x="11" y="2" width="10" height="12.5" rx="3.5" fill="#1a1d32"/>
+  <!-- Hat band -->
+  <rect x="11" y="11" width="10" height="3.5" fill="#00cc66"/>
+  <!-- Hat brim -->
+  <ellipse cx="16" cy="15" rx="12.5" ry="2.5" fill="#111320"/>
+  <!-- Eyes -->
+  <circle cx="12.5" cy="24" r="3" fill="white" opacity="0.9"/>
+  <circle cx="19.5" cy="24" r="3" fill="white" opacity="0.9"/>
+  <circle cx="12.5" cy="24" r="2.1" fill="#00ff88"/>
+  <circle cx="19.5" cy="24" r="2.1" fill="#00ff88"/>
+  <circle cx="12.5" cy="24" r="1" fill="#001a0a"/>
+  <circle cx="19.5" cy="24" r="1" fill="#001a0a"/>
+  <!-- Nose -->
+  <ellipse cx="16" cy="28" rx="1.6" ry="1.3" fill="#f09aaa"/>
+</svg>
