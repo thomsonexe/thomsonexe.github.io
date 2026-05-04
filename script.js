@@ -1265,77 +1265,85 @@ if (document.getElementById('threatCanvas')) {
 
     const WORKER = 'https://ip-check.zeusthegoat.workers.dev/?ip=';
 
-    function scoreClass(s) {
-        if (s <= 10) return 'score-low';
-        if (s <= 50) return 'score-medium';
-        if (s <= 90) return 'score-high';
+    function scoreClass(malicious, total) {
+        const pct = total ? malicious / total : 0;
+        if (malicious === 0) return 'score-low';
+        if (pct < 0.15)      return 'score-medium';
+        if (pct < 0.4)       return 'score-high';
         return 'score-critical';
     }
-    function scoreLabel(s) {
-        if (s <= 10) return 'Clean';
-        if (s <= 50) return 'Suspicious';
-        if (s <= 90) return 'Malicious';
+    function scoreLabel(malicious) {
+        if (malicious === 0) return 'Clean';
+        if (malicious <= 3)  return 'Suspicious';
+        if (malicious <= 10) return 'Malicious';
         return 'Critical';
     }
-    function fmtDate(str) {
-        if (!str) return 'Never';
-        return new Date(str).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-    }
 
-    function render(data) {
-        const d     = data.data;
-        const score = d.abuseConfidenceScore;
-        const cls   = scoreClass(score);
-        const lbl   = scoreLabel(score);
-        const flag  = d.countryCode ? `<span class="fi fi-${d.countryCode.toLowerCase()}"></span>` : '';
+    function render(data, ip) {
+        const a     = data.data.attributes;
+        const stats = a.last_analysis_stats || {};
+        const mal   = stats.malicious  || 0;
+        const sus   = stats.suspicious || 0;
+        const har   = stats.harmless   || 0;
+        const und   = stats.undetected || 0;
+        const total = mal + sus + har + und + (stats.timeout || 0);
+        const cls   = scoreClass(mal, total);
+        const lbl   = scoreLabel(mal);
+        const pct   = total ? Math.round((mal / total) * 100) : 0;
+        const cc    = (a.country || '').toLowerCase();
+        const flag  = cc ? `<span class="fi fi-${cc}"></span>` : '';
 
         results.innerHTML = `
         <div class="ip-result-card">
             <div class="ip-score-section ${cls}">
-                <div class="ip-score-val">${score}</div>
-                <div class="ip-score-bar-wrap"><div class="ip-score-bar" style="width:${score}%"></div></div>
-                <div class="ip-score-label">${lbl} &mdash; Abuse Confidence Score</div>
+                <div class="ip-score-val">${mal}<span class="ip-score-denom"> / ${total}</span></div>
+                <div class="ip-score-bar-wrap"><div class="ip-score-bar" style="width:${pct}%"></div></div>
+                <div class="ip-score-label">${lbl} &mdash; vendors flagged this IP as malicious</div>
             </div>
-            <div class="ip-address-display">${d.ipAddress}</div>
+            <div class="ip-address-display">${ip}</div>
             <div class="ip-info-grid">
                 <div class="ip-info-card">
+                    <span class="ip-info-label"><i class="fas fa-circle-xmark" style="color:#ff4d4d"></i> Malicious</span>
+                    <span class="ip-info-val">${mal}</span>
+                </div>
+                <div class="ip-info-card">
+                    <span class="ip-info-label"><i class="fas fa-circle-exclamation" style="color:#ffb400"></i> Suspicious</span>
+                    <span class="ip-info-val">${sus}</span>
+                </div>
+                <div class="ip-info-card">
+                    <span class="ip-info-label"><i class="fas fa-circle-check" style="color:#00c864"></i> Harmless</span>
+                    <span class="ip-info-val">${har}</span>
+                </div>
+                <div class="ip-info-card">
+                    <span class="ip-info-label"><i class="fas fa-circle" style="color:var(--text-muted)"></i> Undetected</span>
+                    <span class="ip-info-val">${und}</span>
+                </div>
+                <div class="ip-info-card">
                     <span class="ip-info-label"><i class="fas fa-flag"></i> Country</span>
-                    <span class="ip-info-val">${flag} ${d.countryCode || '&mdash;'}</span>
+                    <span class="ip-info-val">${flag} ${a.country || '&mdash;'}</span>
                 </div>
                 <div class="ip-info-card">
-                    <span class="ip-info-label"><i class="fas fa-building"></i> ISP</span>
-                    <span class="ip-info-val">${d.isp || '&mdash;'}</span>
+                    <span class="ip-info-label"><i class="fas fa-building"></i> ASN Owner</span>
+                    <span class="ip-info-val">${a.as_owner || '&mdash;'}</span>
                 </div>
                 <div class="ip-info-card">
-                    <span class="ip-info-label"><i class="fas fa-globe"></i> Domain</span>
-                    <span class="ip-info-val">${d.domain || '&mdash;'}</span>
+                    <span class="ip-info-label"><i class="fas fa-network-wired"></i> ASN</span>
+                    <span class="ip-info-val">${a.asn ? 'AS' + a.asn : '&mdash;'}</span>
                 </div>
                 <div class="ip-info-card">
-                    <span class="ip-info-label"><i class="fas fa-server"></i> Usage Type</span>
-                    <span class="ip-info-val">${d.usageType || '&mdash;'}</span>
+                    <span class="ip-info-label"><i class="fas fa-server"></i> Network</span>
+                    <span class="ip-info-val">${a.network || '&mdash;'}</span>
                 </div>
                 <div class="ip-info-card">
-                    <span class="ip-info-label"><i class="fas fa-triangle-exclamation"></i> Total Reports</span>
-                    <span class="ip-info-val">${d.totalReports.toLocaleString()}</span>
+                    <span class="ip-info-label"><i class="fas fa-database"></i> Registry</span>
+                    <span class="ip-info-val">${a.regional_internet_registry || '&mdash;'}</span>
                 </div>
                 <div class="ip-info-card">
-                    <span class="ip-info-label"><i class="fas fa-users"></i> Distinct Reporters</span>
-                    <span class="ip-info-val">${d.numDistinctUsers.toLocaleString()}</span>
+                    <span class="ip-info-label"><i class="fas fa-star"></i> Reputation</span>
+                    <span class="ip-info-val" style="color:${a.reputation < 0 ? '#ff4d4d' : '#00c864'}">${a.reputation ?? '&mdash;'}</span>
                 </div>
-                <div class="ip-info-card">
-                    <span class="ip-info-label"><i class="fas fa-clock"></i> Last Reported</span>
-                    <span class="ip-info-val">${fmtDate(d.lastReportedAt)}</span>
-                </div>
-                <div class="ip-info-card">
-                    <span class="ip-info-label"><i class="fas fa-code-branch"></i> IP Version</span>
-                    <span class="ip-info-val">IPv${d.ipVersion}</span>
-                </div>
-                ${d.isTor ? `<div class="ip-info-card ip-tor-flag">
-                    <span class="ip-info-label"><i class="fas fa-shield-halved"></i> Tor Exit Node</span>
-                    <span class="ip-info-val">Yes</span>
-                </div>` : ''}
             </div>
-            <p class="ip-attribution">Data provided by <a href="https://www.abuseipdb.com" target="_blank" rel="noopener">AbuseIPDB</a></p>
+            <p class="ip-attribution">Data provided by <a href="https://www.virustotal.com" target="_blank" rel="noopener">VirusTotal</a></p>
         </div>`;
     }
 
@@ -1346,9 +1354,9 @@ if (document.getElementById('threatCanvas')) {
         try {
             const r    = await fetch(WORKER + encodeURIComponent(ip));
             const data = await r.json();
-            if (data.errors) throw new Error(data.errors[0]?.detail || 'API error');
-            if (!data.data)  throw new Error('No data returned');
-            render(data);
+            if (data.error) throw new Error(data.error.message || 'API error');
+            if (!data.data) throw new Error('No data returned');
+            render(data, ip);
         } catch (e) {
             results.innerHTML = `<div class="ip-error"><i class="fas fa-triangle-exclamation"></i> ${e.message || 'Lookup failed — check the IP and try again.'}</div>`;
         }

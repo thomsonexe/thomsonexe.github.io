@@ -1340,6 +1340,10 @@ body {
 .score-medium .ip-score-bar { background: #ffb400; }
 .score-high   .ip-score-bar { background: #ff6400; }
 .score-critical .ip-score-bar { background: #ff2828; }
+.ip-score-denom {
+    font-size: 1.4rem;
+    opacity: 0.5;
+}
 .ip-score-label {
     font-size: 0.8rem;
     color: var(--text-muted);
