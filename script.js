@@ -1312,20 +1312,12 @@ async function fetchThreatData() {
         };
     }
 
-    // 1. Cloudflare Worker — AbuseIPDB (real attacker IPs) + Feodo Tracker, CORS solved
+    // 1. Cloudflare Worker — Feodo Tracker botnet C2 data
     try {
         const res = await tryFetch('https://threat-proxy.zeusthegoat.workers.dev/');
         if (res.ok) {
             const json = await res.json();
-
-            // Build sources: prefer AbuseIPDB country counts, fall back to Feodo
             const pairs = [];
-
-            if (json.abuseipdb?.countries && Object.keys(json.abuseipdb.countries).length) {
-                Object.entries(json.abuseipdb.countries).forEach(([cc]) => {
-                    pairs.push([cc, 'Reported Attack']);
-                });
-            }
 
             if (json.feodo?.length) {
                 json.feodo.forEach(e => pairs.push([e.country, e.malware || 'Botnet C2']));
@@ -1333,9 +1325,8 @@ async function fetchThreatData() {
 
             const { sources, malware } = buildResult(pairs);
             if (sources.length >= 2) {
-                const abuseTotal = json.abuseipdb?.total || 0;
-                const feodoTotal = json.feodo?.length  || 0;
-                if (labelEl)   labelEl.textContent   = `Live data: AbuseIPDB (${abuseTotal} IPs) + Feodo Tracker (${feodoTotal} C2s)`;
+                const feodoTotal = json.feodo?.length || 0;
+                if (labelEl)   labelEl.textContent   = `Live data: Feodo Tracker (${feodoTotal} C2s)`;
                 if (sourcesEl) sourcesEl.textContent = sources.length;
                 if (malwareEl) malwareEl.textContent = malware.length || '—';
                 initThreatMap(sources, malware.length ? malware : undefined);
