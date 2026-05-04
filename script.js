@@ -707,15 +707,60 @@ async function initKEVFeed() {
     modal?.addEventListener('click', e => { if (e.target === modal) closeModal(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal?.classList.contains('active')) closeModal(); });
 
-    function renderGrid(vulns) {
-        const loadedStr = loadedCount < totalResults ? ` — ${loadedCount.toLocaleString()} of ${totalResults.toLocaleString()} loaded` : ` — all ${totalResults.toLocaleString()} loaded`;
-        if (infoEl) infoEl.textContent = `showing ${vulns.length.toLocaleString()} of ${allVulns.length.toLocaleString()} vulnerabilities${loadedStr}`;
-        if (!vulns.length) {
+    const PAGE_SIZE = 25;
+    let filteredVulns = [];
+    let currentPage   = 1;
+    const paginationEl = document.getElementById('cvePagination');
+
+    function renderPagination(totalPages) {
+        if (!paginationEl) return;
+        if (totalPages <= 1) { paginationEl.innerHTML = ''; return; }
+
+        const pages = new Set([1, totalPages]);
+        for (let i = Math.max(2, currentPage - 2); i <= Math.min(totalPages - 1, currentPage + 2); i++) pages.add(i);
+        const sorted = [...pages].sort((a, b) => a - b);
+
+        let html = '<div class="cve-page-btns">';
+        html += `<button class="cve-page-btn cve-page-arrow" data-page="${currentPage - 1}" ${currentPage === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>`;
+        let prev = 0;
+        for (const p of sorted) {
+            if (p - prev > 1) html += '<span class="cve-page-ellipsis">&hellip;</span>';
+            html += `<button class="cve-page-btn ${p === currentPage ? 'active' : ''}" data-page="${p}">${p}</button>`;
+            prev = p;
+        }
+        html += `<button class="cve-page-btn cve-page-arrow" data-page="${currentPage + 1}" ${currentPage === totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>`;
+        html += '</div>';
+        paginationEl.innerHTML = html;
+
+        paginationEl.querySelectorAll('.cve-page-btn:not([disabled])').forEach(btn => {
+            btn.addEventListener('click', () => {
+                renderPage(parseInt(btn.dataset.page));
+                grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    }
+
+    function renderPage(page) {
+        currentPage = page;
+        const totalPages = Math.ceil(filteredVulns.length / PAGE_SIZE);
+        const start = (page - 1) * PAGE_SIZE;
+        const slice = filteredVulns.slice(start, start + PAGE_SIZE);
+
+        const from = filteredVulns.length ? start + 1 : 0;
+        const to   = Math.min(start + PAGE_SIZE, filteredVulns.length);
+        const loadedStr = loadedCount < totalResults
+            ? ` — ${loadedCount.toLocaleString()} of ${totalResults.toLocaleString()} fetched from NVD`
+            : ` — all ${totalResults.toLocaleString()} fetched`;
+        if (infoEl) infoEl.textContent = `showing ${from}–${to} of ${filteredVulns.length.toLocaleString()} vulnerabilities${loadedStr}`;
+
+        if (!slice.length) {
             grid.innerHTML = '<p class="cve-loading">No matches found.</p>';
+            renderPagination(0);
             return;
         }
+
         grid.innerHTML = '';
-        vulns.forEach(({ cve }) => {
+        slice.forEach(({ cve }) => {
             cveMap.set(cve.id, cve);
             const id        = cve.id;
             const desc      = (cve.descriptions || []).find(d => d.lang === 'en')?.value || '';
@@ -744,13 +789,15 @@ async function initKEVFeed() {
             card.addEventListener('click', () => openModal(id));
             grid.appendChild(card);
         });
+
+        renderPagination(totalPages);
     }
 
     function applyFilters() {
         const query   = searchEl?.value.toLowerCase().trim() || '';
         const sortVal = sortEl?.value || 'newest';
 
-        let filtered = allVulns.filter(({ cve }) => {
+        filteredVulns = allVulns.filter(({ cve }) => {
             if (activeSev !== 'all' && getSev(cve) !== activeSev) return false;
             if (query) {
                 const desc = (cve.descriptions || []).find(d => d.lang === 'en')?.value || '';
@@ -760,10 +807,11 @@ async function initKEVFeed() {
         });
 
         if (sortVal === 'score') {
-            filtered.sort((a, b) => (getScore(b.cve) ?? 0) - (getScore(a.cve) ?? 0));
+            filteredVulns.sort((a, b) => (getScore(b.cve) ?? 0) - (getScore(a.cve) ?? 0));
         }
 
-        renderGrid(filtered);
+        currentPage = 1;
+        renderPage(1);
     }
 
     let searchTimer;
