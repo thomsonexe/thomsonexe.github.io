@@ -178,7 +178,6 @@ function initTerminal() {
             if (file === 'contact.txt') return [
                 '<span class="t-accent">## Contact</span>', '',
                 '<span class="t-key">GitHub </span>  github.com/thomsonexe',
-                '<span class="t-key">Email  </span>  benthomsonwork@gmail.com',
                 '<span class="t-key">Site   </span>  thomson.cx',
             ];
             return [`<span style="color:#ff5f56">cat: ${args[0] || ''}: No such file or directory</span>`];
