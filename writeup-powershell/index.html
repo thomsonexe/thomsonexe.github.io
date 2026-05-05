@@ -108,7 +108,7 @@ Get-ChildItem -Path "$env:TEMP","$env:APPDATA","C:\ProgramData" -Recurse -ErrorA
     Select-Object FullName, CreationTime, Length
 
 # Installed services and their binary paths
-Get-WmiObject Win32_Service | Select-Object Name, State, PathName | Sort-Object State
+Get-CimInstance Win32_Service | Select-Object Name, State, PathName | Sort-Object State
 
 # Startup programs (all hives)
 Get-CimInstance Win32_StartupCommand | Select-Object Name, Command, Location, User</code></pre>
@@ -212,8 +212,8 @@ Get-ADObject -Filter * -Properties WhenChanged |
     Where-Object { $_.WhenChanged -gt (Get-Date).AddHours(-24) } |
     Select-Object Name, ObjectClass, WhenChanged | Sort-Object WhenChanged -Descending
 
-# Kerberoastable accounts (SPN set, not excluded from delegation)
-Get-ADUser -Filter { ServicePrincipalName -ne "$null" -and Enabled -eq $true } -Properties ServicePrincipalName |
+# Kerberoastable accounts (SPN set, enabled)
+Get-ADUser -Filter { ServicePrincipalName -like "*" -and Enabled -eq $true } -Properties ServicePrincipalName |
     Select-Object Name, SamAccountName, ServicePrincipalName</code></pre>
                     </div>
                 </section>
@@ -241,12 +241,12 @@ Get-ScheduledTask | Where-Object { $_.State -ne 'Disabled' } |
     Format-Table -AutoSize
 
 # WMI persistence (event subscriptions)
-Get-WMIObject -Namespace root\subscription -Class __EventFilter
-Get-WMIObject -Namespace root\subscription -Class __EventConsumer
-Get-WMIObject -Namespace root\subscription -Class __FilterToConsumerBinding
+Get-CimInstance -Namespace root/subscription -Class __EventFilter
+Get-CimInstance -Namespace root/subscription -Class __EventConsumer
+Get-CimInstance -Namespace root/subscription -Class __FilterToConsumerBinding
 
 # Services running from unusual paths
-Get-WmiObject Win32_Service |
+Get-CimInstance Win32_Service |
     Where-Object { $_.PathName -notmatch "System32|SysWOW64|Program Files" -and $_.State -eq "Running" } |
     Select-Object Name, PathName, StartMode
 
@@ -283,7 +283,7 @@ Remove-PSSession $session</code></pre>
 
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p><strong>WinRM generates Event 4648 and Microsoft-Windows-WinRM events.</strong> Your remote investigation commands are logged on the target host. This is expected and acceptable — but be aware the attacker may also be monitoring logs. Avoid running commands that would alert them (e.g. obviously stopping their persistence).</p>
+                        <p><strong>WinRM generates Event 4624 (LogonType 3, network logon) on the target host, along with Microsoft-Windows-WinRM events.</strong> Your remote investigation commands are logged. This is expected and acceptable — but be aware the attacker may also be monitoring logs. Avoid running commands that would alert them (e.g. obviously stopping their persistence).</p>
                     </div>
                 </section>
 
@@ -294,7 +294,7 @@ Remove-PSSession $session</code></pre>
                         <pre><code># Find encoded PowerShell in running processes
 Get-Process | ForEach-Object {
     try {
-        $cmdline = (Get-WmiObject Win32_Process -Filter "ProcessId=$($_.Id)").CommandLine
+        $cmdline = (Get-CimInstance Win32_Process -Filter "ProcessId=$($_.Id)").CommandLine
         if ($cmdline -match '-[Ee]nc') {
             [PSCustomObject]@{Name=$_.Name; Id=$_.Id; CommandLine=$cmdline}
         }

@@ -55,6 +55,7 @@
                         <li><a href="#fundamentals">AD Fundamentals</a></li>
                         <li><a href="#eventids">Key Event IDs</a></li>
                         <li><a href="#kerberoasting">Kerberoasting</a></li>
+                        <li><a href="#asrep">AS-REP Roasting</a></li>
                         <li><a href="#pth">Pass-the-Hash</a></li>
                         <li><a href="#ptt">Pass-the-Ticket</a></li>
                         <li><a href="#dcsync">DCSync</a></li>
@@ -171,6 +172,42 @@
                     </div>
                 </section>
 
+                <section id="asrep" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>AS-REP Roasting</h2>
+                    <p>AS-REP Roasting targets accounts that have <strong>Kerberos pre-authentication disabled</strong> — a flag set on the account in AD. When pre-authentication is disabled, the KDC will respond to an AS-REQ with an encrypted TGT without first verifying the requester knows the password. An attacker can request this encrypted blob and crack it offline.</p>
+                    <p>This differs from Kerberoasting in that the attacker doesn't even need valid domain credentials — only network access to a DC — making it useful for initial access or unauthenticated enumeration.</p>
+
+                    <h3 class="sub-heading">Attack flow</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead><tr><th>Step</th><th>What happens</th></tr></thead>
+                            <tbody>
+                                <tr><td>1. Identify vulnerable accounts</td><td>Enumerate accounts with <em>Do not require Kerberos preauthentication</em> set — using tools like <code>Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true}</code> or Impacket's <code>GetNPUsers.py</code></td></tr>
+                                <tr><td>2. Request AS-REP</td><td>Send an unauthenticated AS-REQ to the DC — the KDC responds with a TGT encrypted with the account's password hash</td></tr>
+                                <tr><td>3. Offline cracking</td><td>Crack the returned hash with Hashcat (<code>-m 18200</code>) or John the Ripper</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Detection</h3>
+                    <p>AS-REP Roasting generates <strong>Event ID 4768</strong> (Kerberos TGT requested) with encryption type <code>0x17</code> (RC4-HMAC) and a <strong>pre-authentication type of 0</strong>. Legitimate TGT requests use AES256 and always include pre-authentication.</p>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">KQL — Microsoft Sentinel</span></div>
+                        <pre><code>SecurityEvent
+| where EventID == 4768
+| where PreAuthType == "0"
+| where TicketEncryptionType == "0x17"
+| where AccountName !endswith "$"
+| project TimeGenerated, AccountName, IpAddress, Computer</code></pre>
+                    </div>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Mitigation:</strong> Audit all accounts with pre-authentication disabled using <code>Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true}</code>. There are very few legitimate reasons for this setting — enable pre-authentication on all accounts unless there is a specific technical requirement. Enforce AES256-only Kerberos to make cracking significantly harder.</p>
+                    </div>
+                </section>
+
                 <section id="pth" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Pass-the-Hash (PtH)</h2>
                     <p>NTLM authentication doesn't require the plaintext password — only the NT hash. An attacker who extracts a user's NTLM hash (via Mimikatz, secretsdump, or a memory dump) can authenticate as that user to any service accepting NTLM without cracking the hash.</p>
@@ -224,15 +261,15 @@
                     <p>Executed via Mimikatz: <code>lsadump::dcsync /domain:corp.local /user:krbtgt</code></p>
 
                     <h3 class="sub-heading">Detection</h3>
-                    <p>DCSync generates <strong>Event ID 4662</strong> on the Domain Controller when a non-DC account accesses replication permissions. Look for access to properties <code>1131f70-c91d-11d0-bbc8-00c04fd8d5b6</code> and <code>19195a5b-6da0-11d0-afd3-00c04fd930c9</code> by non-DC accounts.</p>
+                    <p>DCSync generates <strong>Event ID 4662</strong> on the Domain Controller when a non-DC account accesses replication permissions. Look for access to the <code>DS-Replication-Get-Changes</code> (<code>1131f6aa-9c07-11d1-f79f-00c04fc2dcd2</code>) and <code>DS-Replication-Get-Changes-All</code> (<code>1131f6ad-9c07-11d1-f79f-00c04fc2dcd2</code>) properties by non-DC accounts.</p>
 
                     <div class="code-block">
                         <div class="code-header"><span class="code-lang">KQL — Microsoft Sentinel</span></div>
                         <pre><code>SecurityEvent
 | where EventID == 4662
 | where ObjectType contains "domainDNS"
-| where Properties contains "1131f70-c91d-11d0-bbc8-00c04fd8d5b6"
-    or Properties contains "19195a5b-6da0-11d0-afd3-00c04fd930c9"
+| where Properties contains "1131f6aa-9c07-11d1-f79f-00c04fc2dcd2"
+    or Properties contains "1131f6ad-9c07-11d1-f79f-00c04fc2dcd2"
 | where Account !contains "Domain Controllers"
 | project TimeGenerated, Account, SubjectUserName, IpAddress</code></pre>
                     </div>

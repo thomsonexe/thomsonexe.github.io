@@ -73,7 +73,7 @@
                     <p>MDE is tightly integrated with Microsoft Sentinel, Entra ID, Microsoft Defender for Identity, and Microsoft Defender for Office 365 — giving analysts a correlated view across the entire Microsoft security stack through the <strong>Microsoft Defender portal</strong>.</p>
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
-                        <p>MDE is licensed as Plan 1 (basic EPP features) or <strong>Plan 2</strong> (full EDR, Advanced Hunting, Threat & Vulnerability Management). Most enterprise deployments use Plan 2, which is included in Microsoft 365 E5 and the Microsoft 365 Defender add-on.</p>
+                        <p>MDE is licensed as Plan 1 (basic EPP features) or <strong>Plan 2</strong> (full EDR, Advanced Hunting, Threat & Vulnerability Management). Most enterprise deployments use Plan 2, which is included in Microsoft 365 E5 and Microsoft Defender XDR.</p>
                     </div>
                 </section>
 
@@ -215,12 +215,19 @@
                     </div>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">KQL — LSASS memory access</span></div>
-                        <pre><code>DeviceProcessEvents
+                        <div class="code-header"><span class="code-lang">KQL — Rogue lsass.exe masquerading</span></div>
+                        <pre><code>// Detects processes named lsass.exe spawned by unexpected parents
+// (masquerading malware, not credential dumping via memory access)
+DeviceProcessEvents
 | where Timestamp > ago(24h)
-| where FileName == "lsass.exe"
-| where InitiatingProcessFileName !in~ ("wininit.exe", "svchost.exe", "lsm.exe", "services.exe", "MsMpEng.exe")
+| where FileName =~ "lsass.exe"
+| where InitiatingProcessFileName !in~ ("wininit.exe", "smss.exe")
 | project Timestamp, DeviceName, InitiatingProcessFileName, InitiatingProcessCommandLine, AccountName</code></pre>
+                    </div>
+
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>To detect credential dumping via LSASS <em>memory access</em> (e.g. Mimikatz), use <code>DeviceEvents</code> with <code>ActionType == "OpenProcess"</code> where <code>FileName == "lsass.exe"</code> — this captures handle opens to the LSASS process rather than new process creation events.</p>
                     </div>
 
                     <div class="code-block">
@@ -240,7 +247,7 @@
 | where Timestamp > ago(24h)
 | where LogonType == "Network"
 | where isnotempty(RemoteIP)
-| where RemoteIP !startswith "10." and RemoteIP !startswith "192.168." and RemoteIP !startswith "172."
+| where not(ipv4_is_private(RemoteIP)) and RemoteIP != "127.0.0.1"
 | project Timestamp, DeviceName, AccountName, RemoteIP, LogonType
 | sort by Timestamp desc</code></pre>
                     </div>

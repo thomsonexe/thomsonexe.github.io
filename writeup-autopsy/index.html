@@ -21,7 +21,7 @@
             </a>
             <div class="nav-right">
                 <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
-                <a href="/#ctf" class="btn btn-secondary back-btn">
+                <a href="/labs" class="btn btn-secondary back-btn">
                     <i class="fas fa-arrow-left"></i> Back to Labs
                 </a>
             </div>
@@ -150,7 +150,7 @@
                                 <tr><td>Email Parser</td><td>Parses PST, MBOX, and EML files and populates the Email Accounts section</td></tr>
                                 <tr><td>Encryption Detection</td><td>Flags encrypted or high-entropy files — may indicate packed malware or encrypted containers</td></tr>
                                 <tr><td>EXIF Parser</td><td>Extracts metadata from images — GPS coordinates, camera model, timestamps</td></tr>
-                                <tr><td>Plaso / Log2Timeline</td><td>Generates a super-timeline from multiple artefact types (if installed)</td></tr>
+                                <tr><td>Plaso / Log2Timeline</td><td>Generates a super-timeline from multiple artefact types — requires separate installation; not included in Autopsy by default</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -220,7 +220,7 @@
 
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
-                        <p>File carving (finding deleted files without a directory entry) is handled by the <strong>PhotoRec</strong> carver built into Autopsy. It reconstructs files based on file headers and footers in unallocated space — useful when the directory entry itself has been overwritten.</p>
+                        <p>File carving (finding deleted files without a directory entry) is handled by the <strong>PhotoRec</strong> carver integrated into Autopsy. PhotoRec is an open-source tool from CGSecurity — Autopsy bundles it to reconstruct files based on file headers and footers in unallocated space, useful when the directory entry itself has been overwritten.</p>
                     </div>
 
                     <h3 class="sub-heading">Recovery states</h3>

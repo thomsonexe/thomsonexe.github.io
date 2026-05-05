@@ -272,8 +272,8 @@ grep -r "alias\|export\|source" /etc/profile /etc/bashrc /etc/bash.bashrc ~/.bas
                         <pre><code># Who is logged in and what are they running?
 w
 
-# What processes are making outbound network connections right now?
-ss -tulpn | grep ESTABLISHED
+# What processes have established outbound network connections right now?
+ss -tnp state established
 
 # Which process is listening on a suspicious port?
 lsof -i :4444

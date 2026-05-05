@@ -292,7 +292,8 @@ lastlog | grep -v "Never logged in" | sort -k4</code></pre>
 grep "Failed password" /var/log/auth.log | awk '{print $(NF-3)}' | sort | uniq -c | sort -rn | head -10
 
 # All unique usernames targeted in brute force
-grep "Failed password" /var/log/auth.log | awk '{print $9}' | sort | uniq -c | sort -rn
+# Note: "for invalid user" entries shift the field position — use a pattern match instead
+grep "Failed password" /var/log/auth.log | awk '{for(i=1;i<=NF;i++) if($i=="for"){print $(i+1); break}}' | sort | uniq -c | sort -rn
 
 # Find where a successful login came from
 grep "Accepted" /var/log/auth.log | grep "username"</code></pre>

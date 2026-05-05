@@ -287,10 +287,12 @@
                     </div>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">XQL — LSASS access attempts</span></div>
-                        <pre><code>dataset = xdr_data
+                        <div class="code-header"><span class="code-lang">XQL — Rogue lsass.exe masquerading</span></div>
+                        <pre><code>// Detects processes named lsass.exe spawned by unexpected parents
+// lsass.exe should only ever be started by wininit.exe
+dataset = xdr_data
 | filter event_type = "ENUM.PROCESS" and action_process_image_name = "lsass.exe"
-| filter actor_process_image_name not in ("svchost.exe", "wininit.exe", "services.exe", "lsm.exe")
+| filter actor_process_image_name not in ("wininit.exe", "smss.exe")
 | fields agent_hostname, actor_process_image_name, actor_process_image_path, _time
 | sort desc _time</code></pre>
                     </div>

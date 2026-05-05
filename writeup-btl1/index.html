@@ -197,7 +197,7 @@ python3 vol.py -f memory.vmem windows.netstat
 python3 vol.py -f memory.vmem windows.malfind
 
 # Dump a process for further analysis
-python3 vol.py -f memory.vmem windows.dumpfiles --pid 1234
+python3 vol.py -f memory.vmem windows.procdump --pid 1234 --dump-dir ./output/
 
 # Check loaded DLLs for a process
 python3 vol.py -f memory.vmem windows.dlllist --pid 1234
