@@ -1830,10 +1830,8 @@ initGuestbook();
 
     const PHRASES = [
         'blue teamer',
-        'threat hunter',
         'SOC analyst',
         'incident responder',
-        'log analyst',
         'defender',
     ];
 
