@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microsoft Defender for Endpoint | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/home" class="nav-logo writeup-logo">
+                <img src="/mouse_t.png" class="nav-mouse" alt="">
+            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="/labs" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Labs
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="writeup-hero">
+        <div class="container">
+            <div class="writeup-meta">
+                <span class="ctf-platform detection">Detection</span>
+                <span class="ctf-difficulty medium">Intermediate</span>
+                <span class="writeup-category"><i class="fas fa-tag"></i> EDR / Threat Detection / Microsoft</span>
+            </div>
+            <h1 class="writeup-title">Microsoft Defender for Endpoint</h1>
+            <p class="writeup-subtitle">A practical guide to MDE for SOC analysts — alert investigation, device management, Advanced Hunting with KQL, response actions, threat & vulnerability management, and Attack Surface Reduction rules.</p>
+            <div class="writeup-stats">
+                <span><i class="fas fa-clock"></i> 18 min read</span>
+                <span><i class="fas fa-desktop"></i> Hands-on</span>
+                <span><i class="fas fa-shield-alt"></i> Blue Team / SOC</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="writeup-body">
+        <div class="container writeup-container">
+
+            <aside class="writeup-toc">
+                <div class="toc-card">
+                    <h3 class="toc-title"><i class="fas fa-list"></i> Contents</h3>
+                    <ul class="toc-links">
+                        <li><a href="#intro">What is MDE?</a></li>
+                        <li><a href="#console">Console Overview</a></li>
+                        <li><a href="#alerts">Alert Investigation</a></li>
+                        <li><a href="#devices">Device Inventory</a></li>
+                        <li><a href="#incidents">Incident Management</a></li>
+                        <li><a href="#hunting">Advanced Hunting (KQL)</a></li>
+                        <li><a href="#response">Response Actions</a></li>
+                        <li><a href="#tvm">Threat & Vulnerability Management</a></li>
+                        <li><a href="#asr">Attack Surface Reduction</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <article class="writeup-content">
+
+                <section id="intro" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>What is MDE?</h2>
+                    <p>Microsoft Defender for Endpoint (MDE) is Microsoft's enterprise EDR (Endpoint Detection and Response) platform. It monitors endpoints — Windows, macOS, Linux, iOS, and Android — for malicious behaviour, provides automated investigation and remediation, and feeds into the broader Microsoft Defender XDR ecosystem.</p>
+                    <p>MDE is tightly integrated with Microsoft Sentinel, Entra ID, Microsoft Defender for Identity, and Microsoft Defender for Office 365 — giving analysts a correlated view across the entire Microsoft security stack through the <strong>Microsoft Defender portal</strong>.</p>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>MDE is licensed as Plan 1 (basic EPP features) or <strong>Plan 2</strong> (full EDR, Advanced Hunting, Threat & Vulnerability Management). Most enterprise deployments use Plan 2, which is included in Microsoft 365 E5 and the Microsoft 365 Defender add-on.</p>
+                    </div>
+                </section>
+
+                <section id="console" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Console Overview</h2>
+                    <p>The Defender portal (<code>security.microsoft.com</code>) is the unified interface for all Microsoft Defender products. Key sections for MDE:</p>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Section</th><th>Purpose</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Incidents & Alerts</td><td>Correlated incidents and individual alerts from all data sources</td></tr>
+                                <tr><td>Advanced Hunting</td><td>KQL query interface against the 30-day data lake</td></tr>
+                                <tr><td>Device Inventory</td><td>All onboarded endpoints — status, risk level, exposure score</td></tr>
+                                <tr><td>Vulnerability Management</td><td>CVE exposure per device, remediation guidance, software inventory</td></tr>
+                                <tr><td>Actions & Submissions</td><td>Live response sessions, quarantined files, isolation status</td></tr>
+                                <tr><td>Reports</td><td>Threat protection, device health, and web protection dashboards</td></tr>
+                                <tr><td>Settings → Endpoints</td><td>Onboarding packages, ASR rules, policies, exclusions</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="alerts" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Alert Investigation</h2>
+                    <p>Each alert in MDE has an <strong>alert story</strong> — a visual timeline and process tree that shows the sequence of events leading to the detection.</p>
+
+                    <h3 class="sub-heading">Alert fields</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Field</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Alert title</td><td>Short description — e.g. "Suspicious PowerShell command line"</td></tr>
+                                <tr><td>Severity</td><td>Informational / Low / Medium / High / Critical</td></tr>
+                                <tr><td>Category</td><td>MITRE tactic — Execution, Persistence, Credential Access, etc.</td></tr>
+                                <tr><td>Detection source</td><td>Which engine flagged it — MDE antivirus, EDR, custom detection rule, Sentinel</td></tr>
+                                <tr><td>Impacted assets</td><td>Devices and users associated with the alert</td></tr>
+                                <tr><td>Status</td><td>New / In Progress / Resolved</td></tr>
+                                <tr><td>Classification</td><td>True Positive / Benign Positive / False Positive — set this when closing</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Alert story — what to look for</h3>
+                    <div class="concept-grid">
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-sitemap"></i></div>
+                            <h4>Process tree</h4>
+                            <p>Follow parent-child relationships up to find the root process — where did execution originate? Browser? Email attachment? Scheduled task?</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-terminal"></i></div>
+                            <h4>Command line</h4>
+                            <p>Click any process node to see the full command line. Look for encoded commands, downloaded URLs, suspicious flags, or references to temp directories.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-network-wired"></i></div>
+                            <h4>Network events</h4>
+                            <p>Outbound connections from the alerted process — C2 domains, download URLs, lateral movement attempts. Cross-reference IPs against threat intel.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-file-alt"></i></div>
+                            <h4>File events</h4>
+                            <p>Files created or modified during the alert window — dropped payloads, modified system files, log deletion. Note full paths and hashes.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="devices" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Device Inventory</h2>
+                    <p>The Device Inventory lists all onboarded endpoints. From a device page you can see:</p>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Tab</th><th>Information</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Overview</td><td>OS, last seen, risk level, exposure score, assigned user, IP addresses</td></tr>
+                                <tr><td>Alerts</td><td>All alerts on this device — open and historical</td></tr>
+                                <tr><td>Timeline</td><td>Chronological event log — processes, network events, file events, registry events — searchable</td></tr>
+                                <tr><td>Security Recommendations</td><td>Vulnerability remediation and configuration improvements ranked by exposure</td></tr>
+                                <tr><td>Software Inventory</td><td>All installed software with CVE exposure per application</td></tr>
+                                <tr><td>Missing KBs</td><td>Missing security patches — direct link to Microsoft update catalog</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p>The <strong>Timeline</strong> tab is one of MDE's most powerful investigation tools. It gives you 30 days of granular endpoint telemetry — every process, network connection, and file event in chronological order. Use the search bar and filter by event type to quickly find relevant activity.</p>
+                    </div>
+                </section>
+
+                <section id="incidents" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Incident Management</h2>
+                    <p>MDE automatically groups related alerts across devices and users into <strong>incidents</strong>. An incident representing an attack campaign may include alerts from multiple devices, each showing a different stage of the attack chain.</p>
+
+                    <h3 class="sub-heading">Attack chain view</h3>
+                    <p>The incident's <strong>Attack story</strong> tab shows a graphical view of the attack — entities (devices, users, processes, files) connected by the actions that link them. This is useful for scoping: how many devices are affected, which accounts were involved, and what the attacker did at each stage.</p>
+
+                    <h3 class="sub-heading">Automated Investigation</h3>
+                    <p>MDE can automatically investigate alerts and take remediation actions (quarantine files, stop processes) without analyst intervention. Check the <strong>Investigations</strong> tab on an incident to see what automated actions were taken and whether any require analyst approval before proceeding.</p>
+                </section>
+
+                <section id="hunting" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Advanced Hunting (KQL)</h2>
+                    <p>Advanced Hunting lets you query 30 days of raw endpoint telemetry using KQL. This is the primary tool for proactive threat hunting beyond the alerts MDE generates automatically.</p>
+
+                    <h3 class="sub-heading">Key MDE tables</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Table</th><th>Contents</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>DeviceProcessEvents</code></td><td>Every process created — InitiatingProcessFileName, ProcessCommandLine, AccountName</td></tr>
+                                <tr><td><code>DeviceNetworkEvents</code></td><td>Network connections — RemoteIP, RemotePort, RemoteUrl, InitiatingProcessFileName</td></tr>
+                                <tr><td><code>DeviceFileEvents</code></td><td>File create/modify/delete — FileName, FolderPath, SHA256, InitiatingProcessFileName</td></tr>
+                                <tr><td><code>DeviceRegistryEvents</code></td><td>Registry reads/writes — RegistryKey, RegistryValueName, RegistryValueData</td></tr>
+                                <tr><td><code>DeviceLogonEvents</code></td><td>Logon events — AccountName, LogonType, RemoteIP</td></tr>
+                                <tr><td><code>DeviceAlertEvents</code></td><td>All alerts per device with MITRE technique tags</td></tr>
+                                <tr><td><code>DeviceInfo</code></td><td>Device inventory — OS, domain, exposure level, risk level</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Hunting queries</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">KQL — Encoded PowerShell</span></div>
+                        <pre><code>DeviceProcessEvents
+| where Timestamp > ago(7d)
+| where FileName in~ ("powershell.exe", "pwsh.exe")
+| where ProcessCommandLine has_any ("-enc", "-EncodedCommand", "-e ")
+| project Timestamp, DeviceName, AccountName, ProcessCommandLine
+| sort by Timestamp desc</code></pre>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">KQL — LSASS memory access</span></div>
+                        <pre><code>DeviceProcessEvents
+| where Timestamp > ago(24h)
+| where FileName == "lsass.exe"
+| where InitiatingProcessFileName !in~ ("wininit.exe", "svchost.exe", "lsm.exe", "services.exe", "MsMpEng.exe")
+| project Timestamp, DeviceName, InitiatingProcessFileName, InitiatingProcessCommandLine, AccountName</code></pre>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">KQL — Files created in temp directories</span></div>
+                        <pre><code>DeviceFileEvents
+| where Timestamp > ago(24h)
+| where ActionType == "FileCreated"
+| where FolderPath has_any (@"\AppData\Local\Temp", @"\Windows\Temp", @"\ProgramData")
+| where FileName endswith ".exe" or FileName endswith ".dll" or FileName endswith ".bat"
+| project Timestamp, DeviceName, FileName, FolderPath, SHA256, InitiatingProcessFileName
+| sort by Timestamp desc</code></pre>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">KQL — Lateral movement via SMB</span></div>
+                        <pre><code>DeviceLogonEvents
+| where Timestamp > ago(24h)
+| where LogonType == "Network"
+| where isnotempty(RemoteIP)
+| where RemoteIP !startswith "10." and RemoteIP !startswith "192.168." and RemoteIP !startswith "172."
+| project Timestamp, DeviceName, AccountName, RemoteIP, LogonType
+| sort by Timestamp desc</code></pre>
+                    </div>
+                </section>
+
+                <section id="response" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Response Actions</h2>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Action</th><th>Description</th><th>Where to find it</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Isolate device</td><td>Cuts the device from the network (only Defender traffic allowed)</td><td>Device page → Actions menu</td></tr>
+                                <tr><td>Run antivirus scan</td><td>Triggers a full AV scan on the endpoint</td><td>Device page → Actions menu</td></tr>
+                                <tr><td>Collect investigation package</td><td>Downloads a ZIP of system artefacts — processes, network connections, prefetch, registry</td><td>Device page → Actions menu</td></tr>
+                                <tr><td>Live response</td><td>Interactive shell session — run scripts, collect files, examine memory</td><td>Device page → Actions menu</td></tr>
+                                <tr><td>Quarantine file</td><td>Moves a file to quarantine on the endpoint</td><td>File entity page</td></tr>
+                                <tr><td>Stop and quarantine</td><td>Kills a running process and quarantines its file</td><td>Alert story → process node</td></tr>
+                                <tr><td>Add indicator</td><td>Add file hash/IP/domain to allow or block list</td><td>Entity page or Settings → Indicators</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="tvm" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Threat &amp; Vulnerability Management</h2>
+                    <p>MDE's TVM module provides continuous vulnerability assessment without requiring separate scans. It uses the MDE agent's telemetry to inventory installed software and map it against known CVEs.</p>
+
+                    <div class="concept-grid">
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-chart-bar"></i></div>
+                            <h4>Exposure Score</h4>
+                            <p>Organisation-wide vulnerability risk score (0-100). Lower is better. Tracks trending — are you improving or degrading over time?</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-star"></i></div>
+                            <h4>Microsoft Secure Score</h4>
+                            <p>Configuration security posture score — based on enabled security features, not vulnerabilities. Higher is better.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-wrench"></i></div>
+                            <h4>Security Recommendations</h4>
+                            <p>Prioritised list of remediations ranked by exposure reduction. Covers patch, configuration, and ASR rule recommendations.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-clipboard-list"></i></div>
+                            <h4>Remediation Activities</h4>
+                            <p>Recommendations submitted as remediation tasks — assign to IT teams, track SLA compliance, and mark as resolved.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="asr" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Attack Surface Reduction Rules</h2>
+                    <p>ASR rules are Windows security controls that block specific attack techniques before they execute — regardless of whether they're detected by AV or EDR. They work at the kernel level and are configured through MDE or Group Policy.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Rule</th><th>What it blocks</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Block executable content from email and webmail</td><td>Executable files attached to or downloaded from email</td></tr>
+                                <tr><td>Block Office apps from creating child processes</td><td>Word/Excel spawning cmd, PowerShell, etc. — macro attacks</td></tr>
+                                <tr><td>Block credential stealing from LSASS</td><td>LSASS memory reads by non-system processes</td></tr>
+                                <tr><td>Block untrusted/unsigned processes from USB</td><td>Execution of files from removable media</td></tr>
+                                <tr><td>Block JavaScript/VBScript from launching executables</td><td>Script-based dropper execution</td></tr>
+                                <tr><td>Block abuse of exploited vulnerable signed drivers</td><td>Kernel-mode exploitation via signed but vulnerable drivers (BYOVD)</td></tr>
+                                <tr><td>Use advanced protection against ransomware</td><td>Ransomware-like bulk file encryption patterns</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Test ASR rules in Audit mode first.</strong> Deploying ASR rules in Block mode without testing can break legitimate applications (e.g. macros used by finance teams). Enable Audit mode, review the ASR report in MDE for 1-2 weeks to identify false positives, then switch to Block with exclusions in place.</p>
+                    </div>
+                </section>
+
+            </article>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+    </script>
+</body>
+</html>

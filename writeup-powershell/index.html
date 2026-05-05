@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PowerShell for Security — Blue Team Reference | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/home" class="nav-logo writeup-logo">
+                <img src="/mouse_t.png" class="nav-mouse" alt="">
+            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="/labs" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Labs
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="writeup-hero">
+        <div class="container">
+            <div class="writeup-meta">
+                <span class="ctf-platform detection">Detection</span>
+                <span class="ctf-difficulty medium">Intermediate</span>
+                <span class="writeup-category"><i class="fas fa-tag"></i> PowerShell / Windows / Threat Hunting</span>
+            </div>
+            <h1 class="writeup-title">PowerShell for Security — Blue Team Reference</h1>
+            <p class="writeup-subtitle">A practical PowerShell reference for blue team analysts — log collection, Active Directory queries, persistence hunting, remote investigation, attack pattern detection, and defensive hardening.</p>
+            <div class="writeup-stats">
+                <span><i class="fas fa-clock"></i> 16 min read</span>
+                <span><i class="fas fa-terminal"></i> Command Reference</span>
+                <span><i class="fas fa-shield-alt"></i> Blue Team / DFIR</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="writeup-body">
+        <div class="container writeup-container">
+
+            <aside class="writeup-toc">
+                <div class="toc-card">
+                    <h3 class="toc-title"><i class="fas fa-list"></i> Contents</h3>
+                    <ul class="toc-links">
+                        <li><a href="#basics">PowerShell Basics</a></li>
+                        <li><a href="#system">System Investigation</a></li>
+                        <li><a href="#network">Network Commands</a></li>
+                        <li><a href="#logs">Event Log Querying</a></li>
+                        <li><a href="#ad">Active Directory Queries</a></li>
+                        <li><a href="#persistence">Persistence Hunting</a></li>
+                        <li><a href="#remote">Remote Investigation</a></li>
+                        <li><a href="#attacks">Detecting Attack Patterns</a></li>
+                        <li><a href="#hardening">Defensive Hardening</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <article class="writeup-content">
+
+                <section id="basics" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>PowerShell Basics</h2>
+                    <p>PowerShell is both a shell and a scripting language built on .NET. It's the primary administrative interface for Windows and is deeply integrated with Active Directory, Azure, and all Microsoft products — making it essential for both defenders and attackers.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Concept</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Cmdlets</td><td>Verb-Noun named commands — <code>Get-Process</code>, <code>Stop-Service</code>, <code>New-Item</code></td></tr>
+                                <tr><td>Pipeline (<code>|</code>)</td><td>Passes objects (not text) between commands — <code>Get-Process | Where-Object CPU -gt 50</code></td></tr>
+                                <tr><td>Variables</td><td><code>$var = "value"</code> — environment variables: <code>$env:TEMP</code></td></tr>
+                                <tr><td>Aliases</td><td>Short forms — <code>ls</code> = <code>Get-ChildItem</code>, <code>ps</code> = <code>Get-Process</code>, <code>cat</code> = <code>Get-Content</code></td></tr>
+                                <tr><td>Execution Policy</td><td>Controls whether scripts can run — <code>Get-ExecutionPolicy</code> / <code>Set-ExecutionPolicy</code></td></tr>
+                                <tr><td>Modules</td><td>Collections of cmdlets — <code>Import-Module ActiveDirectory</code></td></tr>
+                                <tr><td>Where-Object</td><td>Filters pipeline objects — <code>| Where-Object { $_.Status -eq "Running" }</code></td></tr>
+                                <tr><td>Select-Object</td><td>Selects specific properties — <code>| Select-Object Name, CPU, Id</code></td></tr>
+                                <tr><td>Sort-Object</td><td>Sorts pipeline output — <code>| Sort-Object CPU -Descending</code></td></tr>
+                                <tr><td>Format-Table</td><td>Displays output as table — <code>| Format-Table -AutoSize</code></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="system" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>System Investigation</h2>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">PowerShell — System triage</span></div>
+                        <pre><code># All running processes with executable path
+Get-Process | Select-Object Name, Id, CPU, Path | Sort-Object CPU -Descending | Format-Table -AutoSize
+
+# Processes with no executable path (possible injection / fileless malware)
+Get-Process | Where-Object { $_.Path -eq $null } | Select-Object Name, Id, CPU
+
+# Recently created files in suspicious locations
+Get-ChildItem -Path "$env:TEMP","$env:APPDATA","C:\ProgramData" -Recurse -ErrorAction SilentlyContinue |
+    Where-Object { $_.CreationTime -gt (Get-Date).AddDays(-1) } |
+    Select-Object FullName, CreationTime, Length
+
+# Installed services and their binary paths
+Get-WmiObject Win32_Service | Select-Object Name, State, PathName | Sort-Object State
+
+# Startup programs (all hives)
+Get-CimInstance Win32_StartupCommand | Select-Object Name, Command, Location, User</code></pre>
+                    </div>
+                </section>
+
+                <section id="network" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Network Commands</h2>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">PowerShell — Network investigation</span></div>
+                        <pre><code># Active TCP connections with owning process
+Get-NetTCPConnection -State Established |
+    Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort,
+        @{Name="Process";Expression={(Get-Process -Id $_.OwningProcess).Name}} |
+    Sort-Object RemoteAddress | Format-Table -AutoSize
+
+# Listening ports and processes
+Get-NetTCPConnection -State Listen |
+    Select-Object LocalAddress, LocalPort,
+        @{Name="Process";Expression={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} |
+    Format-Table -AutoSize
+
+# DNS cache (recently resolved domains)
+Get-DnsClientCache | Select-Object Entry, Data, TTL | Sort-Object Entry
+
+# Network adapters and IPs
+Get-NetIPAddress | Select-Object InterfaceAlias, AddressFamily, IPAddress | Format-Table
+
+# ARP table
+Get-NetNeighbor | Select-Object IPAddress, LinkLayerAddress, State | Format-Table
+
+# Firewall rules
+Get-NetFirewallRule -Enabled True | Select-Object DisplayName, Direction, Action, Profile | Format-Table</code></pre>
+                    </div>
+                </section>
+
+                <section id="logs" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Event Log Querying</h2>
+                    <p>PowerShell's <code>Get-WinEvent</code> is the fastest way to query Windows Event Logs directly on a host or remotely — much faster than Event Viewer for large log files.</p>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">PowerShell — Event log queries</span></div>
+                        <pre><code># Failed logons in last hour (Event 4625)
+Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4625; StartTime=(Get-Date).AddHours(-1)} |
+    Select-Object TimeCreated, Message | Format-List
+
+# Successful logons (Event 4624)
+Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4624; StartTime=(Get-Date).AddDays(-1)} |
+    ForEach-Object {
+        $xml = [xml]$_.ToXml()
+        [PSCustomObject]@{
+            Time = $_.TimeCreated
+            User = $xml.Event.EventData.Data | Where-Object Name -eq 'TargetUserName' | Select-Object -ExpandProperty '#text'
+            LogonType = $xml.Event.EventData.Data | Where-Object Name -eq 'LogonType' | Select-Object -ExpandProperty '#text'
+            SourceIP = $xml.Event.EventData.Data | Where-Object Name -eq 'IpAddress' | Select-Object -ExpandProperty '#text'
+        }
+    } | Format-Table -AutoSize
+
+# PowerShell script block logging (Event 4104)
+Get-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-PowerShell/Operational'; Id=4104} |
+    Select-Object TimeCreated, Message | Format-List
+
+# New scheduled task created (Event 4698)
+Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4698} |
+    Select-Object TimeCreated, Message | Format-List
+
+# Service installed (Event 7045)
+Get-WinEvent -FilterHashtable @{LogName='System'; Id=7045} |
+    Select-Object TimeCreated, Message | Format-List</code></pre>
+                    </div>
+                </section>
+
+                <section id="ad" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Active Directory Queries</h2>
+                    <p>Requires the <code>ActiveDirectory</code> module: <code>Import-Module ActiveDirectory</code></p>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">PowerShell — AD investigation</span></div>
+                        <pre><code># Get user details
+Get-ADUser -Identity jsmith -Properties * | Select-Object Name, SamAccountName, Enabled,
+    PasswordLastSet, LastLogonDate, LockedOut, MemberOf
+
+# All members of Domain Admins
+Get-ADGroupMember -Identity "Domain Admins" -Recursive | Select-Object Name, SamAccountName
+
+# Recently created user accounts
+Get-ADUser -Filter * -Properties Created | Where-Object { $_.Created -gt (Get-Date).AddDays(-7) } |
+    Select-Object Name, SamAccountName, Created | Sort-Object Created -Descending
+
+# Accounts that never expire (risky service accounts)
+Get-ADUser -Filter { PasswordNeverExpires -eq $true -and Enabled -eq $true } |
+    Select-Object Name, SamAccountName, PasswordLastSet
+
+# Accounts with old passwords (90+ days)
+Get-ADUser -Filter { Enabled -eq $true } -Properties PasswordLastSet |
+    Where-Object { $_.PasswordLastSet -lt (Get-Date).AddDays(-90) } |
+    Select-Object Name, SamAccountName, PasswordLastSet | Sort-Object PasswordLastSet
+
+# Recently modified AD objects
+Get-ADObject -Filter * -Properties WhenChanged |
+    Where-Object { $_.WhenChanged -gt (Get-Date).AddHours(-24) } |
+    Select-Object Name, ObjectClass, WhenChanged | Sort-Object WhenChanged -Descending
+
+# Kerberoastable accounts (SPN set, not excluded from delegation)
+Get-ADUser -Filter { ServicePrincipalName -ne "$null" -and Enabled -eq $true } -Properties ServicePrincipalName |
+    Select-Object Name, SamAccountName, ServicePrincipalName</code></pre>
+                    </div>
+                </section>
+
+                <section id="persistence" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Persistence Hunting</h2>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">PowerShell — Persistence locations</span></div>
+                        <pre><code># Registry Run keys (all users and HKLM)
+$paths = @(
+    "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run",
+    "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce",
+    "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run",
+    "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce"
+)
+foreach ($path in $paths) {
+    Write-Host "`n$path" -ForegroundColor Cyan
+    Get-ItemProperty -Path $path -ErrorAction SilentlyContinue
+}
+
+# Scheduled tasks (show full task and command)
+Get-ScheduledTask | Where-Object { $_.State -ne 'Disabled' } |
+    Select-Object TaskName, TaskPath, State,
+        @{Name="Command";Expression={$_.Actions.Execute + " " + $_.Actions.Arguments}} |
+    Format-Table -AutoSize
+
+# WMI persistence (event subscriptions)
+Get-WMIObject -Namespace root\subscription -Class __EventFilter
+Get-WMIObject -Namespace root\subscription -Class __EventConsumer
+Get-WMIObject -Namespace root\subscription -Class __FilterToConsumerBinding
+
+# Services running from unusual paths
+Get-WmiObject Win32_Service |
+    Where-Object { $_.PathName -notmatch "System32|SysWOW64|Program Files" -and $_.State -eq "Running" } |
+    Select-Object Name, PathName, StartMode
+
+# Startup folder contents
+Get-ChildItem -Path "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup",
+                    "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup" -ErrorAction SilentlyContinue</code></pre>
+                    </div>
+                </section>
+
+                <section id="remote" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Remote Investigation</h2>
+                    <p>PowerShell Remoting (WinRM) lets you run commands on remote hosts without RDP — faster, less intrusive, and fully logged.</p>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">PowerShell — Remote commands</span></div>
+                        <pre><code># Single command on remote host
+Invoke-Command -ComputerName HOSTNAME -ScriptBlock { Get-Process | Where-Object { $_.CPU -gt 50 } }
+
+# Interactive remote session
+Enter-PSSession -ComputerName HOSTNAME
+
+# Run against multiple hosts from a list
+$hosts = "HOST1","HOST2","HOST3"
+Invoke-Command -ComputerName $hosts -ScriptBlock {
+    Get-NetTCPConnection -State Established |
+        Where-Object { $_.RemoteAddress -notin "10.0.0.0/8","192.168.0.0/16" }
+}
+
+# Copy a file from a remote host
+$session = New-PSSession -ComputerName HOSTNAME
+Copy-Item -Path "C:\Windows\System32\winevt\Logs\Security.evtx" -Destination "C:\Evidence\" -FromSession $session
+Remove-PSSession $session</code></pre>
+                    </div>
+
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>WinRM generates Event 4648 and Microsoft-Windows-WinRM events.</strong> Your remote investigation commands are logged on the target host. This is expected and acceptable — but be aware the attacker may also be monitoring logs. Avoid running commands that would alert them (e.g. obviously stopping their persistence).</p>
+                    </div>
+                </section>
+
+                <section id="attacks" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Detecting Attack Patterns</h2>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">PowerShell — Encoded command detection</span></div>
+                        <pre><code># Find encoded PowerShell in running processes
+Get-Process | ForEach-Object {
+    try {
+        $cmdline = (Get-WmiObject Win32_Process -Filter "ProcessId=$($_.Id)").CommandLine
+        if ($cmdline -match '-[Ee]nc') {
+            [PSCustomObject]@{Name=$_.Name; Id=$_.Id; CommandLine=$cmdline}
+        }
+    } catch {}
+}
+
+# Check for AMSI bypass attempts in PowerShell logs
+Get-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-PowerShell/Operational'; Id=4104} |
+    Where-Object { $_.Message -match 'amsi|bypass|invoke-mimikatz|dump|sekurlsa' } |
+    Select-Object TimeCreated, Message</code></pre>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">PowerShell — Lateral movement indicators</span></div>
+                        <pre><code># Open admin shares indicating lateral movement
+Get-SmbOpenFile | Select-Object ClientComputerName, ClientUserName, Path | Format-Table
+
+# Recent SMB connections in event logs
+Get-WinEvent -FilterHashtable @{LogName='Security'; Id=5140} -MaxEvents 100 |
+    Select-Object TimeCreated, Message | Format-List</code></pre>
+                    </div>
+                </section>
+
+                <section id="hardening" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Defensive Hardening</h2>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Setting</th><th>Command</th><th>Purpose</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Script Block Logging</td><td><code>Set-ItemProperty HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging -Name EnableScriptBlockLogging -Value 1</code></td><td>Logs all PowerShell script block content — captures obfuscated and encoded commands after deobfuscation</td></tr>
+                                <tr><td>Module Logging</td><td>Via GPO: Computer → PowerShell → Turn on Module Logging</td><td>Logs all PowerShell module activity</td></tr>
+                                <tr><td>Transcription</td><td>Via GPO: PowerShell Transcription → Turn on PowerShell Transcription</td><td>Saves full input/output of all PowerShell sessions to a text file</td></tr>
+                                <tr><td>Constrained Language Mode</td><td><code>$ExecutionContext.SessionState.LanguageMode = "ConstrainedLanguage"</code></td><td>Restricts PowerShell to safe cmdlets — blocks many attack techniques</td></tr>
+                                <tr><td>Execution Policy</td><td><code>Set-ExecutionPolicy -ExecutionPolicy AllSigned -Scope LocalMachine</code></td><td>Requires signed scripts — not a security boundary but raises the bar</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p><strong>Script Block Logging is the most valuable defensive setting.</strong> Enable it via GPO across your environment. It captures all PowerShell commands — even those that are Base64-encoded or obfuscated — after PowerShell decodes them, giving you a clean view of what actually ran. Look for Event ID 4104 in the <code>Microsoft-Windows-PowerShell/Operational</code> log.</p>
+                    </div>
+                </section>
+
+            </article>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+    </script>
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux Commands — Security Reference | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/home" class="nav-logo writeup-logo">
+                <img src="/mouse_t.png" class="nav-mouse" alt="">
+            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="/labs" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Labs
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="writeup-hero">
+        <div class="container">
+            <div class="writeup-meta">
+                <span class="ctf-platform forensics">Forensics</span>
+                <span class="ctf-difficulty easy">Beginner</span>
+                <span class="writeup-category"><i class="fas fa-tag"></i> Linux / CLI / DFIR</span>
+            </div>
+            <h1 class="writeup-title">Linux Commands — Security Reference</h1>
+            <p class="writeup-subtitle">An essential Linux CLI reference for security analysts — file system navigation, user and process investigation, network analysis, log searching, and persistence hunting commands.</p>
+            <div class="writeup-stats">
+                <span><i class="fas fa-clock"></i> 14 min read</span>
+                <span><i class="fas fa-terminal"></i> Command Reference</span>
+                <span><i class="fas fa-shield-alt"></i> Blue Team / DFIR</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="writeup-body">
+        <div class="container writeup-container">
+
+            <aside class="writeup-toc">
+                <div class="toc-card">
+                    <h3 class="toc-title"><i class="fas fa-list"></i> Contents</h3>
+                    <ul class="toc-links">
+                        <li><a href="#navigation">Navigation & Files</a></li>
+                        <li><a href="#users">Users & Permissions</a></li>
+                        <li><a href="#processes">Processes & Services</a></li>
+                        <li><a href="#network">Network Commands</a></li>
+                        <li><a href="#logs">Log Analysis</a></li>
+                        <li><a href="#files">File Investigation</a></li>
+                        <li><a href="#persistence">Persistence Hunting</a></li>
+                        <li><a href="#oneliner">Investigation One-liners</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <article class="writeup-content">
+
+                <section id="navigation" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Navigation &amp; File System</h2>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Command</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>pwd</code></td><td>Print current working directory</td></tr>
+                                <tr><td><code>ls -la</code></td><td>List all files including hidden, with permissions and timestamps</td></tr>
+                                <tr><td><code>ls -laht</code></td><td>Same but sorted by modification time — newest first</td></tr>
+                                <tr><td><code>cd /path</code></td><td>Change directory</td></tr>
+                                <tr><td><code>find / -name "*.sh" 2>/dev/null</code></td><td>Find all shell scripts on the system</td></tr>
+                                <tr><td><code>find / -mtime -1 2>/dev/null</code></td><td>Find files modified in the last 24 hours</td></tr>
+                                <tr><td><code>find / -perm -4000 2>/dev/null</code></td><td>Find all SUID binaries — potential privilege escalation paths</td></tr>
+                                <tr><td><code>find /tmp /var/tmp /dev/shm -type f</code></td><td>Look for files in common malware drop locations</td></tr>
+                                <tr><td><code>stat filename</code></td><td>Full metadata — access, modify, change timestamps and inode info</td></tr>
+                                <tr><td><code>file filename</code></td><td>Identify file type by magic bytes (ignore the extension)</td></tr>
+                                <tr><td><code>du -sh /path/*</code></td><td>Disk usage by subdirectory — spot abnormally large directories</td></tr>
+                                <tr><td><code>df -h</code></td><td>Disk space per filesystem — check for unexpected full disks</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="users" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Users &amp; Permissions</h2>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Command</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>id</code></td><td>Current user's UID, GID, and group memberships</td></tr>
+                                <tr><td><code>whoami</code></td><td>Current username</td></tr>
+                                <tr><td><code>w</code></td><td>Who is currently logged in and what they're running</td></tr>
+                                <tr><td><code>last</code></td><td>Recent logins from <code>/var/log/wtmp</code></td></tr>
+                                <tr><td><code>lastb</code></td><td>Failed login attempts from <code>/var/log/btmp</code></td></tr>
+                                <tr><td><code>cat /etc/passwd</code></td><td>All user accounts — look for unexpected shell users or unusual UIDs</td></tr>
+                                <tr><td><code>cat /etc/shadow</code></td><td>Password hashes (root only) — check for recently changed passwords</td></tr>
+                                <tr><td><code>cat /etc/group</code></td><td>Group memberships — check sudo, wheel, docker groups for unexpected members</td></tr>
+                                <tr><td><code>sudo -l</code></td><td>What commands current user can run via sudo</td></tr>
+                                <tr><td><code>cat /etc/sudoers</code></td><td>Sudo configuration — look for NOPASSWD entries</td></tr>
+                                <tr><td><code>getent passwd | awk -F: '$3==0'</code></td><td>Find all UID 0 (root-equivalent) accounts</td></tr>
+                                <tr><td><code>chage -l username</code></td><td>Password expiry and last change date for a user</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="processes" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Processes &amp; Services</h2>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Command</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>ps aux</code></td><td>All running processes with user, PID, CPU, memory, command</td></tr>
+                                <tr><td><code>ps auxf</code></td><td>Same but showing parent-child tree relationships</td></tr>
+                                <tr><td><code>top</code> / <code>htop</code></td><td>Live process monitor — useful for spotting high CPU processes</td></tr>
+                                <tr><td><code>ls -la /proc/PID/exe</code></td><td>Resolve the executable path for a running process by PID</td></tr>
+                                <tr><td><code>cat /proc/PID/cmdline | tr '\0' ' '</code></td><td>Full command line for a running process (even if renamed)</td></tr>
+                                <tr><td><code>ls /proc/PID/fd</code></td><td>Open file descriptors for a process — network sockets, files</td></tr>
+                                <tr><td><code>lsof -p PID</code></td><td>All files and sockets opened by a specific process</td></tr>
+                                <tr><td><code>lsof -i :PORT</code></td><td>Which process is listening on a specific port</td></tr>
+                                <tr><td><code>kill -9 PID</code></td><td>Force-kill a process by PID</td></tr>
+                                <tr><td><code>systemctl list-units --type=service</code></td><td>All systemd services and their status</td></tr>
+                                <tr><td><code>systemctl status servicename</code></td><td>Status, recent logs, and binary path of a service</td></tr>
+                                <tr><td><code>journalctl -u servicename</code></td><td>Full systemd journal for a specific service</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="network" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Network Commands</h2>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Command</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>ss -tulpn</code></td><td>All listening TCP/UDP ports with process names — replacement for netstat</td></tr>
+                                <tr><td><code>ss -anp</code></td><td>All active connections with PIDs</td></tr>
+                                <tr><td><code>netstat -tulpn</code></td><td>Older equivalent of ss — still common on older systems</td></tr>
+                                <tr><td><code>ip addr</code></td><td>All network interfaces and IP addresses</td></tr>
+                                <tr><td><code>ip route</code></td><td>Routing table — look for unexpected routes</td></tr>
+                                <tr><td><code>arp -a</code></td><td>ARP cache — IP to MAC mappings for recently contacted hosts</td></tr>
+                                <tr><td><code>cat /etc/hosts</code></td><td>Local hostname resolution — check for redirected domains (malware persistence)</td></tr>
+                                <tr><td><code>cat /etc/resolv.conf</code></td><td>DNS server configuration — check for rogue DNS server</td></tr>
+                                <tr><td><code>ping -c 4 host</code></td><td>Test connectivity to a host</td></tr>
+                                <tr><td><code>traceroute host</code></td><td>Trace path to host — identify routing anomalies</td></tr>
+                                <tr><td><code>dig @8.8.8.8 domain.com</code></td><td>DNS lookup using specific resolver — check against your DNS</td></tr>
+                                <tr><td><code>tcpdump -i eth0 -w cap.pcap</code></td><td>Capture live traffic to a file for analysis in Wireshark</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="logs" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Log Analysis</h2>
+                    <h3 class="sub-heading">Key log files</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>File</th><th>Contents</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>/var/log/auth.log</code></td><td>SSH logins, sudo usage, PAM events (Debian/Ubuntu)</td></tr>
+                                <tr><td><code>/var/log/secure</code></td><td>Same as auth.log for RHEL/CentOS</td></tr>
+                                <tr><td><code>/var/log/syslog</code></td><td>General system messages — services starting, cron jobs, kernel messages</td></tr>
+                                <tr><td><code>/var/log/messages</code></td><td>RHEL equivalent of syslog</td></tr>
+                                <tr><td><code>/var/log/kern.log</code></td><td>Kernel messages — hardware errors, module loading</td></tr>
+                                <tr><td><code>/var/log/cron</code></td><td>Cron job execution log</td></tr>
+                                <tr><td><code>/var/log/apache2/access.log</code></td><td>Web server access log — look for exploitation attempts</td></tr>
+                                <tr><td><code>/var/log/apache2/error.log</code></td><td>Web server error log</td></tr>
+                                <tr><td><code>~/.bash_history</code></td><td>Shell history per user — often tampered with by attackers</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Log search commands</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">Bash</span></div>
+                        <pre><code># Failed SSH logins
+grep "Failed password" /var/log/auth.log | tail -50
+
+# Successful SSH logins
+grep "Accepted" /var/log/auth.log | tail -50
+
+# Sudo commands run
+grep "sudo:" /var/log/auth.log | grep "COMMAND"
+
+# Login attempts by IP frequency
+grep "Failed password" /var/log/auth.log | awk '{print $11}' | sort | uniq -c | sort -rn | head 20
+
+# All cron jobs executed
+grep "CRON" /var/log/syslog | tail -30</code></pre>
+                    </div>
+                </section>
+
+                <section id="files" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>File Investigation</h2>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Command</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>md5sum filename</code></td><td>MD5 hash of a file — compare against known good or threat intel</td></tr>
+                                <tr><td><code>sha256sum filename</code></td><td>SHA-256 hash — preferred for threat intel lookups</td></tr>
+                                <tr><td><code>strings filename</code></td><td>Extract printable strings from a binary — URLs, IPs, error messages</td></tr>
+                                <tr><td><code>strings -a filename | grep -E "https?://"</code></td><td>Extract URLs embedded in a file</td></tr>
+                                <tr><td><code>xxd filename | head -20</code></td><td>Hex dump — check magic bytes to identify file type</td></tr>
+                                <tr><td><code>objdump -d binary</code></td><td>Disassemble a compiled binary</td></tr>
+                                <tr><td><code>ldd binary</code></td><td>Shared libraries a binary links against</td></tr>
+                                <tr><td><code>strace -p PID</code></td><td>System calls made by a running process in real time</td></tr>
+                                <tr><td><code>ltrace binary</code></td><td>Library calls — useful for malware behaviour analysis</td></tr>
+                                <tr><td><code>readelf -h binary</code></td><td>ELF header information — architecture, entry point, sections</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="persistence" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Persistence Hunting</h2>
+                    <p>These are the locations attackers commonly use to maintain persistence on Linux systems. Check all of these during an investigation.</p>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">Bash — Persistence locations to audit</span></div>
+                        <pre><code># Cron jobs for all users
+for user in $(cut -f1 -d: /etc/passwd); do crontab -l -u $user 2>/dev/null && echo "^ $user"; done
+
+# System-wide cron
+ls -la /etc/cron* /var/spool/cron/
+
+# Systemd user services
+find /etc/systemd /usr/lib/systemd ~/.config/systemd -name "*.service" 2>/dev/null | xargs ls -la
+
+# SSH authorized keys (all users)
+find / -name "authorized_keys" 2>/dev/null
+
+# SUID binaries (custom or modified)
+find / -perm -4000 -type f 2>/dev/null | sort
+
+# World-writable directories
+find / -xdev -type d -perm -0002 2>/dev/null | grep -v /proc
+
+# Startup scripts
+ls -la /etc/init.d/ /etc/rc.local /etc/profile.d/
+
+# Aliases and shell config
+grep -r "alias\|export\|source" /etc/profile /etc/bashrc /etc/bash.bashrc ~/.bashrc ~/.profile 2>/dev/null</code></pre>
+                    </div>
+                </section>
+
+                <section id="oneliner" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Investigation One-liners</h2>
+                    <p>Useful combinations for rapid triage during an incident.</p>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">Bash — Quick triage one-liners</span></div>
+                        <pre><code># Who is logged in and what are they running?
+w
+
+# What processes are making outbound network connections right now?
+ss -tulpn | grep ESTABLISHED
+
+# Which process is listening on a suspicious port?
+lsof -i :4444
+
+# Files created in /tmp in the last hour
+find /tmp -type f -mmin -60
+
+# Check if bash history has been cleared (sign of cleanup)
+wc -l ~/.bash_history
+
+# Find files owned by root but world-writable
+find / -user root -perm -o+w 2>/dev/null | grep -v /proc
+
+# All users who have logged in recently
+last | head -30
+
+# What services are enabled at boot?
+systemctl list-unit-files --state=enabled
+
+# Check /proc for deleted-but-still-running binaries (malware indicator)
+ls -la /proc/*/exe 2>/dev/null | grep deleted</code></pre>
+                    </div>
+
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Don't trust the tools on a compromised host.</strong> Rootkits can modify <code>ps</code>, <code>ls</code>, <code>netstat</code>, and other standard utilities to hide malware. On a suspected compromised system, boot from a trusted live environment or use tools from a read-only external drive, and rely on <code>/proc</code> directly where possible.</p>
+                    </div>
+                </section>
+
+            </article>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+    </script>
+</body>
+</html>

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nmap — Network Scanning Reference | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/home" class="nav-logo writeup-logo">
+                <img src="/mouse_t.png" class="nav-mouse" alt="">
+            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="/labs" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Labs
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="writeup-hero">
+        <div class="container">
+            <div class="writeup-meta">
+                <span class="ctf-platform network">Network</span>
+                <span class="ctf-difficulty easy">Beginner</span>
+                <span class="writeup-category"><i class="fas fa-tag"></i> Network Scanning / Reconnaissance / Enumeration</span>
+            </div>
+            <h1 class="writeup-title">Nmap — Network Scanning Reference</h1>
+            <p class="writeup-subtitle">A practical Nmap reference for security analysts — host discovery, port scanning techniques, service and OS detection, NSE scripts, output formats, and reading scan results for threat assessment.</p>
+            <div class="writeup-stats">
+                <span><i class="fas fa-clock"></i> 14 min read</span>
+                <span><i class="fas fa-network-wired"></i> Network Scanning</span>
+                <span><i class="fas fa-shield-alt"></i> Blue Team / Pentesting</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="writeup-body">
+        <div class="container writeup-container">
+
+            <aside class="writeup-toc">
+                <div class="toc-card">
+                    <h3 class="toc-title"><i class="fas fa-list"></i> Contents</h3>
+                    <ul class="toc-links">
+                        <li><a href="#intro">What is Nmap?</a></li>
+                        <li><a href="#syntax">Basic Syntax</a></li>
+                        <li><a href="#discovery">Host Discovery</a></li>
+                        <li><a href="#portscan">Port Scanning</a></li>
+                        <li><a href="#service">Service & Version Detection</a></li>
+                        <li><a href="#os">OS Detection</a></li>
+                        <li><a href="#nse">NSE Scripts</a></li>
+                        <li><a href="#output">Output Formats</a></li>
+                        <li><a href="#ports">Common Ports Reference</a></li>
+                        <li><a href="#tips">Tips & Best Practices</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <article class="writeup-content">
+
+                <section id="intro" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>What is Nmap?</h2>
+                    <p>Nmap (Network Mapper) is an open-source network scanning tool used to discover hosts, enumerate open ports, identify running services and their versions, detect operating systems, and run scripted checks against network services. It's available on Windows, Linux, and macOS.</p>
+                    <p>For blue team analysts, Nmap is used in asset discovery, vulnerability assessments, and verifying network segmentation controls. For penetration testers, it's the standard reconnaissance tool for mapping attack surface before exploitation.</p>
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Always have authorisation before scanning.</strong> Scanning networks or systems you don't own or have explicit written permission to test is illegal in most jurisdictions. Even within your own organisation, active scanning can trigger IDS/IPS alerts and should be coordinated with the security team.</p>
+                    </div>
+                </section>
+
+                <section id="syntax" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Basic Syntax</h2>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">Nmap — Basic syntax</span></div>
+                        <pre><code>nmap [scan type] [options] [target]
+
+# Target formats
+nmap 192.168.1.1               # Single IP
+nmap 192.168.1.1-20            # IP range
+nmap 192.168.1.0/24            # CIDR subnet
+nmap 192.168.1.1 10.0.0.1      # Multiple IPs (space separated)
+nmap -iL targets.txt           # Read targets from file
+nmap scanme.nmap.org            # Hostname</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">Scan speed (-T timing)</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Flag</th><th>Name</th><th>Use case</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>-T0</code></td><td>Paranoid</td><td>IDS evasion — extremely slow, one probe at a time</td></tr>
+                                <tr><td><code>-T1</code></td><td>Sneaky</td><td>IDS evasion — slow, minimal footprint</td></tr>
+                                <tr><td><code>-T2</code></td><td>Polite</td><td>Reduces network load — slow</td></tr>
+                                <tr><td><code>-T3</code></td><td>Normal</td><td>Default — balanced speed and accuracy</td></tr>
+                                <tr><td><code>-T4</code></td><td>Aggressive</td><td>Fast — assumes reliable network. Most common choice for authorised scans</td></tr>
+                                <tr><td><code>-T5</code></td><td>Insane</td><td>Very fast but may miss results on slow networks or lose packets</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="discovery" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Host Discovery</h2>
+                    <p>Before port scanning, Nmap checks whether hosts are up. By default it sends ICMP echo requests, TCP SYN to 443, TCP ACK to 80, and ICMP timestamp requests.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Flag</th><th>Method</th><th>Notes</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>-sn</code></td><td>Ping scan only — no port scan</td><td>Discovers live hosts quickly without scanning ports. Useful for asset inventory.</td></tr>
+                                <tr><td><code>-Pn</code></td><td>Skip ping — treat all hosts as up</td><td>Required when hosts block ICMP. Forces port scan on all targets even if they don't respond to ping.</td></tr>
+                                <tr><td><code>-PE</code></td><td>ICMP echo request</td><td>Standard ping</td></tr>
+                                <tr><td><code>-PS</code></td><td>TCP SYN ping</td><td><code>-PS80,443</code> — SYN to specified ports</td></tr>
+                                <tr><td><code>-PA</code></td><td>TCP ACK ping</td><td>Can bypass stateless firewalls that block SYN</td></tr>
+                                <tr><td><code>-PU</code></td><td>UDP ping</td><td>Useful for hosts that filter TCP but allow UDP</td></tr>
+                                <tr><td><code>-PR</code></td><td>ARP ping</td><td>Local network only — very reliable within the same subnet</td></tr>
+                                <tr><td><code>-n</code></td><td>No DNS resolution</td><td>Faster — skips reverse DNS lookups</td></tr>
+                                <tr><td><code>-R</code></td><td>Always resolve DNS</td><td>Resolve all targets including offline hosts</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="portscan" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Port Scanning</h2>
+
+                    <h3 class="sub-heading">Scan types</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Flag</th><th>Type</th><th>How it works</th><th>Notes</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>-sS</code></td><td>TCP SYN (Stealth)</td><td>Sends SYN, reads SYN-ACK (open) or RST (closed), never completes handshake</td><td>Default when running as root. Faster, less logged than connect scan</td></tr>
+                                <tr><td><code>-sT</code></td><td>TCP Connect</td><td>Full three-way handshake using OS socket API</td><td>Default without root. Slower, more likely to be logged</td></tr>
+                                <tr><td><code>-sU</code></td><td>UDP</td><td>Sends UDP packets, listens for ICMP port unreachable (closed) or service response (open)</td><td>Slow — UDP has no handshake. Often combined with TCP: <code>-sS -sU</code></td></tr>
+                                <tr><td><code>-sA</code></td><td>TCP ACK</td><td>Sends ACK — returns RST from both open and closed ports. Used to map firewall rules, not port state.</td><td>Shows which ports are filtered by a stateful firewall</td></tr>
+                                <tr><td><code>-sN</code> / <code>-sF</code> / <code>-sX</code></td><td>NULL / FIN / Xmas</td><td>Sends packets with no/FIN/FIN+PSH+URG flags — no response = open|filtered</td><td>Can bypass some non-stateful firewalls; doesn't work on Windows</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Port selection</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Flag</th><th>Behaviour</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>-p 80</code></td><td>Scan a single port</td></tr>
+                                <tr><td><code>-p 80,443,8080</code></td><td>Scan specific ports</td></tr>
+                                <tr><td><code>-p 1-1024</code></td><td>Scan port range</td></tr>
+                                <tr><td><code>-p-</code></td><td>Scan all 65,535 ports</td></tr>
+                                <tr><td><code>-F</code></td><td>Fast scan — top 100 most common ports</td></tr>
+                                <tr><td><code>--top-ports 1000</code></td><td>Top N most common ports (default when no -p specified)</td></tr>
+                                <tr><td><code>-p U:53,T:80,443</code></td><td>Mixed UDP and TCP port specification</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Port states</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>State</th><th>Meaning</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>open</code></td><td>A service is actively accepting connections on this port</td></tr>
+                                <tr><td><code>closed</code></td><td>Port is accessible but no service is listening — RST returned</td></tr>
+                                <tr><td><code>filtered</code></td><td>Firewall is dropping probes — no response received. Nmap can't determine if open or closed.</td></tr>
+                                <tr><td><code>open|filtered</code></td><td>Nmap can't distinguish — usually from UDP or stealth scans</td></tr>
+                                <tr><td><code>unfiltered</code></td><td>Port is accessible but Nmap can't determine open/closed (ACK scan result)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="service" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Service &amp; Version Detection</h2>
+                    <p>Service detection probes open ports to identify the application and version running behind them — much more useful than just knowing a port is open.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Flag</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>-sV</code></td><td>Enable service/version detection — sends probes and reads banners to identify the service</td></tr>
+                                <tr><td><code>--version-intensity 0-9</code></td><td>How hard to probe (0 = light, 9 = all probes). Default is 7. Higher = more accurate but slower.</td></tr>
+                                <tr><td><code>--version-light</code></td><td>Intensity 2 — quick check, may miss some services</td></tr>
+                                <tr><td><code>--version-all</code></td><td>Intensity 9 — tries all probes, most accurate</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">Nmap — Service scan example output</span></div>
+                        <pre><code>PORT    STATE SERVICE  VERSION
+22/tcp  open  ssh      OpenSSH 8.9p1 Ubuntu 3ubuntu0.6 (Ubuntu Linux; protocol 2.0)
+80/tcp  open  http     Apache httpd 2.4.52 ((Ubuntu))
+443/tcp open  ssl/http Apache httpd 2.4.52 ((Ubuntu))
+3306/tcp open mysql   MySQL 8.0.32</code></pre>
+                    </div>
+                </section>
+
+                <section id="os" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>OS Detection</h2>
+                    <p>OS detection works by analysing TCP/IP stack characteristics — TTL values, window sizes, IP flags, and responses to crafted probes. It requires at least one open and one closed port to work reliably, and must be run as root/Administrator.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Flag</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>-O</code></td><td>Enable OS detection</td></tr>
+                                <tr><td><code>--osscan-guess</code></td><td>Guess OS even when confidence is low</td></tr>
+                                <tr><td><code>--osscan-limit</code></td><td>Only try OS detection when there's at least one open and one closed port</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>OS detection is probabilistic — Nmap reports a confidence percentage (e.g. <em>OS details: Microsoft Windows 10 (95%)</em>). Firewalls and network address translation can reduce accuracy. Service banner grabbing with <code>-sV</code> often reveals more reliable OS information through application-layer banners.</p>
+                    </div>
+                </section>
+
+                <section id="nse" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>NSE Scripts</h2>
+                    <p>The Nmap Scripting Engine (NSE) extends Nmap with Lua scripts for vulnerability detection, service enumeration, brute forcing, and more. Scripts live in <code>/usr/share/nmap/scripts/</code>.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Flag / Category</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>-sC</code></td><td>Run default scripts — equivalent to <code>--script=default</code>. Safe, informational scripts for common services.</td></tr>
+                                <tr><td><code>--script=vuln</code></td><td>Run vulnerability detection scripts — checks for known CVEs and misconfigurations</td></tr>
+                                <tr><td><code>--script=auth</code></td><td>Run authentication-related scripts — default credentials, anonymous access</td></tr>
+                                <tr><td><code>--script=banner</code></td><td>Simple banner grabbing — reads the initial bytes sent by a service</td></tr>
+                                <tr><td><code>--script=smb-vuln*</code></td><td>All SMB vulnerability checks — includes EternalBlue (MS17-010) detection</td></tr>
+                                <tr><td><code>--script=http-title</code></td><td>Retrieve the title from HTTP responses — quick web service enumeration</td></tr>
+                                <tr><td><code>--script=ssl-cert</code></td><td>Extract SSL/TLS certificate details — hostname, expiry, issuer</td></tr>
+                                <tr><td><code>--script=dns-brute</code></td><td>Brute-force DNS subdomains</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">Nmap — Common script combinations</span></div>
+                        <pre><code># Default scripts + version detection (standard recon)
+nmap -sV -sC -T4 192.168.1.0/24
+
+# Check for EternalBlue (MS17-010) / WannaCry vulnerability
+nmap -p 445 --script smb-vuln-ms17-010 192.168.1.0/24
+
+# HTTP service enumeration
+nmap -p 80,443,8080,8443 --script http-title,http-headers,http-methods 192.168.1.0/24
+
+# SSL certificate inspection
+nmap -p 443 --script ssl-cert,ssl-enum-ciphers 192.168.1.1
+
+# SMB enumeration
+nmap -p 445 --script smb-enum-shares,smb-enum-users,smb-security-mode 192.168.1.0/24</code></pre>
+                    </div>
+                </section>
+
+                <section id="output" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Output Formats</h2>
+                    <p>Always save scan output — you'll want to refer back to it during an investigation or report.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Flag</th><th>Format</th><th>Best for</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>-oN file.txt</code></td><td>Normal — human-readable text</td><td>Quick review, sharing with colleagues</td></tr>
+                                <tr><td><code>-oX file.xml</code></td><td>XML — structured data</td><td>Importing into other tools (Metasploit, vulnerability scanners, custom scripts)</td></tr>
+                                <tr><td><code>-oG file.gnmap</code></td><td>Grepable — one line per host</td><td>Shell scripting and grep-based parsing</td></tr>
+                                <tr><td><code>-oA basename</code></td><td>All three formats simultaneously</td><td>Standard choice — saves <code>basename.nmap</code>, <code>basename.xml</code>, <code>basename.gnmap</code></td></tr>
+                                <tr><td><code>-v</code> / <code>-vv</code></td><td>Verbose output</td><td>See results as they come in rather than waiting for the scan to complete</td></tr>
+                                <tr><td><code>--reason</code></td><td>Show reason for port state</td><td>Understand why a port is flagged open/filtered — which packet triggered the classification</td></tr>
+                                <tr><td><code>--open</code></td><td>Only show open ports</td><td>Filter output to relevant results on large subnet scans</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">Bash — Parsing grepable output</span></div>
+                        <pre><code># Extract all hosts with port 22 open
+grep "22/open" scan.gnmap | awk '{print $2}'
+
+# List all open ports across all hosts
+grep "Ports:" scan.gnmap | grep -oP '\d+/open' | sort -t/ -k1 -n | uniq -c | sort -rn</code></pre>
+                    </div>
+                </section>
+
+                <section id="ports" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Common Ports Reference</h2>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Port</th><th>Protocol</th><th>Service</th><th>Notes</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>21</td><td>TCP</td><td>FTP</td><td>Plaintext — check for anonymous login</td></tr>
+                                <tr><td>22</td><td>TCP</td><td>SSH</td><td>Check version for known CVEs</td></tr>
+                                <tr><td>23</td><td>TCP</td><td>Telnet</td><td>Plaintext — should not be open on modern systems</td></tr>
+                                <tr><td>25</td><td>TCP</td><td>SMTP</td><td>Email — check for open relay</td></tr>
+                                <tr><td>53</td><td>TCP/UDP</td><td>DNS</td><td>UDP for queries; TCP for zone transfers (AXFR)</td></tr>
+                                <tr><td>80</td><td>TCP</td><td>HTTP</td><td>Web — check for admin interfaces, default creds</td></tr>
+                                <tr><td>110 / 995</td><td>TCP</td><td>POP3 / POP3S</td><td>Legacy auth — check for legacy protocol exposure</td></tr>
+                                <tr><td>135</td><td>TCP</td><td>RPC</td><td>Windows RPC endpoint mapper</td></tr>
+                                <tr><td>139 / 445</td><td>TCP</td><td>NetBIOS / SMB</td><td>File sharing — check for EternalBlue, open shares</td></tr>
+                                <tr><td>143 / 993</td><td>TCP</td><td>IMAP / IMAPS</td><td>Email — check for legacy auth</td></tr>
+                                <tr><td>389 / 636</td><td>TCP</td><td>LDAP / LDAPS</td><td>Active Directory — check for anonymous bind</td></tr>
+                                <tr><td>443</td><td>TCP</td><td>HTTPS</td><td>Check cert validity, TLS version, cipher suites</td></tr>
+                                <tr><td>3306</td><td>TCP</td><td>MySQL</td><td>Check if exposed externally — should be localhost only</td></tr>
+                                <tr><td>3389</td><td>TCP</td><td>RDP</td><td>Windows Remote Desktop — high-value attack target</td></tr>
+                                <tr><td>5985 / 5986</td><td>TCP</td><td>WinRM</td><td>PowerShell Remoting — HTTP/HTTPS</td></tr>
+                                <tr><td>8080 / 8443</td><td>TCP</td><td>HTTP/HTTPS alt</td><td>Web apps and management interfaces on non-standard ports</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="tips" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Tips &amp; Best Practices</h2>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Use <code>-A</code> for comprehensive single-host scans.</strong> The <code>-A</code> flag enables OS detection, version detection, script scanning, and traceroute in one flag — <code>nmap -A -T4 192.168.1.1</code>. Good for deep inspection of a specific target.</p>
+                    </div>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Scan large subnets in two passes.</strong> First do a fast ping sweep (<code>-sn -T4</code>) to identify live hosts, then port scan only the live hosts from the results. Much faster than port scanning the whole range blind.</p>
+                    </div>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p><strong>Zenmap is Nmap's GUI.</strong> If you prefer a graphical interface, Zenmap ships with Nmap on Windows and provides a command builder, topology map, and results comparison feature. Useful for visualising large subnet scans.</p>
+                    </div>
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Nmap generates significant network noise.</strong> Even a T3 SYN scan of a /24 subnet sends thousands of packets and will appear in firewall and IDS logs. Don't scan production networks without coordination — and be aware that aggressive scanning (<code>-T4</code> / <code>-T5</code>) can temporarily impact service performance on sensitive hosts.</p>
+                    </div>
+                </section>
+
+            </article>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+    </script>
+</body>
+</html>

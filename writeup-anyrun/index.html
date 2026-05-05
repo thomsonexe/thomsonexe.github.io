@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Any.Run — Malware Sandbox Analysis | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/home" class="nav-logo writeup-logo">
+                <img src="/mouse_t.png" class="nav-mouse" alt="">
+            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="/labs" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Labs
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="writeup-hero">
+        <div class="container">
+            <div class="writeup-meta">
+                <span class="ctf-platform forensics">Forensics</span>
+                <span class="ctf-difficulty easy">Beginner</span>
+                <span class="writeup-category"><i class="fas fa-tag"></i> Malware Analysis / Sandbox / DFIR</span>
+            </div>
+            <h1 class="writeup-title">Any.Run — Malware Sandbox Analysis</h1>
+            <p class="writeup-subtitle">A practical guide to Any.Run — submitting samples, reading the process tree, analysing network activity, extracting IOCs, and mapping behaviour to MITRE ATT&CK for incident response and threat hunting.</p>
+            <div class="writeup-stats">
+                <span><i class="fas fa-clock"></i> 12 min read</span>
+                <span><i class="fas fa-bug"></i> Malware Analysis</span>
+                <span><i class="fas fa-shield-alt"></i> Blue Team / DFIR</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="writeup-body">
+        <div class="container writeup-container">
+
+            <aside class="writeup-toc">
+                <div class="toc-card">
+                    <h3 class="toc-title"><i class="fas fa-list"></i> Contents</h3>
+                    <ul class="toc-links">
+                        <li><a href="#intro">What is Any.Run?</a></li>
+                        <li><a href="#sandbox">Sandbox Concepts</a></li>
+                        <li><a href="#submit">Submitting Samples</a></li>
+                        <li><a href="#report">Reading the Report</a></li>
+                        <li><a href="#process">Process Tree Analysis</a></li>
+                        <li><a href="#network">Network Activity</a></li>
+                        <li><a href="#filesystem">File System Activity</a></li>
+                        <li><a href="#ioc">IOC Extraction</a></li>
+                        <li><a href="#mitre">MITRE ATT&CK Mapping</a></li>
+                        <li><a href="#tips">Tips & Best Practices</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <article class="writeup-content">
+
+                <section id="intro" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>What is Any.Run?</h2>
+                    <p>Any.Run is an interactive online malware sandbox. Unlike automated sandboxes that run a sample and generate a report, Any.Run gives you a live virtual machine in your browser where you can interact with the malware in real time — click through installers, open documents, observe what happens when you take specific actions.</p>
+                    <p>It's an invaluable tool for blue team analysts and DFIR responders who need to quickly understand what a suspicious file or URL does without exposing a real system to risk.</p>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Any.Run has a free public tier where submissions and reports are publicly visible. If you're analysing sensitive files (internal documents, corporate malware samples), use a <strong>private</strong> submission — this requires a paid account. Never submit files containing sensitive company or personal data on the free tier.</p>
+                    </div>
+                </section>
+
+                <section id="sandbox" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Sandbox Concepts</h2>
+                    <div class="concept-grid">
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-box"></i></div>
+                            <h4>Isolation</h4>
+                            <p>The sample runs in a disposable VM with no connection to real systems. Network traffic is intercepted for analysis rather than routing to the actual internet (unless you enable real network access).</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-eye"></i></div>
+                            <h4>Instrumentation</h4>
+                            <p>Every system call, process spawn, network connection, file write, and registry change is monitored and recorded — giving you complete visibility into what the sample does.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-mouse-pointer"></i></div>
+                            <h4>Interactivity</h4>
+                            <p>Unlike automated sandboxes, Any.Run lets you interact with the VM — open files, click buttons, enter credentials. Malware that waits for user interaction or checks for VM environment can be triggered manually.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-clock"></i></div>
+                            <h4>Time limit</h4>
+                            <p>Free sessions run for 60 seconds. Paid plans extend to several minutes. Some malware has long sleep timers — use the time slider to advance the analysis if activity stalls.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="submit" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Submitting Samples</h2>
+                    <p>Any.Run accepts files (EXE, DLL, DOC, PDF, ZIP, etc.) and URLs. Key options when submitting:</p>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Option</th><th>Description</th><th>When to use</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>OS Version</td><td>Windows 7, 10, 11 — select to match target environment</td><td>Match the OS of the victim host when analysing an incident</td></tr>
+                                <tr><td>Bitness</td><td>32-bit or 64-bit</td><td>Match the victim architecture — some malware checks this</td></tr>
+                                <tr><td>Real network</td><td>Routes traffic to actual internet instead of simulated</td><td>Needed if C2 infrastructure is live and you want to see real callbacks</td></tr>
+                                <tr><td>Fake net</td><td>Simulates network responses — keeps malware running even when C2 is down</td><td>Useful for analysing malware when C2 is offline</td></tr>
+                                <tr><td>Privacy</td><td>Public (free) or Private (paid)</td><td>Always use Private for real incident samples</td></tr>
+                                <tr><td>Run as admin</td><td>Starts the sample with administrator privileges</td><td>When malware requires elevated privileges to run</td></tr>
+                                <tr><td>MITM</td><td>Intercepts HTTPS traffic for decryption</td><td>When malware uses HTTPS C2 and you want to see request contents</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p>Before submitting, search the Any.Run public task database for the file hash first. If someone has already analysed the same sample, you can review their report instantly without spending a submission.</p>
+                    </div>
+                </section>
+
+                <section id="report" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Reading the Report</h2>
+                    <p>The Any.Run report has several panels — understanding each one helps you quickly extract the information you need.</p>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Panel</th><th>What it shows</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Process Graph</td><td>Visual tree of all spawned processes — the most important view for understanding execution chain</td></tr>
+                                <tr><td>Network Activity</td><td>DNS queries, HTTP requests, connections — shows C2 callbacks, payload downloads, exfiltration</td></tr>
+                                <tr><td>File Activity</td><td>Files created, modified, or deleted — dropped payloads, configuration files, ransom notes</td></tr>
+                                <tr><td>Registry Activity</td><td>Registry keys read or written — persistence mechanisms, configuration storage</td></tr>
+                                <tr><td>Threats</td><td>Any.Run's verdict and tagged signatures — malware family, MITRE techniques</td></tr>
+                                <tr><td>IOCs</td><td>Extracted indicators — IPs, domains, hashes, file paths — exportable for threat hunting</td></tr>
+                                <tr><td>Suricata Alerts</td><td>Network IDS hits — known malware traffic patterns matched against Suricata rules</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="process" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Process Tree Analysis</h2>
+                    <p>The process tree is the heart of the analysis. It shows every process that ran during the session, their parent-child relationships, and tags suspicious activity inline.</p>
+
+                    <h3 class="sub-heading">What to look for</h3>
+                    <div class="concept-grid">
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-file-word"></i></div>
+                            <h4>Suspicious parent-child</h4>
+                            <p>Office applications spawning <code>cmd.exe</code> or <code>powershell.exe</code> — classic macro or exploit indicator. Browser spawning <code>wscript.exe</code> — drive-by download.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-copy"></i></div>
+                            <h4>Process injection</h4>
+                            <p>Malware code running inside a legitimate process (e.g. code inside <code>explorer.exe</code> or <code>svchost.exe</code> making network connections it normally wouldn't). Look for activity that doesn't match the process name.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-tools"></i></div>
+                            <h4>LOLBins</h4>
+                            <p>Living-off-the-land binaries — <code>certutil</code>, <code>regsvr32</code>, <code>mshta</code>, <code>bitsadmin</code>, <code>rundll32</code> used with unusual arguments to download or execute payloads.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-user-shield"></i></div>
+                            <h4>Privilege escalation</h4>
+                            <p>Processes starting as a standard user and later appearing with SYSTEM or elevated context — look for UAC bypass attempts or token manipulation.</p>
+                        </div>
+                    </div>
+
+                    <h3 class="sub-heading">Colour coding in the process tree</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Colour</th><th>Meaning</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Red</td><td>Process flagged as malicious — confirmed or highly suspicious activity</td></tr>
+                                <tr><td>Orange</td><td>Suspicious — potentially malicious behaviour detected</td></tr>
+                                <tr><td>Yellow</td><td>Informational — notable behaviour but not necessarily malicious</td></tr>
+                                <tr><td>Grey</td><td>Clean / system process</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="network" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Network Activity</h2>
+                    <p>The Network tab shows all DNS queries, HTTP/HTTPS requests, and raw TCP/UDP connections made during the session.</p>
+
+                    <h3 class="sub-heading">Key things to extract</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Type</th><th>What to look for</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>DNS queries</td><td>C2 domain names — look for DGA-style random strings, recently registered domains, or known malicious domains</td></tr>
+                                <tr><td>HTTP GET</td><td>Payload download URLs — note the path and any query parameters (often contain victim ID or encoded data)</td></tr>
+                                <tr><td>HTTP POST</td><td>Data being sent out — check request body for stolen credentials, system info, or encoded exfiltrated data</td></tr>
+                                <tr><td>User-Agent</td><td>Often hardcoded in malware — note the exact string for detection rules</td></tr>
+                                <tr><td>Beaconing pattern</td><td>Regular intervals of identical requests — note the interval and URL for C2 detection</td></tr>
+                                <tr><td>IP addresses</td><td>Direct IP connections (no DNS) are suspicious — often C2 infrastructure avoiding domain-based blocking</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="filesystem" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>File System Activity</h2>
+                    <p>Every file created, modified, renamed, or deleted during execution is logged. This reveals:</p>
+                    <div class="concept-grid">
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-download"></i></div>
+                            <h4>Dropped payloads</h4>
+                            <p>Second-stage executables written to disk — note the path and hash. Common drop locations: <code>%TEMP%</code>, <code>%APPDATA%</code>, <code>C:\ProgramData</code>.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-cog"></i></div>
+                            <h4>Config files</h4>
+                            <p>Malware often writes configuration to disk — RC4 keys, C2 addresses, victim identifiers. These files may be encrypted or obfuscated.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-plug"></i></div>
+                            <h4>Persistence files</h4>
+                            <p>Files written to startup folders (<code>%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup</code>), or copies of the malware in system directories.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-lock"></i></div>
+                            <h4>Ransomware</h4>
+                            <p>Bulk file modification followed by new extensions (.locked, .enc) and ransom note files appearing. Ransom notes contain C2 contact details.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="ioc" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>IOC Extraction</h2>
+                    <p>Any.Run's IOC tab compiles all indicators of compromise from the session into a single exportable list. Key IOC types:</p>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>IOC type</th><th>How to use it</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>File hashes (MD5, SHA-1, SHA-256)</td><td>Block in EDR/AV; search in SIEM for historical matches; submit to VirusTotal</td></tr>
+                                <tr><td>IP addresses</td><td>Block at firewall; search in SIEM for connections; check reputation in threat intel</td></tr>
+                                <tr><td>Domains</td><td>Block at DNS/proxy; search SIEM DNS logs; check registration date and WHOIS</td></tr>
+                                <tr><td>URLs</td><td>Block at web proxy; search proxy logs; may contain unique campaign identifiers</td></tr>
+                                <tr><td>File paths</td><td>Hunt for the same paths on other endpoints in your environment</td></tr>
+                                <tr><td>Registry keys</td><td>Hunt for the same persistence keys across endpoints</td></tr>
+                                <tr><td>Mutex names</td><td>Mutexes are created by malware to prevent re-infection — unique per malware family, useful for detection rules</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p>Export IOCs in MISP, JSON, or plain text format from the Any.Run report. Import them directly into your SIEM, SOAR, or threat intel platform to automate hunting across your environment.</p>
+                    </div>
+                </section>
+
+                <section id="mitre" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>MITRE ATT&amp;CK Mapping</h2>
+                    <p>Any.Run automatically tags observed behaviours with MITRE ATT&CK techniques. This is invaluable for incident reporting and for understanding attacker intent.</p>
+
+                    <h3 class="sub-heading">Common techniques seen in sandbox analysis</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Technique ID</th><th>Name</th><th>What it looks like in Any.Run</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>T1059.001</td><td>PowerShell</td><td>PowerShell spawned, often with -enc flag — encoded command execution</td></tr>
+                                <tr><td>T1059.003</td><td>Windows Command Shell</td><td>cmd.exe with unusual arguments or spawned from document process</td></tr>
+                                <tr><td>T1055</td><td>Process Injection</td><td>Malicious code executing inside a legitimate host process</td></tr>
+                                <tr><td>T1547.001</td><td>Registry Run Keys</td><td>HKCU\Software\Microsoft\Windows\CurrentVersion\Run modified</td></tr>
+                                <tr><td>T1053.005</td><td>Scheduled Task</td><td>schtasks.exe run with /create argument</td></tr>
+                                <tr><td>T1071.001</td><td>Web Protocols (C2)</td><td>HTTP/HTTPS to unusual domain after execution</td></tr>
+                                <tr><td>T1486</td><td>Data Encrypted for Impact</td><td>Bulk file modification with new extensions — ransomware</td></tr>
+                                <tr><td>T1562.001</td><td>Disable Security Tools</td><td>AV/EDR services stopped; Windows Defender disabled via registry</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="tips" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Tips &amp; Best Practices</h2>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Interact with the sample.</strong> Any.Run's biggest advantage over automated sandboxes is interactivity. If a sample opens a document, click Enable Content. If it shows a password prompt, try common passwords. If it waits for input, provide it — malware often gates further activity behind user interaction.</p>
+                    </div>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Use fake network mode for offline C2.</strong> If the malware's C2 server is down, it may exit quickly or loop waiting for a connection. Enable Fake Net to simulate network responses — this keeps the malware running so you can observe more behaviour.</p>
+                    </div>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p><strong>Cross-reference with VirusTotal.</strong> Once you have file hashes from the analysis, submit them to VirusTotal for additional vendor coverage. Any.Run shows behavioural analysis; VirusTotal shows signature-based detection rates across 70+ engines.</p>
+                    </div>
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Malware can detect sandboxes.</strong> Some malware checks for VM artefacts (CPUID, registry keys, process names, screen resolution) and behaves differently or exits. Any.Run has some anti-evasion options, but sophisticated malware may still detect the environment. In those cases, consider using a private bare-metal environment.</p>
+                    </div>
+                </section>
+
+            </article>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+    </script>
+</body>
+</html>

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Splunk SPL — SIEM & Threat Hunting | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/home" class="nav-logo writeup-logo">
+                <img src="/mouse_t.png" class="nav-mouse" alt="">
+            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="/labs" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Labs
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="writeup-hero">
+        <div class="container">
+            <div class="writeup-meta">
+                <span class="ctf-platform detection">Detection</span>
+                <span class="ctf-difficulty medium">Intermediate</span>
+                <span class="writeup-category"><i class="fas fa-tag"></i> SIEM / Threat Hunting / Log Analysis</span>
+            </div>
+            <h1 class="writeup-title">Splunk SPL — SIEM &amp; Threat Hunting</h1>
+            <p class="writeup-subtitle">A practical SPL reference for SOC analysts — covering search syntax, essential commands, field extraction, statistical analysis, and real-world threat hunting queries for common attack patterns.</p>
+            <div class="writeup-stats">
+                <span><i class="fas fa-clock"></i> 20 min read</span>
+                <span><i class="fas fa-terminal"></i> Reference Guide</span>
+                <span><i class="fas fa-shield-alt"></i> Blue Team / SOC</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="writeup-body">
+        <div class="container writeup-container">
+
+            <aside class="writeup-toc">
+                <div class="toc-card">
+                    <h3 class="toc-title"><i class="fas fa-list"></i> Contents</h3>
+                    <ul class="toc-links">
+                        <li><a href="#intro">What is Splunk?</a></li>
+                        <li><a href="#spl">SPL Basics</a></li>
+                        <li><a href="#search">Search Commands</a></li>
+                        <li><a href="#stats">Statistical Commands</a></li>
+                        <li><a href="#fields">Fields & Extraction</a></li>
+                        <li><a href="#eval">Eval & Conditional Logic</a></li>
+                        <li><a href="#time">Time & Subsearches</a></li>
+                        <li><a href="#hunting">Threat Hunting Queries</a></li>
+                        <li><a href="#indexes">Key Indexes & Sources</a></li>
+                        <li><a href="#tips">Tips & Best Practices</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <article class="writeup-content">
+
+                <section id="intro" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>What is Splunk?</h2>
+                    <p>Splunk is a Security Information and Event Management (SIEM) platform that ingests, indexes, and correlates log data from across an environment — endpoints, servers, firewalls, identity providers, cloud services, and more. SOC analysts use it to search for threats, build detection rules, and investigate alerts.</p>
+                    <p>Data is queried using <strong>SPL (Search Processing Language)</strong> — a pipeline-based query language similar in concept to Unix pipes. Understanding SPL is a core skill for any blue team analyst working in a Splunk environment.</p>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Splunk organises data into <strong>indexes</strong>, which are sets of events stored on disk. Data is broken into <strong>events</strong> — individual log lines — each with a timestamp and a set of <strong>fields</strong> parsed from the raw text. The most common default index is <code>main</code>; many environments use custom indexes per data source (e.g. <code>windows</code>, <code>firewall</code>, <code>aws</code>).</p>
+                    </div>
+                </section>
+
+                <section id="spl" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>SPL Basics</h2>
+                    <p>Every SPL search starts with a <strong>search command</strong> (implicit or explicit) and passes results through a pipeline using the pipe character <code>|</code>. Each command in the pipeline transforms or filters the result set.</p>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">SPL — Basic Structure</span></div>
+                        <pre><code>index=main sourcetype=WinEventLog EventCode=4625
+| stats count by src_ip, user
+| sort -count
+| head 20</code></pre>
+                    </div>
+
+                    <p>This search: finds failed logins (EventCode 4625) → counts them grouped by source IP and user → sorts descending → shows the top 20.</p>
+
+                    <h3 class="sub-heading">Search terms</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Syntax</th><th>Meaning</th><th>Example</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>keyword</code></td><td>Any event containing this word</td><td><code>malware</code></td></tr>
+                                <tr><td><code>field=value</code></td><td>Field equals exact value</td><td><code>user=admin</code></td></tr>
+                                <tr><td><code>field=*value*</code></td><td>Wildcard match</td><td><code>process=*powershell*</code></td></tr>
+                                <tr><td><code>NOT field=value</code></td><td>Exclude matches</td><td><code>NOT src_ip=10.0.0.1</code></td></tr>
+                                <tr><td><code>field=val1 OR field=val2</code></td><td>OR logic</td><td><code>EventCode=4624 OR EventCode=4625</code></td></tr>
+                                <tr><td><code>field IN (a, b, c)</code></td><td>Matches any in list</td><td><code>EventCode IN (4624, 4625, 4648)</code></td></tr>
+                                <tr><td><code>"exact phrase"</code></td><td>Exact phrase match</td><td><code>"lateral movement"</code></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="search" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Search Commands</h2>
+                    <p>These are the commands you'll use in almost every search. They filter, transform, and reshape event data flowing through the pipeline.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Command</th><th>What it does</th><th>Example</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>search</code></td><td>Filter events by keyword or field</td><td><code>| search user="administrator"</code></td></tr>
+                                <tr><td><code>where</code></td><td>Filter using eval expressions</td><td><code>| where count > 100</code></td></tr>
+                                <tr><td><code>fields</code></td><td>Include or exclude specific fields</td><td><code>| fields src_ip, user, EventCode</code></td></tr>
+                                <tr><td><code>table</code></td><td>Display events as a formatted table</td><td><code>| table _time, user, src_ip, action</code></td></tr>
+                                <tr><td><code>rename</code></td><td>Rename a field</td><td><code>| rename src_ip AS "Source IP"</code></td></tr>
+                                <tr><td><code>sort</code></td><td>Sort results (- for descending)</td><td><code>| sort -count</code></td></tr>
+                                <tr><td><code>head</code> / <code>tail</code></td><td>Return first / last N results</td><td><code>| head 10</code></td></tr>
+                                <tr><td><code>dedup</code></td><td>Remove duplicate events by field</td><td><code>| dedup user</code></td></tr>
+                                <tr><td><code>reverse</code></td><td>Reverse the order of results</td><td><code>| reverse</code></td></tr>
+                                <tr><td><code>rex</code></td><td>Extract fields using regex</td><td><code>| rex field=_raw "User: (?P&lt;username&gt;\w+)"</code></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="stats" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Statistical Commands</h2>
+                    <p>Statistical commands aggregate data — essential for summarising large volumes of log events and spotting anomalies.</p>
+
+                    <h3 class="sub-heading">stats</h3>
+                    <p>The workhorse aggregation command. Groups events and computes aggregate functions.</p>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">SPL</span></div>
+                        <pre><code>index=windows EventCode=4625
+| stats count AS failures, dc(user) AS unique_users by src_ip
+| where failures > 20
+| sort -failures</code></pre>
+                    </div>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Function</th><th>What it returns</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>count</code></td><td>Number of events</td></tr>
+                                <tr><td><code>dc(field)</code></td><td>Distinct count of unique values</td></tr>
+                                <tr><td><code>values(field)</code></td><td>List of unique values</td></tr>
+                                <tr><td><code>list(field)</code></td><td>List of all values (including duplicates)</td></tr>
+                                <tr><td><code>sum(field)</code></td><td>Sum of numeric field</td></tr>
+                                <tr><td><code>avg(field)</code></td><td>Average of numeric field</td></tr>
+                                <tr><td><code>max(field)</code> / <code>min(field)</code></td><td>Maximum / minimum value</td></tr>
+                                <tr><td><code>earliest(field)</code> / <code>latest(field)</code></td><td>Chronologically first / last value</td></tr>
+                                <tr><td><code>range(field)</code></td><td>Difference between max and min</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">timechart</h3>
+                    <p>Like <code>stats</code> but bucketed by time — ideal for visualising activity over time.</p>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">SPL</span></div>
+                        <pre><code>index=firewall action=blocked
+| timechart span=1h count by src_ip limit=5</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">top / rare</h3>
+                    <p><code>top</code> returns the most common values for a field; <code>rare</code> returns the least common — useful for anomaly detection.</p>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">SPL</span></div>
+                        <pre><code>index=windows EventCode=4688
+| rare process_name limit=20</code></pre>
+                    </div>
+                </section>
+
+                <section id="fields" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Fields &amp; Extraction</h2>
+                    <p>Splunk auto-extracts fields from common log formats. For custom or unstructured logs, you extract fields yourself using <code>rex</code> or the field extractor UI.</p>
+
+                    <h3 class="sub-heading">rex — Regex field extraction</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">SPL</span></div>
+                        <pre><code>| rex field=_raw "src=(?P&lt;src_ip&gt;\d{1,3}(?:\.\d{1,3}){3})"
+| rex field=_raw "dst=(?P&lt;dst_ip&gt;\d{1,3}(?:\.\d{1,3}){3})"</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">spath — JSON / XML extraction</h3>
+                    <p>Extracts fields from structured data like JSON logs (common with cloud logs, API events).</p>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">SPL</span></div>
+                        <pre><code>index=cloudtrail
+| spath input=_raw path=userIdentity.userName output=user
+| spath input=_raw path=sourceIPAddress output=src_ip</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">Useful default fields</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Field</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>_time</code></td><td>Event timestamp</td></tr>
+                                <tr><td><code>_raw</code></td><td>Full raw event text</td></tr>
+                                <tr><td><code>host</code></td><td>Hostname the event was collected from</td></tr>
+                                <tr><td><code>source</code></td><td>Log file or data source path</td></tr>
+                                <tr><td><code>sourcetype</code></td><td>Format/type of the data (e.g. <code>WinEventLog</code>, <code>syslog</code>)</td></tr>
+                                <tr><td><code>index</code></td><td>The index the event is stored in</td></tr>
+                                <tr><td><code>linecount</code></td><td>Number of lines in the event</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="eval" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Eval &amp; Conditional Logic</h2>
+                    <p><code>eval</code> creates or modifies fields using expressions. It's one of the most flexible SPL commands — used for calculations, string manipulation, and conditional logic.</p>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">SPL — Conditional classification</span></div>
+                        <pre><code>index=windows EventCode=4625
+| eval risk = case(
+    count > 100, "High",
+    count > 30, "Medium",
+    count > 10, "Low",
+    true(), "Info"
+)</code></pre>
+                    </div>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Function</th><th>Example</th><th>Result</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>if(condition, a, b)</code></td><td><code>eval flag=if(count>10,"yes","no")</code></td><td>Ternary</td></tr>
+                                <tr><td><code>case(...)</code></td><td>Multiple conditions</td><td>First matching value</td></tr>
+                                <tr><td><code>len(field)</code></td><td><code>eval cmdlen=len(CommandLine)</code></td><td>String length</td></tr>
+                                <tr><td><code>lower(field)</code> / <code>upper(field)</code></td><td><code>eval u=lower(user)</code></td><td>Case change</td></tr>
+                                <tr><td><code>substr(field, start, len)</code></td><td><code>eval prefix=substr(hash,1,6)</code></td><td>Substring</td></tr>
+                                <tr><td><code>split(field, delim)</code></td><td><code>eval parts=split(path,"/")</code></td><td>String split to MV</td></tr>
+                                <tr><td><code>mvcount(field)</code></td><td><code>eval n=mvcount(values)</code></td><td>Multivalue count</td></tr>
+                                <tr><td><code>now()</code></td><td><code>eval ts=now()</code></td><td>Current epoch time</td></tr>
+                                <tr><td><code>strftime(field, fmt)</code></td><td><code>eval dt=strftime(_time,"%Y-%m-%d")</code></td><td>Format timestamp</td></tr>
+                                <tr><td><code>md5(field)</code></td><td><code>eval h=md5(user)</code></td><td>MD5 hash</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="time" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Time &amp; Subsearches</h2>
+
+                    <h3 class="sub-heading">Time modifiers</h3>
+                    <p>Time range can be set in the UI or in the search itself using <code>earliest</code> and <code>latest</code>.</p>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Modifier</th><th>Meaning</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>earliest=-24h</code></td><td>Last 24 hours</td></tr>
+                                <tr><td><code>earliest=-7d latest=-1d</code></td><td>Between 7 days ago and 1 day ago</td></tr>
+                                <tr><td><code>earliest=@d</code></td><td>Start of today (midnight)</td></tr>
+                                <tr><td><code>earliest=-1w@w</code></td><td>Start of last week</td></tr>
+                                <tr><td><code>earliest=1716768000</code></td><td>Absolute epoch timestamp</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Subsearches</h3>
+                    <p>A subsearch runs first and feeds its results as a filter into the outer search. Useful for cross-referencing threat intel or joining datasets without a lookup.</p>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">SPL — Subsearch</span></div>
+                        <pre><code>index=firewall
+    [search index=threatintel | return 100 malicious_ip]
+| table _time, src_ip, dst_ip, action</code></pre>
+                    </div>
+
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Subsearches are limited to returning 10,000 results and have a 60-second timeout by default. For large lookups, use a <strong>lookup table</strong> instead — it's faster and not subject to these limits.</p>
+                    </div>
+                </section>
+
+                <section id="hunting" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Threat Hunting Queries</h2>
+                    <p>These are ready-to-use hunting queries for common attack techniques. Adjust index names and field names to match your environment.</p>
+
+                    <h3 class="sub-heading">Brute force / password spray</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">SPL</span></div>
+                        <pre><code>index=windows EventCode=4625 earliest=-1h
+| stats count AS failures, dc(user) AS users_targeted by src_ip
+| where failures > 50 OR users_targeted > 10
+| sort -failures</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">Successful login after multiple failures (likely breach)</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">SPL</span></div>
+                        <pre><code>index=windows EventCode IN (4625, 4624)
+| stats count(eval(EventCode=4625)) AS failures,
+        count(eval(EventCode=4624)) AS successes by user, src_ip
+| where failures > 10 AND successes > 0
+| sort -failures</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">PowerShell encoded command execution</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">SPL</span></div>
+                        <pre><code>index=windows EventCode=4688 earliest=-24h
+| where like(lower(CommandLine), "%-enc%") OR like(lower(CommandLine), "%-encodedcommand%")
+| table _time, host, user, CommandLine
+| sort -_time</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">Lateral movement — remote service creation</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">SPL</span></div>
+                        <pre><code>index=windows EventCode=7045 earliest=-24h
+| table _time, host, ServiceName, ImagePath, AccountName
+| sort -_time</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">DCSync attack detection</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">SPL</span></div>
+                        <pre><code>index=windows EventCode=4662 earliest=-1h
+| where like(Properties, "%1131f6aa-9c07-11d1-f79f-00c04fc2dcd2%")
+    OR like(Properties, "%1131f6ad-9c07-11d1-f79f-00c04fc2dcd2%")
+| where SubjectUserName!="*$"
+| table _time, SubjectUserName, SubjectDomainName, host</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">Beaconing detection — regular outbound connections</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">SPL</span></div>
+                        <pre><code>index=network earliest=-6h
+| timechart span=5m count by dest_ip
+| eventstats stdev(count) AS sd, avg(count) AS mean by dest_ip
+| where sd < 2 AND mean > 1
+| table dest_ip, mean, sd</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">Rare parent-child process relationships</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">SPL</span></div>
+                        <pre><code>index=windows EventCode=4688 earliest=-24h
+| stats count by ParentProcessName, NewProcessName
+| where count < 5
+| sort count</code></pre>
+                    </div>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p>Build a <strong>baseline</strong> first — run hunting queries over a 30-day window to establish what's normal before hunting anomalies over a 1-day window. High count thresholds in a query should reflect your environment, not arbitrary numbers.</p>
+                    </div>
+                </section>
+
+                <section id="indexes" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Key Indexes &amp; Sources</h2>
+                    <p>Common indexes and sourcetypes you'll encounter in enterprise Splunk deployments.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Sourcetype / Index</th><th>Data source</th><th>Key fields</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>WinEventLog:Security</code></td><td>Windows Security event log</td><td>EventCode, user, src_ip, LogonType</td></tr>
+                                <tr><td><code>WinEventLog:System</code></td><td>Windows System event log</td><td>EventCode, host, ServiceName</td></tr>
+                                <tr><td><code>XmlWinEventLog:Microsoft-Windows-Sysmon/Operational</code></td><td>Sysmon</td><td>EventCode, Image, CommandLine, ParentImage, Hashes, DestinationIp</td></tr>
+                                <tr><td><code>access_combined</code></td><td>Apache / IIS web logs</td><td>clientip, uri, status, method, bytes</td></tr>
+                                <tr><td><code>pan:traffic</code></td><td>Palo Alto firewall</td><td>src_ip, dest_ip, app, action, bytes_out</td></tr>
+                                <tr><td><code>cisco:asa</code></td><td>Cisco ASA firewall</td><td>src_ip, dest_ip, action, protocol</td></tr>
+                                <tr><td><code>aws:cloudtrail</code></td><td>AWS CloudTrail API logs</td><td>userIdentity.userName, eventName, sourceIPAddress, errorCode</td></tr>
+                                <tr><td><code>o365:management:activity</code></td><td>Microsoft 365 audit logs</td><td>Operation, UserId, ClientIP, ResultStatus</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Windows Event IDs — Quick Reference</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Event ID</th><th>Description</th><th>Relevance</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>4624</td><td>Successful logon</td><td>Baseline / lateral movement</td></tr>
+                                <tr><td>4625</td><td>Failed logon</td><td>Brute force</td></tr>
+                                <tr><td>4648</td><td>Logon using explicit credentials</td><td>Pass-the-Hash, runas</td></tr>
+                                <tr><td>4662</td><td>Operation on AD object</td><td>DCSync</td></tr>
+                                <tr><td>4672</td><td>Special privileges assigned</td><td>Privilege escalation</td></tr>
+                                <tr><td>4688</td><td>Process created</td><td>Execution tracking</td></tr>
+                                <tr><td>4698</td><td>Scheduled task created</td><td>Persistence</td></tr>
+                                <tr><td>4720</td><td>User account created</td><td>Account creation</td></tr>
+                                <tr><td>4732</td><td>Member added to security group</td><td>Privilege escalation</td></tr>
+                                <tr><td>4768 / 4769</td><td>Kerberos TGT / service ticket requested</td><td>Kerberoasting</td></tr>
+                                <tr><td>7045</td><td>New service installed (System log)</td><td>Persistence / lateral movement</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="tips" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Tips &amp; Best Practices</h2>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Filter early, aggregate late.</strong> Always put your most restrictive filters (index, sourcetype, EventCode) at the start of the search before any <code>|</code> commands. Splunk reads raw data before passing to the pipeline — the more you filter before the first pipe, the faster the search.</p>
+                    </div>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Use <code>fields</code> early.</strong> Adding <code>| fields src_ip, user, EventCode</code> right after your base search strips unnecessary fields and speeds up subsequent pipeline steps significantly on large result sets.</p>
+                    </div>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Save searches as alerts or reports.</strong> Any SPL search can be scheduled. Set up alerts to trigger when hunting queries match above a threshold — this turns a one-off hunt into continuous detection.</p>
+                    </div>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p><strong>Use <code>tstats</code> for speed.</strong> The <code>tstats</code> command queries the TSIDX index metadata rather than raw events — orders of magnitude faster for large time ranges. Requires the Common Information Model (CIM) data models to be accelerated.</p>
+                    </div>
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Wildcard searches are expensive.</strong> Leading wildcards (<code>*value</code>) require a full scan of the index and are very slow. Use <code>rex</code> or extract structured fields instead, and avoid <code>*keyword*</code> patterns on high-volume indexes.</p>
+                    </div>
+                </section>
+
+            </article>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+    </script>
+</body>
+</html>

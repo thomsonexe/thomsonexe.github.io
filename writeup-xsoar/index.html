@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cortex XSOAR — SOAR & Automation | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/home" class="nav-logo writeup-logo">
+                <img src="/mouse_t.png" class="nav-mouse" alt="">
+            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="/labs" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Labs
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="writeup-hero">
+        <div class="container">
+            <div class="writeup-meta">
+                <span class="ctf-platform detection">Detection</span>
+                <span class="ctf-difficulty medium">Intermediate</span>
+                <span class="writeup-category"><i class="fas fa-tag"></i> SOAR / Automation / Incident Response</span>
+            </div>
+            <h1 class="writeup-title">Cortex XSOAR — SOAR &amp; Automation</h1>
+            <p class="writeup-subtitle">A practical guide to Palo Alto Cortex XSOAR — playbooks, incident management, integrations, automation scripts, war room investigation, and context data for SOC analysts.</p>
+            <div class="writeup-stats">
+                <span><i class="fas fa-clock"></i> 16 min read</span>
+                <span><i class="fas fa-robot"></i> Automation</span>
+                <span><i class="fas fa-shield-alt"></i> Blue Team / SOC</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="writeup-body">
+        <div class="container writeup-container">
+
+            <aside class="writeup-toc">
+                <div class="toc-card">
+                    <h3 class="toc-title"><i class="fas fa-list"></i> Contents</h3>
+                    <ul class="toc-links">
+                        <li><a href="#intro">What is XSOAR?</a></li>
+                        <li><a href="#soar">SOAR Concepts</a></li>
+                        <li><a href="#console">Console Overview</a></li>
+                        <li><a href="#incidents">Incident Management</a></li>
+                        <li><a href="#playbooks">Playbooks</a></li>
+                        <li><a href="#warroom">War Room</a></li>
+                        <li><a href="#context">Context Data</a></li>
+                        <li><a href="#integrations">Integrations</a></li>
+                        <li><a href="#automation">Automation Scripts</a></li>
+                        <li><a href="#tips">Tips & Best Practices</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <article class="writeup-content">
+
+                <section id="intro" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>What is XSOAR?</h2>
+                    <p>Cortex XSOAR (Security Orchestration, Automation, and Response) is Palo Alto Networks' SOAR platform. It connects your security tools, automates repetitive analyst tasks, and orchestrates incident response workflows through a visual playbook engine.</p>
+                    <p>In a mature SOC, XSOAR sits between the SIEM (which generates alerts) and the analyst (who investigates). It handles the initial enrichment — querying threat intel, looking up IPs, checking hashes against VirusTotal — automatically, so analysts spend time on decisions rather than data gathering.</p>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>XSOAR was formerly known as Demisto before Palo Alto Networks acquired it in 2019. You'll still see "Demisto" referenced in older integrations, scripts, and documentation.</p>
+                    </div>
+                </section>
+
+                <section id="soar" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>SOAR Concepts</h2>
+                    <div class="concept-grid">
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-project-diagram"></i></div>
+                            <h4>Orchestration</h4>
+                            <p>Connecting disparate tools so they work together — XSOAR sends commands to your firewall, EDR, ticketing system, and threat intel feeds through a single interface.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-robot"></i></div>
+                            <h4>Automation</h4>
+                            <p>Replacing manual, repetitive tasks with scripts — enriching an IP, blocking a hash, sending a Slack notification — executed automatically without analyst intervention.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-reply-all"></i></div>
+                            <h4>Response</h4>
+                            <p>Taking action as part of the investigation workflow — isolating a host in the EDR, disabling a user in Active Directory, creating a ticket — all from within XSOAR.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-tachometer-alt"></i></div>
+                            <h4>Metrics</h4>
+                            <p>XSOAR tracks MTTR (Mean Time to Respond), analyst workload, and playbook performance — giving management visibility into SOC efficiency.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="console" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Console Overview</h2>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Section</th><th>Purpose</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Incidents</td><td>Central queue for all incidents ingested from integrated sources or created manually</td></tr>
+                                <tr><td>War Room</td><td>Per-incident collaboration and investigation workspace — all actions and outputs logged here</td></tr>
+                                <tr><td>Playbooks</td><td>Visual workflow editor for building and managing automated response flows</td></tr>
+                                <tr><td>Indicators</td><td>IOC management — IPs, domains, hashes, URLs with reputation scores and context</td></tr>
+                                <tr><td>Dashboards</td><td>Configurable widgets for incident metrics, SLA tracking, and workload distribution</td></tr>
+                                <tr><td>Marketplace</td><td>Pre-built integrations, playbooks, and scripts for hundreds of security tools</td></tr>
+                                <tr><td>Settings</td><td>Integrations, user management, classifier rules, incident types</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="incidents" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Incident Management</h2>
+                    <p>Incidents in XSOAR are created automatically (via integrations pulling from a SIEM or EDR) or manually. Each incident has a <strong>type</strong> — Phishing, Malware, Network Attack, etc. — which determines which playbook runs automatically.</p>
+
+                    <h3 class="sub-heading">Key incident fields</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Field</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Incident ID</td><td>Unique identifier — referenced in war room commands</td></tr>
+                                <tr><td>Type</td><td>Incident classification — determines playbook and layout</td></tr>
+                                <tr><td>Severity</td><td>Unknown / Informational / Low / Medium / High / Critical</td></tr>
+                                <tr><td>Status</td><td>Active / Pending / Done / Archive</td></tr>
+                                <tr><td>Owner</td><td>Assigned analyst</td></tr>
+                                <tr><td>SLA</td><td>Time remaining to respond — configurable per incident type</td></tr>
+                                <tr><td>Labels</td><td>Searchable tags — source system, affected team, campaign name</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="playbooks" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Playbooks</h2>
+                    <p>Playbooks are the core of XSOAR. They are visual flowcharts that define an automated response workflow — each step either runs a command, calls a sub-playbook, asks a human for input, or makes a conditional decision based on data in context.</p>
+
+                    <h3 class="sub-heading">Task types</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Task type</th><th>What it does</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Automated</td><td>Runs a script or integration command without analyst input</td></tr>
+                                <tr><td>Manual</td><td>Pauses playbook and waits for analyst to complete a task (e.g. "Review findings and classify")</td></tr>
+                                <tr><td>Conditional</td><td>Branches the playbook based on context data — e.g. "If VT score > 50, isolate host"</td></tr>
+                                <tr><td>Sub-playbook</td><td>Calls another playbook inline — promotes reuse (e.g. a generic "Enrich IP" playbook called from many parent playbooks)</td></tr>
+                                <tr><td>Section header</td><td>Organisational grouping — no logic, just a label for readability</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Example: Phishing playbook flow</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">Playbook Flow</span></div>
+                        <pre><code>Trigger: New incident type = Phishing
+→ Extract IOCs from email (URLs, sender IP, attachments)
+→ Enrich sender IP (VirusTotal, AbuseIPDB)
+→ Check URLs against proxy / URL scanner
+→ Hash attachment → check against VirusTotal
+→ [Conditional] If any IOC is malicious:
+    → Notify SOC lead via Slack
+    → Block sender domain in email gateway
+    → Search mailboxes for similar emails (O365 integration)
+    → [Manual] Analyst reviews and approves remediation
+    → Delete emails from all affected mailboxes
+    → Close incident
+→ [Else] Mark as false positive → close</code></pre>
+                    </div>
+                </section>
+
+                <section id="warroom" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>War Room</h2>
+                    <p>The War Room is the investigation workspace for each incident. Every automated action, analyst command, file attachment, and note is logged here chronologically — creating a full audit trail of the investigation.</p>
+
+                    <h3 class="sub-heading">Running commands in the War Room</h3>
+                    <p>You can run integration commands directly from the War Room using the command input bar. Commands follow the pattern <code>!integration-command argument=value</code>.</p>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">XSOAR War Room Commands</span></div>
+                        <pre><code>!ip ip=1.2.3.4
+!url url=http://evil.example.com
+!file file=d41d8cd98f00b204e9800998ecf8427e
+!whois query=evil.example.com
+!ad-get-user username=jsmith
+!cortex-xdr-isolate-endpoint endpoint_id=abc123</code></pre>
+                    </div>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p>War Room outputs are automatically parsed into <strong>context data</strong> (structured key-value data). You can reference these outputs in playbook conditions and subsequent commands — e.g. <code>${IP.VirusTotal.Score}</code> from a previous <code>!ip</code> call.</p>
+                    </div>
+                </section>
+
+                <section id="context" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Context Data</h2>
+                    <p>Context is XSOAR's data store for an incident — a structured JSON object that accumulates information as the playbook runs. Commands write their output into context paths, and playbook conditions read from those paths.</p>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">Context Path Examples</span></div>
+                        <pre><code>${IP.Address}                        — IP address of the indicator
+${IP.Malicious.Vendor}              — Which vendor flagged it as malicious
+${File.MD5}                         — File hash
+${URL.Data}                         — The URL string
+${Account.Username}                 — Username from AD lookup
+${Endpoint.Hostname}                — Hostname from EDR query
+${DBotScore.Score}                  — Normalised reputation score (0-3)</code></pre>
+                    </div>
+
+                    <p>The <strong>DBotScore</strong> is a standardised reputation format: 0 = Unknown, 1 = Good, 2 = Suspicious, 3 = Bad. Most threat intel integrations populate this automatically so playbook conditions can branch on it without knowing the specific vendor format.</p>
+                </section>
+
+                <section id="integrations" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Integrations</h2>
+                    <p>XSOAR's value comes from its integrations — connectors to external tools. The Marketplace has hundreds of pre-built integrations. Key categories:</p>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Category</th><th>Examples</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Threat Intelligence</td><td>VirusTotal, AbuseIPDB, Recorded Future, Shodan, MISP</td></tr>
+                                <tr><td>EDR / XDR</td><td>Cortex XDR, Microsoft Defender for Endpoint, CrowdStrike Falcon</td></tr>
+                                <tr><td>SIEM</td><td>Microsoft Sentinel, Splunk, IBM QRadar</td></tr>
+                                <tr><td>Identity</td><td>Active Directory, Microsoft Entra ID, Okta</td></tr>
+                                <tr><td>Email Security</td><td>Microsoft Exchange, O365, Proofpoint, Mimecast</td></tr>
+                                <tr><td>Ticketing</td><td>ServiceNow, Jira, PagerDuty</td></tr>
+                                <tr><td>Communication</td><td>Slack, Microsoft Teams, email</td></tr>
+                                <tr><td>Firewall / Network</td><td>Palo Alto NGFW, Fortinet, Cisco</td></tr>
+                                <tr><td>Sandboxing</td><td>Any.Run, Joe Sandbox, VirusTotal Files</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="automation" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Automation Scripts</h2>
+                    <p>XSOAR scripts are Python (or JavaScript) functions that run in the platform sandbox. They can manipulate context data, call integration commands, and perform logic that can't be expressed with built-in tasks.</p>
+
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">Python Script — Extract URLs from text</span></div>
+                        <pre><code>import re
+
+def main():
+    text = demisto.args().get('text', '')
+    urls = re.findall(r'https?://[^\s\'"<>]+', text)
+    unique_urls = list(set(urls))
+
+    return_results({
+        'Type': entryTypes['note'],
+        'ContentsFormat': formats['json'],
+        'Contents': unique_urls,
+        'HumanReadable': f'Found {len(unique_urls)} URLs',
+        'EntryContext': {'ExtractedURLs': unique_urls}
+    })
+
+main()</code></pre>
+                    </div>
+                </section>
+
+                <section id="tips" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Tips &amp; Best Practices</h2>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Build modular playbooks.</strong> Avoid one large monolithic playbook. Build small, reusable sub-playbooks — "Enrich IP", "Enrich Hash", "Isolate Endpoint" — and call them from multiple parent playbooks. Easier to maintain and test.</p>
+                    </div>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Use Manual tasks for decision gates.</strong> Don't fully automate response actions that carry risk (isolating hosts, deleting emails). Add a manual task for analyst review before the action runs — keeps a human in the loop where it matters.</p>
+                    </div>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p><strong>Test playbooks in a lab incident.</strong> Create a test incident manually and run your playbook against it before pointing it at live alerts. XSOAR has a playbook debugger that lets you step through tasks and inspect context at each stage.</p>
+                    </div>
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Rate limits on integrations.</strong> Threat intel APIs (VirusTotal, AbuseIPDB) have rate limits. If your playbook queries them for every indicator in every alert, you'll hit limits fast. Cache results in context or use batch lookups where supported.</p>
+                    </div>
+                </section>
+
+            </article>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+    </script>
+</body>
+</html>

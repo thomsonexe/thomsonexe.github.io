@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microsoft Entra ID — Identity Security | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/home" class="nav-logo writeup-logo">
+                <img src="/mouse_t.png" class="nav-mouse" alt="">
+            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="/labs" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Labs
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="writeup-hero">
+        <div class="container">
+            <div class="writeup-meta">
+                <span class="ctf-platform detection">Detection</span>
+                <span class="ctf-difficulty medium">Intermediate</span>
+                <span class="writeup-category"><i class="fas fa-tag"></i> Identity / Cloud / Zero Trust</span>
+            </div>
+            <h1 class="writeup-title">Microsoft Entra ID — Identity Security</h1>
+            <p class="writeup-subtitle">A practical guide to Microsoft Entra ID for security analysts — sign-in log investigation, Conditional Access, Identity Protection, risky users, PIM, and detecting identity-based attacks.</p>
+            <div class="writeup-stats">
+                <span><i class="fas fa-clock"></i> 17 min read</span>
+                <span><i class="fas fa-id-card"></i> Identity & Access</span>
+                <span><i class="fas fa-shield-alt"></i> Blue Team / SOC</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="writeup-body">
+        <div class="container writeup-container">
+
+            <aside class="writeup-toc">
+                <div class="toc-card">
+                    <h3 class="toc-title"><i class="fas fa-list"></i> Contents</h3>
+                    <ul class="toc-links">
+                        <li><a href="#intro">What is Entra ID?</a></li>
+                        <li><a href="#architecture">Tenant Architecture</a></li>
+                        <li><a href="#users">Users, Groups & Roles</a></li>
+                        <li><a href="#signin">Sign-in Logs</a></li>
+                        <li><a href="#ca">Conditional Access</a></li>
+                        <li><a href="#mfa">MFA & Authentication</a></li>
+                        <li><a href="#protection">Identity Protection</a></li>
+                        <li><a href="#pim">Privileged Identity Management</a></li>
+                        <li><a href="#attacks">Common Attack Vectors</a></li>
+                        <li><a href="#kql">KQL Hunting Queries</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <article class="writeup-content">
+
+                <section id="intro" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>What is Entra ID?</h2>
+                    <p>Microsoft Entra ID (formerly Azure Active Directory / Azure AD) is Microsoft's cloud-based identity and access management platform. It provides authentication and authorisation for Microsoft 365, Azure resources, and thousands of third-party SaaS applications.</p>
+                    <p>From a security perspective, Entra ID is one of the most targeted components of a Microsoft environment — compromising an account gives an attacker access to email, files, cloud resources, and potentially the entire tenant. Understanding how to investigate it is essential for any blue team analyst working in a Microsoft shop.</p>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Entra ID is distinct from on-premises Active Directory (AD DS). Entra ID is cloud-native — it uses OAuth 2.0 and OpenID Connect, not Kerberos. Many organisations run <strong>hybrid identity</strong> — syncing on-prem AD to Entra ID using <strong>Microsoft Entra Connect</strong>. Attacks can pivot between the two.</p>
+                    </div>
+                </section>
+
+                <section id="architecture" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Tenant Architecture</h2>
+                    <div class="concept-grid">
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-building"></i></div>
+                            <h4>Tenant</h4>
+                            <p>A dedicated Entra ID instance for an organisation. Each tenant has a unique <strong>Tenant ID</strong> (GUID). All users, groups, apps, and policies live inside a tenant.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-globe"></i></div>
+                            <h4>Domain</h4>
+                            <p>Tenants have one or more verified domains (e.g. <code>company.com</code>). The default domain follows the pattern <code>tenantname.onmicrosoft.com</code>.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-puzzle-piece"></i></div>
+                            <h4>App Registrations</h4>
+                            <p>Applications registered to authenticate against Entra ID — each gets a Client ID. Compromised app credentials can grant persistent access without user interaction.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-link"></i></div>
+                            <h4>Service Principals</h4>
+                            <p>The runtime identity of an app registration within the tenant. Attacks targeting service principal credentials (client secrets, certificates) are equivalent to compromising an account.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="users" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Users, Groups &amp; Roles</h2>
+                    <h3 class="sub-heading">User types</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Type</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Member</td><td>Internal user homed in the tenant — employees, service accounts</td></tr>
+                                <tr><td>Guest</td><td>External user invited via B2B collaboration — often from partner organisations</td></tr>
+                                <tr><td>Service Account</td><td>Non-interactive accounts for apps or automation — should have no MFA exemptions</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">High-value Entra roles to monitor</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Role</th><th>Permissions</th><th>Risk</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Global Administrator</td><td>Full control of the tenant — can reset any password, manage all settings</td><td>Critical — equivalent to Domain Admin</td></tr>
+                                <tr><td>Privileged Role Administrator</td><td>Can assign any Entra ID role, including Global Admin</td><td>Critical — can elevate to Global Admin</td></tr>
+                                <tr><td>Application Administrator</td><td>Can manage app registrations and service principal credentials</td><td>High — can create persistent backdoor apps</td></tr>
+                                <tr><td>User Administrator</td><td>Can create and manage users, reset passwords</td><td>High — can create rogue accounts</td></tr>
+                                <tr><td>Security Administrator</td><td>Manage security policies, read sign-in logs</td><td>Medium — read access to all security data</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="signin" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Sign-in Logs</h2>
+                    <p>Sign-in logs record every authentication attempt in the tenant. They are one of the most valuable sources for detecting account compromise, password spraying, and unusual access patterns.</p>
+
+                    <p>Access via <strong>Entra admin centre → Monitoring → Sign-in logs</strong> or via Microsoft Sentinel (<code>SigninLogs</code> table).</p>
+
+                    <h3 class="sub-heading">Key fields</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Field</th><th>Description</th><th>What to look for</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>UserPrincipalName</td><td>The account that attempted sign-in</td><td>Accounts that don't normally sign in; disabled accounts</td></tr>
+                                <tr><td>IPAddress</td><td>Source IP of the sign-in attempt</td><td>VPN, Tor, datacenter IPs; impossible travel</td></tr>
+                                <tr><td>Location</td><td>Country/city derived from IP</td><td>Unusual countries; multiple countries in short window</td></tr>
+                                <tr><td>ResultType</td><td>0 = Success; non-zero = failure (specific error code)</td><td>Bulk failures from one IP — spray; success after failures — breach</td></tr>
+                                <tr><td>ClientAppUsed</td><td>The app or protocol used</td><td>Legacy auth (IMAP, SMTP, MAPI) — bypasses MFA</td></tr>
+                                <tr><td>ConditionalAccessStatus</td><td>success / failure / notApplied</td><td>notApplied = no CA policy matched — worth investigating</td></tr>
+                                <tr><td>AuthenticationRequirement</td><td>singleFactorAuthentication vs multiFactorAuthentication</td><td>MFA bypassed — legacy auth or excluded user</td></tr>
+                                <tr><td>DeviceDetail</td><td>OS, browser, device compliance state</td><td>Unmanaged or non-compliant devices accessing sensitive apps</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="ca" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Conditional Access</h2>
+                    <p>Conditional Access (CA) policies are Entra ID's Zero Trust enforcement engine. They evaluate signals at sign-in time — user, device, location, app, risk level — and decide whether to allow, block, or require additional verification.</p>
+
+                    <div class="concept-grid">
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-filter"></i></div>
+                            <h4>Assignments (Conditions)</h4>
+                            <p>Who and what the policy applies to — users/groups, cloud apps, device platforms, locations, sign-in risk level.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-gavel"></i></div>
+                            <h4>Access Controls (Grant)</h4>
+                            <p>What the policy enforces — require MFA, require compliant device, require hybrid-joined device, block access.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-eye"></i></div>
+                            <h4>Session Controls</h4>
+                            <p>Controls applied during the session — sign-in frequency, browser persistent sessions, app enforced restrictions.</p>
+                        </div>
+                        <div class="concept-card">
+                            <div class="concept-icon"><i class="fas fa-vial"></i></div>
+                            <h4>Report-only mode</h4>
+                            <p>Evaluates policy without enforcing it — useful for testing impact before enabling. Check sign-in logs for what-if results.</p>
+                        </div>
+                    </div>
+
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>CA exclusions are a common attack target.</strong> Attackers who compromise a Global Admin will add themselves (or a new account) to CA policy exclusions — bypassing MFA for their sessions. Audit CA exclusions regularly and alert on any changes.</p>
+                    </div>
+                </section>
+
+                <section id="mfa" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>MFA &amp; Authentication</h2>
+                    <h3 class="sub-heading">MFA methods (strongest to weakest)</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Method</th><th>Phishable?</th><th>Notes</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>FIDO2 / Passkeys</td><td>No</td><td>Gold standard — hardware key or device biometric, cryptographically bound to the site</td></tr>
+                                <tr><td>Windows Hello for Business</td><td>No</td><td>Device-bound biometric/PIN — not transferable</td></tr>
+                                <tr><td>Microsoft Authenticator (number matching)</td><td>Resistant</td><td>Requires user to enter a number from sign-in screen — defeats blind push approval attacks</td></tr>
+                                <tr><td>TOTP (Authenticator app code)</td><td>Yes</td><td>Can be phished via AiTM proxy in real time</td></tr>
+                                <tr><td>SMS / Voice call</td><td>Yes</td><td>Vulnerable to SIM swapping and SS7 attacks — weakest MFA option</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub-heading">Legacy authentication</h3>
+                    <p>Legacy authentication protocols (Basic Auth over IMAP, SMTP, MAPI, POP3, ActiveSync) do not support modern authentication or MFA. They are a common target for credential stuffing and password spraying — an attacker can authenticate with just a password even if MFA is enabled. <strong>Block legacy authentication with a Conditional Access policy.</strong></p>
+                </section>
+
+                <section id="protection" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Identity Protection</h2>
+                    <p>Microsoft Entra ID Protection uses machine learning to detect risky sign-ins and risky users. It assigns risk levels (Low / Medium / High) based on behavioural signals.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Detection</th><th>What triggers it</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Atypical travel</td><td>Sign-in from two geographically distant locations in an impossible timeframe</td></tr>
+                                <tr><td>Anonymous IP address</td><td>Sign-in from Tor exit node or known anonymising proxy</td></tr>
+                                <tr><td>Unfamiliar sign-in properties</td><td>New device, location, or ASN not seen for this user before</td></tr>
+                                <tr><td>Password spray</td><td>Pattern matching credential stuffing or low-and-slow spray</td></tr>
+                                <tr><td>Leaked credentials</td><td>User's credentials found in breach database</td></tr>
+                                <tr><td>Malware-linked IP</td><td>Sign-in from IP associated with a botnet or malware C2</td></tr>
+                                <tr><td>Suspicious inbox manipulation</td><td>Forwarding rules added or emails moved — post-compromise data collection</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="pim" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Privileged Identity Management</h2>
+                    <p>Privileged Identity Management (PIM) implements just-in-time privileged access. Instead of permanently assigning high-privilege roles (like Global Administrator), PIM lets users be <em>eligible</em> for a role and <strong>activate it on demand</strong> for a limited time with justification.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Assignment type</th><th>Behaviour</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Eligible</td><td>User must activate the role, provide justification, and go through approval/MFA — activation is time-limited (e.g. 1 hour)</td></tr>
+                                <tr><td>Active</td><td>Role is permanently assigned — no activation needed. Should be minimised for high-privilege roles.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Alert on PIM activations.</strong> Any Global Administrator or Privileged Role Administrator activation outside of a change window is worth investigating. Attackers who compromise an eligible account will activate the role before taking action.</p>
+                    </div>
+                </section>
+
+                <section id="attacks" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Common Attack Vectors</h2>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Attack</th><th>Description</th><th>Detection signal</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Password Spray</td><td>Low-and-slow attempts across many accounts with common passwords</td><td>Many 50126 errors across different UserPrincipalNames from same IP</td></tr>
+                                <tr><td>AiTM Phishing</td><td>Adversary-in-the-middle proxy captures session token — bypasses MFA</td><td>Successful sign-in after suspicious link click; token used from different IP than user</td></tr>
+                                <tr><td>MFA Fatigue</td><td>Flood user with push notifications until they accidentally approve</td><td>Multiple MFA denial events followed by approval from same user</td></tr>
+                                <tr><td>Consent Phishing</td><td>Victim grants OAuth permissions to attacker-controlled app — gives persistent access without credentials</td><td>New app granted high-privilege consent; app not in approved list</td></tr>
+                                <tr><td>Token Theft</td><td>Steal a valid access/refresh token and replay it from attacker infrastructure</td><td>Session from a new IP/ASN not matching user's normal pattern immediately after sign-in</td></tr>
+                                <tr><td>Legacy Auth Spray</td><td>Use legacy protocols that bypass MFA</td><td>IMAP or SMTP authentication without MFA; many failures then success</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="kql" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>KQL Hunting Queries</h2>
+                    <p>These queries run in Microsoft Sentinel against the <code>SigninLogs</code> and <code>AuditLogs</code> tables.</p>
+
+                    <h3 class="sub-heading">Password spray detection</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">KQL</span></div>
+                        <pre><code>SigninLogs
+| where TimeGenerated > ago(1h)
+| where ResultType != 0
+| summarize FailedAttempts = count(), TargetAccounts = dcount(UserPrincipalName) by IPAddress
+| where TargetAccounts > 10
+| sort by FailedAttempts desc</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">Successful login after multiple failures</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">KQL</span></div>
+                        <pre><code>let failures = SigninLogs
+    | where TimeGenerated > ago(1h) and ResultType != 0
+    | summarize FailCount = count() by UserPrincipalName, IPAddress;
+SigninLogs
+| where TimeGenerated > ago(1h) and ResultType == 0
+| join kind=inner failures on UserPrincipalName, IPAddress
+| where FailCount > 5
+| project TimeGenerated, UserPrincipalName, IPAddress, Location, FailCount</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">Legacy authentication sign-ins</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">KQL</span></div>
+                        <pre><code>SigninLogs
+| where TimeGenerated > ago(24h)
+| where ClientAppUsed in ("IMAP", "POP3", "SMTP", "Exchange ActiveSync", "Exchange Online PowerShell", "MAPI over HTTP")
+| where ResultType == 0
+| project TimeGenerated, UserPrincipalName, ClientAppUsed, IPAddress, Location</code></pre>
+                    </div>
+
+                    <h3 class="sub-heading">Global Admin role assigned</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">KQL</span></div>
+                        <pre><code>AuditLogs
+| where TimeGenerated > ago(24h)
+| where OperationName == "Add member to role"
+| where TargetResources has "Global Administrator"
+| project TimeGenerated, InitiatedBy = tostring(InitiatedBy.user.userPrincipalName),
+    TargetUser = tostring(TargetResources[0].userPrincipalName)</code></pre>
+                    </div>
+                </section>
+
+            </article>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+    </script>
+</body>
+</html>
