@@ -1456,6 +1456,7 @@ body {
 /* Tools page */
 .tools-tabs {
     display: flex;
+    flex-wrap: wrap;
     gap: 0;
     border-bottom: 1px solid var(--border);
     margin-bottom: 2rem;
@@ -1523,6 +1524,132 @@ body {
     border-color: #ff4d4d;
 }
 .breach-thumbs-down { font-size: 3rem; color: #ff4d4d; flex-shrink: 0; }
+
+/* ── Subnet results ───────────────────────────────────────────────────── */
+.subnet-results {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 1.5rem;
+}
+
+/* ── CVSS calculator ──────────────────────────────────────────────────── */
+.cvss-grid { display: flex; flex-direction: column; gap: 1.25rem; margin-top: 1.5rem; }
+.cvss-metric { display: flex; flex-direction: column; gap: 0.5rem; }
+.cvss-metric > label {
+    font-size: 0.78rem;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+.cvss-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.cvss-btns button {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 0.35rem 0.85rem;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+.cvss-btns button:hover { border-color: var(--border-accent); color: var(--text-primary); }
+.cvss-btns button.active { background: rgba(0,255,136,0.1); border-color: var(--accent); color: var(--accent); }
+
+/* ── Codec (Base64 / Hex / URL) ───────────────────────────────────────── */
+.codec-textarea {
+    width: 100%;
+    min-height: 110px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    padding: 0.8rem 1rem;
+    resize: vertical;
+    margin-top: 1rem;
+    box-sizing: border-box;
+    transition: border-color var(--transition);
+}
+.codec-textarea:focus { outline: none; border-color: var(--border-accent); }
+.codec-btns { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+
+/* ── JWT decoder ──────────────────────────────────────────────────────── */
+.jwt-exp {
+    margin-top: 1.5rem;
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-family: var(--font-mono);
+}
+.jwt-valid  { background: rgba(0,200,100,0.08); border: 1px solid #00c864; color: #00c864; }
+.jwt-expired{ background: rgba(255,77,77,0.08);  border: 1px solid #ff4d4d; color: #ff4d4d; }
+.jwt-parts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1.25rem;
+}
+.jwt-part-label {
+    font-size: 0.73rem;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.4rem;
+}
+.jwt-code {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin: 0;
+}
+@media (max-width: 640px) { .jwt-parts { grid-template-columns: 1fr; } }
+
+/* ── Regex tester ─────────────────────────────────────────────────────── */
+.regex-pattern-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+.regex-slash { font-family: var(--font-mono); font-size: 1.4rem; color: var(--accent); }
+.regex-pattern-input { flex: 1; }
+.regex-flags-input { width: 72px; flex: none; }
+.regex-summary { margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-primary); }
+.regex-highlighted {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin-top: 0.75rem;
+    line-height: 1.9;
+}
+mark.regex-match {
+    background: rgba(0,255,136,0.18);
+    color: var(--accent);
+    border-radius: 3px;
+    padding: 0 2px;
+}
+.regex-no-match { margin-top: 1.5rem; color: var(--text-secondary); font-size: 0.9rem; }
+
 .breach-summary {
     padding: 1rem 1.5rem;
     font-size: 1rem;

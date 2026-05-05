@@ -27,7 +27,6 @@
                 <li><a href="/cves" class="nav-link">cves</a></li>
                 <li><a href="/map" class="nav-link">map</a></li>
                 <li><a href="/intel" class="nav-link">intel</a></li>
-                
                 <li><a href="/guestbook" class="nav-link">guestbook</a></li>
                 <li><a href="/tools" class="nav-link">tools</a></li>
             </ul>
@@ -43,9 +42,9 @@
     <!-- Page Hero -->
     <section class="page-hero">
         <div class="container">
-            <p class="page-hero-prompt"><span class="prompt">ben@thomson.cx:~$</span> ./tools --ip --hash --url --password</p>
+            <p class="page-hero-prompt"><span class="prompt">ben@thomson.cx:~$</span> ./tools --all</p>
             <h1 class="page-hero-title">Security Tools</h1>
-            <p class="page-hero-sub">IP reputation, hash lookup, URL scanning, and password breach checking &mdash; powered by VirusTotal &amp; Have I Been Pwned.</p>
+            <p class="page-hero-sub">IP, hash, URL, password, subnet, CVSS, Base64/Hex, JWT, and regex &mdash; all in your browser.</p>
         </div>
         <div class="grid-overlay"></div>
     </section>
@@ -56,18 +55,15 @@
 
             <!-- Tab bar -->
             <div class="tools-tabs">
-                <button class="tools-tab active" data-panel="ip">
-                    <i class="fas fa-globe"></i> IP
-                </button>
-                <button class="tools-tab" data-panel="hash">
-                    <i class="fas fa-fingerprint"></i> Hash
-                </button>
-                <button class="tools-tab" data-panel="url">
-                    <i class="fas fa-link"></i> URL
-                </button>
-                <button class="tools-tab" data-panel="breach">
-                    <i class="fas fa-key"></i> Password
-                </button>
+                <button class="tools-tab active" data-panel="ip"><i class="fas fa-globe"></i> IP</button>
+                <button class="tools-tab" data-panel="hash"><i class="fas fa-fingerprint"></i> Hash</button>
+                <button class="tools-tab" data-panel="url"><i class="fas fa-link"></i> URL</button>
+                <button class="tools-tab" data-panel="breach"><i class="fas fa-key"></i> Password</button>
+                <button class="tools-tab" data-panel="subnet"><i class="fas fa-network-wired"></i> Subnet</button>
+                <button class="tools-tab" data-panel="cvss"><i class="fas fa-gauge-high"></i> CVSS</button>
+                <button class="tools-tab" data-panel="codec"><i class="fas fa-code"></i> Encode</button>
+                <button class="tools-tab" data-panel="jwt"><i class="fas fa-id-badge"></i> JWT</button>
+                <button class="tools-tab" data-panel="regex"><i class="fas fa-asterisk"></i> Regex</button>
             </div>
 
             <!-- IP Panel -->
@@ -113,6 +109,124 @@
                 <div id="breachResults"></div>
             </div>
 
+            <!-- Subnet Panel -->
+            <div class="tools-panel" id="panel-subnet">
+                <p class="tools-panel-desc">Calculate subnet details from a CIDR range &mdash; network address, broadcast, host range, mask, and wildcard.</p>
+                <div class="ip-search-wrap">
+                    <input type="text" id="subnetInput" class="ip-input" placeholder="192.168.1.0/24" autocomplete="off" spellcheck="false">
+                    <button class="ip-search-btn" id="subnetBtn"><i class="fas fa-calculator"></i> Calculate</button>
+                </div>
+                <div id="subnetResults"></div>
+            </div>
+
+            <!-- CVSS Panel -->
+            <div class="tools-panel" id="panel-cvss">
+                <p class="tools-panel-desc">Calculate a CVSS v3.1 base score. Select a value for each metric &mdash; the score updates automatically.</p>
+                <div class="cvss-grid">
+                    <div class="cvss-metric">
+                        <label>Attack Vector (AV)</label>
+                        <div class="cvss-btns" data-metric="AV">
+                            <button data-val="N">Network</button>
+                            <button data-val="A">Adjacent</button>
+                            <button data-val="L">Local</button>
+                            <button data-val="P">Physical</button>
+                        </div>
+                    </div>
+                    <div class="cvss-metric">
+                        <label>Attack Complexity (AC)</label>
+                        <div class="cvss-btns" data-metric="AC">
+                            <button data-val="L">Low</button>
+                            <button data-val="H">High</button>
+                        </div>
+                    </div>
+                    <div class="cvss-metric">
+                        <label>Privileges Required (PR)</label>
+                        <div class="cvss-btns" data-metric="PR">
+                            <button data-val="N">None</button>
+                            <button data-val="L">Low</button>
+                            <button data-val="H">High</button>
+                        </div>
+                    </div>
+                    <div class="cvss-metric">
+                        <label>User Interaction (UI)</label>
+                        <div class="cvss-btns" data-metric="UI">
+                            <button data-val="N">None</button>
+                            <button data-val="R">Required</button>
+                        </div>
+                    </div>
+                    <div class="cvss-metric">
+                        <label>Scope (S)</label>
+                        <div class="cvss-btns" data-metric="S">
+                            <button data-val="U">Unchanged</button>
+                            <button data-val="C">Changed</button>
+                        </div>
+                    </div>
+                    <div class="cvss-metric">
+                        <label>Confidentiality Impact (C)</label>
+                        <div class="cvss-btns" data-metric="C">
+                            <button data-val="N">None</button>
+                            <button data-val="L">Low</button>
+                            <button data-val="H">High</button>
+                        </div>
+                    </div>
+                    <div class="cvss-metric">
+                        <label>Integrity Impact (I)</label>
+                        <div class="cvss-btns" data-metric="I">
+                            <button data-val="N">None</button>
+                            <button data-val="L">Low</button>
+                            <button data-val="H">High</button>
+                        </div>
+                    </div>
+                    <div class="cvss-metric">
+                        <label>Availability Impact (A)</label>
+                        <div class="cvss-btns" data-metric="A">
+                            <button data-val="N">None</button>
+                            <button data-val="L">Low</button>
+                            <button data-val="H">High</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="cvssResult"></div>
+            </div>
+
+            <!-- Encode/Decode Panel -->
+            <div class="tools-panel" id="panel-codec">
+                <p class="tools-panel-desc">Encode and decode text using Base64, hexadecimal, or URL encoding &mdash; all processed locally in your browser.</p>
+                <textarea id="codecInput" class="codec-textarea" placeholder="Enter text to encode or decode&hellip;" spellcheck="false"></textarea>
+                <div class="codec-btns">
+                    <button class="ip-search-btn" id="b64EncBtn"><i class="fas fa-lock"></i> Base64 Encode</button>
+                    <button class="ip-search-btn" id="b64DecBtn"><i class="fas fa-lock-open"></i> Base64 Decode</button>
+                    <button class="ip-search-btn" id="hexEncBtn"><i class="fas fa-lock"></i> Hex Encode</button>
+                    <button class="ip-search-btn" id="hexDecBtn"><i class="fas fa-lock-open"></i> Hex Decode</button>
+                    <button class="ip-search-btn" id="urlEncBtn"><i class="fas fa-lock"></i> URL Encode</button>
+                    <button class="ip-search-btn" id="urlDecBtn"><i class="fas fa-lock-open"></i> URL Decode</button>
+                </div>
+                <textarea id="codecOutput" class="codec-textarea" placeholder="Output will appear here&hellip;" readonly spellcheck="false"></textarea>
+            </div>
+
+            <!-- JWT Panel -->
+            <div class="tools-panel" id="panel-jwt">
+                <p class="tools-panel-desc">Decode a JSON Web Token (JWT) to inspect the header and payload. The signature is not verified &mdash; everything runs in your browser.</p>
+                <div class="ip-search-wrap">
+                    <input type="text" id="jwtInput" class="ip-input" placeholder="Paste a JWT token&hellip;" autocomplete="off" spellcheck="false">
+                    <button class="ip-search-btn" id="jwtBtn"><i class="fas fa-unlock"></i> Decode</button>
+                </div>
+                <div id="jwtResults"></div>
+            </div>
+
+            <!-- Regex Panel -->
+            <div class="tools-panel" id="panel-regex">
+                <p class="tools-panel-desc">Test a regular expression against a string. Matches are highlighted inline and listed below.</p>
+                <div class="regex-pattern-wrap">
+                    <span class="regex-slash">/</span>
+                    <input type="text" id="regexPattern" class="ip-input regex-pattern-input" placeholder="pattern" autocomplete="off" spellcheck="false">
+                    <span class="regex-slash">/</span>
+                    <input type="text" id="regexFlags" class="ip-input regex-flags-input" placeholder="gim" autocomplete="off" spellcheck="false" maxlength="6" value="g">
+                </div>
+                <textarea id="regexTest" class="codec-textarea" placeholder="Enter test string&hellip;" spellcheck="false"></textarea>
+                <div id="regexResults"></div>
+            </div>
+
         </div>
     </section>
 
@@ -142,6 +256,6 @@
         <p class="egg-dismiss">press <kbd>esc</kbd> or click anywhere to close</p>
     </div>
 
-    <script src="/script.js?v=2"></script>
+    <script src="/script.js?v=3"></script>
 </body>
 </html>

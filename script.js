@@ -2140,4 +2140,251 @@ initGuestbook();
         btn.addEventListener('click', () => check(input.value));
         input.addEventListener('keydown', e => { if (e.key === 'Enter') check(input.value); });
     })();
+
+    // ── Subnet Calculator ────────────────────────────────────────────────
+    (function() {
+        const input = document.getElementById('subnetInput');
+        const btn   = document.getElementById('subnetBtn');
+        const out   = document.getElementById('subnetResults');
+        if (!input) return;
+
+        function ipToInt(ip) {
+            return ip.split('.').reduce((acc, oct) => (acc << 8) + parseInt(oct, 10), 0) >>> 0;
+        }
+        function intToIp(n) {
+            return [(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255].join('.');
+        }
+
+        function calculate(val) {
+            val = val.trim();
+            if (!val) return;
+            if (!val.includes('/')) {
+                out.innerHTML = `<div class="ip-error"><i class="fas fa-triangle-exclamation"></i> Enter an address in CIDR notation, e.g. 192.168.1.0/24</div>`;
+                return;
+            }
+            const [ip, cidrStr] = val.split('/');
+            const cidr = parseInt(cidrStr, 10);
+            const parts = (ip || '').split('.');
+            if (parts.length !== 4 || parts.some(p => isNaN(p) || p < 0 || p > 255) || isNaN(cidr) || cidr < 0 || cidr > 32) {
+                out.innerHTML = `<div class="ip-error"><i class="fas fa-triangle-exclamation"></i> Invalid IP/CIDR — e.g. 10.0.0.0/8</div>`;
+                return;
+            }
+            const mask      = cidr === 0 ? 0 : ((0xFFFFFFFF << (32 - cidr)) >>> 0);
+            const wildcard  = (~mask) >>> 0;
+            const network   = (ipToInt(ip) & mask) >>> 0;
+            const broadcast = (network | wildcard) >>> 0;
+            const usable    = Math.pow(2, 32 - cidr);
+            const hosts     = cidr >= 31 ? usable : usable - 2;
+            const rows = [
+                ['Network Address',   intToIp(network)],
+                ['Broadcast Address', cidr < 31 ? intToIp(broadcast) : 'N/A'],
+                ['Subnet Mask',       intToIp(mask)],
+                ['Wildcard Mask',     intToIp(wildcard)],
+                ['First Usable Host', cidr < 31 ? intToIp(network + 1) : intToIp(network)],
+                ['Last Usable Host',  cidr < 31 ? intToIp(broadcast - 1) : intToIp(broadcast)],
+                ['Total Addresses',   usable.toLocaleString()],
+                ['Usable Hosts',      cidr >= 31 ? usable.toLocaleString() : hosts.toLocaleString()],
+                ['Host Bits',         (32 - cidr).toString()],
+                ['CIDR Prefix',       '/' + cidr],
+            ];
+            out.innerHTML = `<div class="subnet-results">${rows.map(([label, val]) => `
+                <div class="ip-info-card">
+                    <span class="ip-info-label">${label}</span>
+                    <span class="ip-info-val">${val}</span>
+                </div>`).join('')}</div>`;
+        }
+
+        btn.addEventListener('click', () => calculate(input.value));
+        input.addEventListener('keydown', e => { if (e.key === 'Enter') calculate(input.value); });
+    })();
+
+    // ── CVSS v3.1 Calculator ─────────────────────────────────────────────
+    (function() {
+        if (!document.getElementById('cvssResult')) return;
+        const AV = {N:0.85,A:0.62,L:0.55,P:0.2};
+        const AC = {L:0.77,H:0.44};
+        const PR = {N:0.85,L:0.62,H:0.27};
+        const UI = {N:0.85,R:0.62};
+        const CI = {N:0,L:0.22,H:0.56};
+        const sel = {AV:null,AC:null,PR:null,UI:null,S:null,C:null,I:null,A:null};
+
+        function roundup(n) { return Math.ceil(n * 10) / 10; }
+
+        function recalc() {
+            const out = document.getElementById('cvssResult');
+            if (Object.values(sel).some(v => v === null)) { out.innerHTML = ''; return; }
+            const sc = sel.S === 'C';
+            const prVal = sc && sel.PR !== 'N' ? 0.50 : PR[sel.PR];
+            const iscBase = 1 - (1 - CI[sel.C]) * (1 - CI[sel.I]) * (1 - CI[sel.A]);
+            const isc = sc
+                ? 7.52 * (iscBase - 0.029) - 3.25 * Math.pow(iscBase - 0.02, 15)
+                : 6.42 * iscBase;
+            const exp = 8.22 * AV[sel.AV] * AC[sel.AC] * prVal * UI[sel.UI];
+            let score = 0;
+            if (isc > 0) score = roundup(Math.min(sc ? 1.08*(isc+exp) : isc+exp, 10));
+            const [sev, cls] = score === 0 ? ['None','score-low']
+                : score < 4 ? ['Low','score-low']
+                : score < 7 ? ['Medium','score-medium']
+                : score < 9 ? ['High','score-high']
+                : ['Critical','score-critical'];
+            const vec = `CVSS:3.1/AV:${sel.AV}/AC:${sel.AC}/PR:${sel.PR}/UI:${sel.UI}/S:${sel.S}/C:${sel.C}/I:${sel.I}/A:${sel.A}`;
+            out.innerHTML = `
+            <div class="ip-result-card" style="margin-top:1.5rem">
+                <div class="ip-score-section ${cls}">
+                    <div class="ip-score-val">${score.toFixed(1)}<span class="ip-score-denom"> / 10</span></div>
+                    <div class="ip-score-bar-wrap"><div class="ip-score-bar" style="width:${score*10}%"></div></div>
+                    <div class="ip-score-label">${sev}</div>
+                </div>
+                <div class="ip-address-display" style="font-size:0.72rem;word-break:break-all;padding:1rem 1.5rem;letter-spacing:0">${vec}</div>
+            </div>`;
+        }
+
+        document.querySelectorAll('.cvss-btns').forEach(group => {
+            group.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    group.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    sel[group.dataset.metric] = btn.dataset.val;
+                    recalc();
+                });
+            });
+        });
+    })();
+
+    // ── Codec — Base64 / Hex / URL ───────────────────────────────────────
+    (function() {
+        const inp = document.getElementById('codecInput');
+        const out = document.getElementById('codecOutput');
+        if (!inp) return;
+        function set(v) { out.value = v; }
+        function err(m) { out.value = 'Error: ' + m; }
+        document.getElementById('b64EncBtn').addEventListener('click', () => {
+            try { set(btoa(unescape(encodeURIComponent(inp.value)))); } catch(e) { err(e.message); }
+        });
+        document.getElementById('b64DecBtn').addEventListener('click', () => {
+            try { set(decodeURIComponent(escape(atob(inp.value.trim())))); } catch { err('Invalid Base64'); }
+        });
+        document.getElementById('hexEncBtn').addEventListener('click', () => {
+            set(Array.from(new TextEncoder().encode(inp.value)).map(b=>b.toString(16).padStart(2,'0')).join(''));
+        });
+        document.getElementById('hexDecBtn').addEventListener('click', () => {
+            try {
+                const h = inp.value.trim().replace(/\s/g,'');
+                if (h.length % 2) throw 0;
+                set(new TextDecoder().decode(new Uint8Array(h.match(/.{2}/g).map(x=>parseInt(x,16)))));
+            } catch { err('Invalid hex string'); }
+        });
+        document.getElementById('urlEncBtn').addEventListener('click', () => {
+            set(encodeURIComponent(inp.value));
+        });
+        document.getElementById('urlDecBtn').addEventListener('click', () => {
+            try { set(decodeURIComponent(inp.value)); } catch { err('Invalid URL-encoded string'); }
+        });
+    })();
+
+    // ── JWT Decoder ──────────────────────────────────────────────────────
+    (function() {
+        const input = document.getElementById('jwtInput');
+        const btn   = document.getElementById('jwtBtn');
+        const out   = document.getElementById('jwtResults');
+        if (!input) return;
+
+        function b64url(s) {
+            s = s.replace(/-/g,'+').replace(/_/g,'/');
+            while (s.length % 4) s += '=';
+            return decodeURIComponent(atob(s).split('').map(c=>'%'+c.charCodeAt(0).toString(16).padStart(2,'0')).join(''));
+        }
+
+        function decode(token) {
+            token = token.trim();
+            if (!token) return;
+            const parts = token.split('.');
+            if (parts.length !== 3) {
+                out.innerHTML = `<div class="ip-error"><i class="fas fa-triangle-exclamation"></i> Not a valid JWT — must have 3 dot-separated parts.</div>`;
+                return;
+            }
+            try {
+                const header  = JSON.parse(b64url(parts[0]));
+                const payload = JSON.parse(b64url(parts[1]));
+                let expHtml = '';
+                if (payload.exp) {
+                    const d = new Date(payload.exp * 1000);
+                    const expired = d < new Date();
+                    expHtml = `<div class="jwt-exp ${expired?'jwt-expired':'jwt-valid'}">
+                        <i class="fas fa-${expired?'circle-xmark':'circle-check'}"></i>
+                        Token ${expired?'expired':'valid'} &mdash; exp: ${d.toUTCString()}
+                    </div>`;
+                }
+                out.innerHTML = `${expHtml}
+                <div class="jwt-parts">
+                    <div class="jwt-part"><div class="jwt-part-label">Header</div><pre class="jwt-code">${JSON.stringify(header,null,2)}</pre></div>
+                    <div class="jwt-part"><div class="jwt-part-label">Payload</div><pre class="jwt-code">${JSON.stringify(payload,null,2)}</pre></div>
+                </div>
+                <p class="ip-attribution"><i class="fas fa-info-circle"></i> Signature not verified &mdash; decoded client-side only.</p>`;
+            } catch(e) {
+                out.innerHTML = `<div class="ip-error"><i class="fas fa-triangle-exclamation"></i> Failed to decode: ${e.message}</div>`;
+            }
+        }
+
+        btn.addEventListener('click', () => decode(input.value));
+        input.addEventListener('keydown', e => { if (e.key === 'Enter') decode(input.value); });
+    })();
+
+    // ── Regex Tester ─────────────────────────────────────────────────────
+    (function() {
+        const patInp   = document.getElementById('regexPattern');
+        const flagsInp = document.getElementById('regexFlags');
+        const testInp  = document.getElementById('regexTest');
+        const out      = document.getElementById('regexResults');
+        if (!patInp) return;
+
+        function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+        function run() {
+            const pattern = patInp.value;
+            const testStr = testInp.value;
+            out.innerHTML = '';
+            if (!pattern || !testStr) return;
+            let regex;
+            try {
+                const flags = new Set((flagsInp.value || '').replace(/[^gimsuy]/g,'').split(''));
+                flags.add('g');
+                regex = new RegExp(pattern, [...flags].join(''));
+            } catch(e) {
+                out.innerHTML = `<div class="ip-error"><i class="fas fa-triangle-exclamation"></i> Invalid regex: ${e.message}</div>`;
+                return;
+            }
+            const matches = [...testStr.matchAll(regex)];
+            if (!matches.length) {
+                out.innerHTML = `<div class="regex-no-match"><i class="fas fa-times-circle"></i> No matches found.</div>`;
+                return;
+            }
+            let highlighted = '', last = 0;
+            for (const m of matches) {
+                highlighted += esc(testStr.slice(last, m.index));
+                highlighted += `<mark class="regex-match">${esc(m[0] || '')}</mark>`;
+                last = m.index + (m[0].length || 1);
+            }
+            highlighted += esc(testStr.slice(last));
+
+            const hasGroups = matches[0].length > 1;
+            const groupHeaders = hasGroups ? matches[0].slice(1).map((_,i)=>`<th>Group ${i+1}</th>`).join('') : '';
+            const rows = matches.slice(0,50).map((m,i) => {
+                const gs = hasGroups ? m.slice(1).map(g=>`<td><code>${g!==undefined?esc(g):'—'}</code></td>`).join('') : '';
+                return `<tr><td>${i+1}</td><td><code>${esc(m[0]||'')}</code></td><td>${m.index}</td>${gs}</tr>`;
+            }).join('');
+
+            out.innerHTML = `
+            <div class="regex-summary"><i class="fas fa-check-circle" style="color:#00c864"></i> <strong>${matches.length}</strong> match${matches.length!==1?'es':''} found</div>
+            <div class="regex-highlighted">${highlighted}</div>
+            <div class="kql-table-wrap" style="margin-top:1rem">
+                <table class="kql-table">
+                    <thead><tr><th>#</th><th>Match</th><th>Index</th>${groupHeaders}</tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>`;
+        }
+
+        [patInp, flagsInp, testInp].forEach(el => el.addEventListener('input', run));
+    })();
 })();
