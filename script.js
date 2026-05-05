@@ -133,10 +133,11 @@ function initTerminal() {
         ],
         whoami: () => ['ben'],
         id: () => [
-            '<span class="t-key">uid=</span><span class="t-val">1000</span><span class="t-dim">(ben)</span> ' +
-            '<span class="t-key">gid=</span><span class="t-val">1000</span><span class="t-dim">(ben)</span> ' +
-            '<span class="t-key">groups=</span><span class="t-val">27</span><span class="t-dim">(sudo)</span>,' +
-            '<span class="t-val">1001</span><span class="t-dim">(soc-team)</span>',
+            '<span class="t-key">uid=</span><span class="t-val">1337</span><span class="t-dim">(ben)</span> ' +
+            '<span class="t-key">gid=</span><span class="t-val">1337</span><span class="t-dim">(ben)</span> ' +
+            '<span class="t-key">groups=</span><span class="t-val">4</span><span class="t-dim">(adm)</span>,' +
+            '<span class="t-val">27</span><span class="t-dim">(sudo)</span>,' +
+            '<span class="t-val">1337</span><span class="t-dim">(blueteam)</span>',
         ],
         ls: (args) => {
             if (args.some(a => a.includes('l'))) {
