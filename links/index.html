@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blue Team Links | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .links-filter-bar {
+            display: flex; flex-wrap: wrap; gap: 0.5rem;
+            margin-bottom: 2.5rem;
+        }
+        .links-filter-btn {
+            font-family: var(--font-mono); font-size: 0.75rem;
+            background: transparent; color: var(--text-secondary);
+            border: 1px solid var(--border); border-radius: 6px;
+            padding: 0.35rem 0.85rem; cursor: pointer;
+            transition: var(--transition);
+        }
+        .links-filter-btn:hover,
+        .links-filter-btn.active {
+            color: var(--accent); border-color: var(--accent);
+            background: rgba(0,255,136,0.06);
+        }
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .link-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.25rem 1.4rem;
+            text-decoration: none;
+            display: flex; flex-direction: column; gap: 0.55rem;
+            transition: var(--transition);
+            position: relative; overflow: hidden;
+        }
+        .link-card::before {
+            content: ''; position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: var(--accent); opacity: 0;
+            transition: var(--transition);
+        }
+        .link-card:hover {
+            border-color: var(--border-accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,255,136,0.08);
+        }
+        .link-card:hover::before { opacity: 1; }
+
+        .link-card-top {
+            display: flex; align-items: center;
+            justify-content: space-between; gap: 0.75rem;
+        }
+        .link-card-name {
+            font-family: var(--font-mono); font-size: 0.92rem;
+            font-weight: 600; color: var(--text-primary);
+        }
+        .link-card-arrow {
+            color: var(--accent); font-size: 0.8rem;
+            flex-shrink: 0; opacity: 0.6;
+            transition: var(--transition);
+        }
+        .link-card:hover .link-card-arrow { opacity: 1; transform: translateX(3px); }
+
+        .link-card-tag {
+            font-family: var(--font-mono); font-size: 0.68rem;
+            padding: 0.18rem 0.55rem; border-radius: 4px;
+            border: 1px solid; display: inline-block;
+            width: fit-content;
+        }
+        .tag-intel    { color: #f59e0b; border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.07); }
+        .tag-sandbox  { color: #a78bfa; border-color: rgba(167,139,250,0.35); background: rgba(167,139,250,0.07); }
+        .tag-osint    { color: #38bdf8; border-color: rgba(56,189,248,0.35); background: rgba(56,189,248,0.07); }
+        .tag-vuln     { color: #f87171; border-color: rgba(248,113,113,0.35); background: rgba(248,113,113,0.07); }
+        .tag-ref      { color: #34d399; border-color: rgba(52,211,153,0.35); background: rgba(52,211,153,0.07); }
+        .tag-tool     { color: #fb923c; border-color: rgba(251,146,60,0.35); background: rgba(251,146,60,0.07); }
+        .tag-news     { color: #e879f9; border-color: rgba(232,121,249,0.35); background: rgba(232,121,249,0.07); }
+
+        .link-card-desc {
+            font-family: var(--font-mono); font-size: 0.78rem;
+            color: var(--text-secondary); line-height: 1.55;
+        }
+
+        .link-card-url {
+            font-family: var(--font-mono); font-size: 0.7rem;
+            color: var(--accent); opacity: 0.55;
+        }
+
+        .links-section-title {
+            font-family: var(--font-mono); font-size: 0.72rem;
+            color: var(--text-secondary); letter-spacing: 1.5px;
+            text-transform: uppercase; margin-bottom: 1rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/home" class="nav-logo writeup-logo">
+                <img src="/mouse_t.png" class="nav-mouse" alt="">
+                <span class="glitch glitch-nav glitch-brand" data-text="thomsoN">thomsoN</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/" class="nav-link">home</a></li>
+                <li><a href="/about" class="nav-link">about</a></li>
+                <li><a href="/labs" class="nav-link">notes</a></li><li><a href="/tools" class="nav-link">tools</a></li><li><a href="/vm" class="nav-link">ctf</a></li>
+                <li><a href="/cves" class="nav-link">cves</a></li>
+                <li><a href="/map" class="nav-link">map</a></li>
+                <li><a href="/intel" class="nav-link">intel</a></li>
+                <li><a href="/links" class="nav-link active">links</a></li>
+                <li><a href="/guestbook" class="nav-link">guestbook</a></li>
+            </ul>
+            <div class="nav-right">
+                <button class="auth-nav-btn" id="authNavBtn"></button>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="page-hero">
+        <div class="container">
+            <p class="page-hero-prompt"><span class="prompt">ben@thomson.cx:~$</span> curl -s bookmarks.json | jq '.blue_team[]'</p>
+            <h1 class="page-hero-title">Blue Team Links</h1>
+            <p class="page-hero-sub">Curated tools and resources for threat analysts, incident responders, and SOC engineers.</p>
+        </div>
+        <div class="grid-overlay"></div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+
+            <div class="links-filter-bar">
+                <button class="links-filter-btn active" data-filter="all">All</button>
+                <button class="links-filter-btn" data-filter="intel">Threat Intel</button>
+                <button class="links-filter-btn" data-filter="sandbox">Sandbox</button>
+                <button class="links-filter-btn" data-filter="osint">OSINT</button>
+                <button class="links-filter-btn" data-filter="vuln">Vulnerabilities</button>
+                <button class="links-filter-btn" data-filter="ref">Reference</button>
+                <button class="links-filter-btn" data-filter="tool">Tools</button>
+                <button class="links-filter-btn" data-filter="news">News</button>
+            </div>
+
+            <div class="links-grid" id="linksGrid">
+
+                <!-- THREAT INTEL -->
+                <a href="https://www.virustotal.com" target="_blank" rel="noopener" class="link-card" data-cat="intel">
+                    <div class="link-card-top">
+                        <span class="link-card-name">VirusTotal</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-intel">Threat Intel</span>
+                    <p class="link-card-desc">Scan files, URLs, IPs, and domains against 70+ antivirus engines and threat intelligence feeds. Essential for quick IOC triage and determining if an artifact is known-malicious.</p>
+                    <span class="link-card-url">virustotal.com</span>
+                </a>
+
+                <a href="https://bazaar.abuse.ch" target="_blank" rel="noopener" class="link-card" data-cat="intel">
+                    <div class="link-card-top">
+                        <span class="link-card-name">MalwareBazaar</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-intel">Threat Intel</span>
+                    <p class="link-card-desc">Community-driven malware repository by abuse.ch. Search by hash, file type, or tag to find samples and metadata. Invaluable for identifying malware families during incident response.</p>
+                    <span class="link-card-url">bazaar.abuse.ch</span>
+                </a>
+
+                <a href="https://threatfox.abuse.ch" target="_blank" rel="noopener" class="link-card" data-cat="intel">
+                    <div class="link-card-top">
+                        <span class="link-card-name">ThreatFox</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-intel">Threat Intel</span>
+                    <p class="link-card-desc">IOC sharing platform from abuse.ch. Search IPs, domains, URLs and hashes associated with known malware families and C2 infrastructure. Free and community-updated daily.</p>
+                    <span class="link-card-url">threatfox.abuse.ch</span>
+                </a>
+
+                <a href="https://otx.alienvault.com" target="_blank" rel="noopener" class="link-card" data-cat="intel">
+                    <div class="link-card-top">
+                        <span class="link-card-name">AlienVault OTX</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-intel">Threat Intel</span>
+                    <p class="link-card-desc">Open Threat Exchange — one of the world's largest open threat intelligence communities. Search pulses for IOCs, TTPs, and threat actor profiles contributed by security researchers globally.</p>
+                    <span class="link-card-url">otx.alienvault.com</span>
+                </a>
+
+                <a href="https://talosintelligence.com" target="_blank" rel="noopener" class="link-card" data-cat="intel">
+                    <div class="link-card-top">
+                        <span class="link-card-name">Talos Intelligence</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-intel">Threat Intel</span>
+                    <p class="link-card-desc">Cisco's threat intelligence platform. Look up IP/domain reputation, browse vulnerability disclosures, and access threat actor reports. IP reputation lookups are particularly useful for SOC triage.</p>
+                    <span class="link-card-url">talosintelligence.com</span>
+                </a>
+
+                <a href="https://www.greynoise.io" target="_blank" rel="noopener" class="link-card" data-cat="intel">
+                    <div class="link-card-top">
+                        <span class="link-card-name">GreyNoise</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-intel">Threat Intel</span>
+                    <p class="link-card-desc">Classifies internet background noise vs targeted attacks. Helps analysts quickly determine if an IP is mass-scanning the internet (benign noise) vs actively targeting your organisation.</p>
+                    <span class="link-card-url">greynoise.io</span>
+                </a>
+
+                <!-- SANDBOX -->
+                <a href="https://app.any.run" target="_blank" rel="noopener" class="link-card" data-cat="sandbox">
+                    <div class="link-card-top">
+                        <span class="link-card-name">ANY.RUN</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-sandbox">Sandbox</span>
+                    <p class="link-card-desc">Interactive online malware sandbox. Execute suspicious files in a real Windows/Linux VM and watch process trees, network calls, and registry changes in real time. Free tier supports most use cases.</p>
+                    <span class="link-card-url">app.any.run</span>
+                </a>
+
+                <a href="https://www.hybrid-analysis.com" target="_blank" rel="noopener" class="link-card" data-cat="sandbox">
+                    <div class="link-card-top">
+                        <span class="link-card-name">Hybrid Analysis</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-sandbox">Sandbox</span>
+                    <p class="link-card-desc">Free malware analysis service powered by CrowdStrike Falcon. Detonates files in multiple environments and returns detailed behavioural reports, MITRE ATT&CK mapping, and network IOCs.</p>
+                    <span class="link-card-url">hybrid-analysis.com</span>
+                </a>
+
+                <a href="https://urlscan.io" target="_blank" rel="noopener" class="link-card" data-cat="sandbox">
+                    <div class="link-card-top">
+                        <span class="link-card-name">urlscan.io</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-sandbox">Sandbox</span>
+                    <p class="link-card-desc">Scans and analyses URLs by rendering them in a real browser. Returns screenshots, DOM content, redirects, and linked resources — great for phishing investigation without clicking dodgy links yourself.</p>
+                    <span class="link-card-url">urlscan.io</span>
+                </a>
+
+                <!-- OSINT -->
+                <a href="https://www.shodan.io" target="_blank" rel="noopener" class="link-card" data-cat="osint">
+                    <div class="link-card-top">
+                        <span class="link-card-name">Shodan</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-osint">OSINT</span>
+                    <p class="link-card-desc">Search engine for internet-connected devices. Find open ports, exposed services, and banner information on IPs. Useful for asset discovery, external attack surface analysis, and threat hunting.</p>
+                    <span class="link-card-url">shodan.io</span>
+                </a>
+
+                <a href="https://www.abuseipdb.com" target="_blank" rel="noopener" class="link-card" data-cat="osint">
+                    <div class="link-card-top">
+                        <span class="link-card-name">AbuseIPDB</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-osint">OSINT</span>
+                    <p class="link-card-desc">Crowdsourced IP abuse reporting database. Check any IP's abuse confidence score and report history. Excellent first stop when triaging suspicious inbound connections or brute-force attempts.</p>
+                    <span class="link-card-url">abuseipdb.com</span>
+                </a>
+
+                <a href="https://haveibeenpwned.com" target="_blank" rel="noopener" class="link-card" data-cat="osint">
+                    <div class="link-card-top">
+                        <span class="link-card-name">Have I Been Pwned</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-osint">OSINT</span>
+                    <p class="link-card-desc">Check if an email address appears in known data breaches. Useful during phishing investigations and insider threat cases to assess credential exposure. Includes a password hash check API.</p>
+                    <span class="link-card-url">haveibeenpwned.com</span>
+                </a>
+
+                <a href="https://mxtoolbox.com" target="_blank" rel="noopener" class="link-card" data-cat="osint">
+                    <div class="link-card-top">
+                        <span class="link-card-name">MXToolbox</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-osint">OSINT</span>
+                    <p class="link-card-desc">DNS lookup, email header analysis, blacklist checks, and MX record diagnostics. The email header analyser is particularly useful for tracing phishing email origins and identifying spoofed senders.</p>
+                    <span class="link-card-url">mxtoolbox.com</span>
+                </a>
+
+                <!-- VULNERABILITIES -->
+                <a href="https://nvd.nist.gov" target="_blank" rel="noopener" class="link-card" data-cat="vuln">
+                    <div class="link-card-top">
+                        <span class="link-card-name">NVD / NIST</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-vuln">Vulnerabilities</span>
+                    <p class="link-card-desc">The US National Vulnerability Database. Authoritative source for CVE details, CVSS scores, affected products, and remediation guidance. Essential for patch prioritisation and vulnerability management.</p>
+                    <span class="link-card-url">nvd.nist.gov</span>
+                </a>
+
+                <a href="https://www.exploit-db.com" target="_blank" rel="noopener" class="link-card" data-cat="vuln">
+                    <div class="link-card-top">
+                        <span class="link-card-name">Exploit-DB</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-vuln">Vulnerabilities</span>
+                    <p class="link-card-desc">Archive of public exploits and proof-of-concept code. Use it to understand how a CVE is exploited in practice, assess true risk, and build detection logic for specific exploit techniques.</p>
+                    <span class="link-card-url">exploit-db.com</span>
+                </a>
+
+                <!-- REFERENCE -->
+                <a href="https://attack.mitre.org" target="_blank" rel="noopener" class="link-card" data-cat="ref">
+                    <div class="link-card-top">
+                        <span class="link-card-name">MITRE ATT&CK</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-ref">Reference</span>
+                    <p class="link-card-desc">The definitive adversary tactics and techniques framework. Map observed behaviour to ATT&CK techniques for reporting, detection engineering, and understanding attacker tradecraft end-to-end.</p>
+                    <span class="link-card-url">attack.mitre.org</span>
+                </a>
+
+                <a href="https://lolbas-project.github.io" target="_blank" rel="noopener" class="link-card" data-cat="ref">
+                    <div class="link-card-top">
+                        <span class="link-card-name">LOLBAS</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-ref">Reference</span>
+                    <p class="link-card-desc">Living Off The Land Binaries, Scripts and Libraries. Documents Windows built-in binaries that attackers abuse for execution, persistence, and lateral movement — critical reference for Windows detection engineers.</p>
+                    <span class="link-card-url">lolbas-project.github.io</span>
+                </a>
+
+                <a href="https://gtfobins.github.io" target="_blank" rel="noopener" class="link-card" data-cat="ref">
+                    <div class="link-card-top">
+                        <span class="link-card-name">GTFOBins</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-ref">Reference</span>
+                    <p class="link-card-desc">Linux/Unix equivalent of LOLBAS. Lists legitimate binaries that can be abused to break out of restricted environments or escalate privileges — useful when hunting for living-off-the-land attacks on Linux hosts.</p>
+                    <span class="link-card-url">gtfobins.github.io</span>
+                </a>
+
+                <a href="https://www.malware-traffic-analysis.net" target="_blank" rel="noopener" class="link-card" data-cat="ref">
+                    <div class="link-card-top">
+                        <span class="link-card-name">Malware Traffic Analysis</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-ref">Reference</span>
+                    <p class="link-card-desc">Archive of real malware PCAP files with accompanying write-ups. Excellent for practising network forensics, understanding C2 traffic patterns, and building Suricata/Snort detection rules.</p>
+                    <span class="link-card-url">malware-traffic-analysis.net</span>
+                </a>
+
+                <!-- TOOLS -->
+                <a href="https://gchq.github.io/CyberChef" target="_blank" rel="noopener" class="link-card" data-cat="tool">
+                    <div class="link-card-top">
+                        <span class="link-card-name">CyberChef</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-tool">Tool</span>
+                    <p class="link-card-desc">GCHQ's browser-based data transformation tool. Decode base64, deobfuscate scripts, extract IOCs, convert timestamps, and chain hundreds of operations together — indispensable for malware analysis and log parsing.</p>
+                    <span class="link-card-url">gchq.github.io/CyberChef</span>
+                </a>
+
+                <a href="https://www.base64decode.org" target="_blank" rel="noopener" class="link-card" data-cat="tool">
+                    <div class="link-card-top">
+                        <span class="link-card-name">Base64 Decode</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-tool">Tool</span>
+                    <p class="link-card-desc">Quick online base64 encoder/decoder. Useful for rapidly decoding encoded payloads found in phishing emails, PowerShell commands, or web logs without firing up CyberChef for simple jobs.</p>
+                    <span class="link-card-url">base64decode.org</span>
+                </a>
+
+                <a href="https://osintframework.com" target="_blank" rel="noopener" class="link-card" data-cat="tool">
+                    <div class="link-card-top">
+                        <span class="link-card-name">OSINT Framework</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-tool">Tool</span>
+                    <p class="link-card-desc">Interactive tree of OSINT tools organised by category — usernames, emails, phone numbers, domains, images, and more. A great starting point when you need to pivot on an indicator and don't know where to look.</p>
+                    <span class="link-card-url">osintframework.com</span>
+                </a>
+
+                <!-- NEWS -->
+                <a href="https://isc.sans.edu" target="_blank" rel="noopener" class="link-card" data-cat="news">
+                    <div class="link-card-top">
+                        <span class="link-card-name">SANS Internet Storm Center</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-news">News</span>
+                    <p class="link-card-desc">Daily security diaries from SANS handlers covering current attack trends, vulnerability disclosures, and packet analysis. One of the most reliable sources for what's actively being exploited in the wild.</p>
+                    <span class="link-card-url">isc.sans.edu</span>
+                </a>
+
+                <a href="https://thedfirreport.com" target="_blank" rel="noopener" class="link-card" data-cat="news">
+                    <div class="link-card-top">
+                        <span class="link-card-name">The DFIR Report</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-news">News</span>
+                    <p class="link-card-desc">In-depth real-world intrusion reports covering full attack chains from initial access to impact. Incredibly detailed timelines, IOC lists, and detection opportunities — essential reading for defenders and detection engineers.</p>
+                    <span class="link-card-url">thedfirreport.com</span>
+                </a>
+
+                <a href="https://thehackernews.com" target="_blank" rel="noopener" class="link-card" data-cat="news">
+                    <div class="link-card-top">
+                        <span class="link-card-name">The Hacker News</span>
+                        <i class="fas fa-arrow-right link-card-arrow"></i>
+                    </div>
+                    <span class="link-card-tag tag-news">News</span>
+                    <p class="link-card-desc">High-volume cybersecurity news covering breaches, new vulnerabilities, APT campaigns, and tool releases. Good for staying current on what's being patched and exploited across the industry.</p>
+                    <span class="link-card-url">thehackernews.com</span>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; cat /etc/bookmarks
+            </p>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <script src="/script.js"></script>
+    <script>
+        // Filter
+        const btns  = document.querySelectorAll('.links-filter-btn');
+        const cards = document.querySelectorAll('.link-card');
+        btns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                btns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const f = btn.dataset.filter;
+                cards.forEach(c => {
+                    c.style.display = (f === 'all' || c.dataset.cat === f) ? '' : 'none';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
