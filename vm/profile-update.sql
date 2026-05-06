@@ -7,8 +7,10 @@ alter table profiles
   add column if not exists bio        text check (char_length(bio) <= 160),
   add column if not exists avatar_url text;
 
--- Update leaderboard view to include avatar
-create or replace view leaderboard as
+-- Drop and recreate leaderboard view with avatar_url column
+drop view if exists leaderboard;
+
+create view leaderboard as
 select
   p.id         as user_id,
   p.username,
