@@ -1,9 +1,9 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cortex XDR â€” Threat Detection & Response | Ben Thomson</title>
+    <title>Cortex XDR — Threat Detection & Response | Ben Thomson</title>
     <link rel="icon" type="image/png" href="/mouse_t.png">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/writeup.css">
@@ -20,6 +20,7 @@
                 <img src="/mouse_t.png" class="nav-mouse" alt="">
             </a>
             <div class="nav-right">
+                <button class="auth-nav-btn" id="authNavBtn"></button>
                 <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
                 <a href="/vm" class="btn btn-secondary back-btn"><i class="fas fa-terminal"></i> vm</a>
                 <a href="/labs" class="btn btn-secondary back-btn">
@@ -36,8 +37,8 @@
                 <span class="ctf-difficulty medium">Intermediate</span>
                 <span class="writeup-category"><i class="fas fa-tag"></i> XDR / EDR / Threat Detection</span>
             </div>
-            <h1 class="writeup-title">Cortex XDR â€” Threat Detection &amp; Response</h1>
-            <p class="writeup-subtitle">A practical guide to Palo Alto Cortex XDR â€” incident management, alert triage, causality chain analysis, XQL hunting queries, and response actions for SOC analysts.</p>
+            <h1 class="writeup-title">Cortex XDR — Threat Detection &amp; Response</h1>
+            <p class="writeup-subtitle">A practical guide to Palo Alto Cortex XDR — incident management, alert triage, causality chain analysis, XQL hunting queries, and response actions for SOC analysts.</p>
             <div class="writeup-stats">
                 <span><i class="fas fa-clock"></i> 18 min read</span>
                 <span><i class="fas fa-desktop"></i> Hands-on</span>
@@ -71,7 +72,7 @@
                 <section id="intro" class="writeup-section">
                     <h2><span class="title-prefix">// </span>What is Cortex XDR?</h2>
                     <p>Cortex XDR (Extended Detection and Response) is Palo Alto Networks' unified threat detection and response platform. It ingests data from endpoints (via the Cortex XDR agent), network infrastructure, cloud environments, and third-party sources, then correlates it into actionable incidents using machine learning and behavioural analytics.</p>
-                    <p>Unlike a traditional EDR that focuses solely on the endpoint, XDR stitches together signals across the entire environment â€” a process Palo Alto calls <strong>stitching</strong>. A single Cortex XDR incident might include an endpoint alert, a firewall block, and an identity anomaly, all tied to one attack chain.</p>
+                    <p>Unlike a traditional EDR that focuses solely on the endpoint, XDR stitches together signals across the entire environment — a process Palo Alto calls <strong>stitching</strong>. A single Cortex XDR incident might include an endpoint alert, a firewall block, and an identity anomaly, all tied to one attack chain.</p>
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
                         <p>Cortex XDR can be licensed as <strong>Prevent</strong> (EPP only), <strong>Pro per Endpoint</strong> (EDR), or <strong>Pro per TB</strong> (full XDR with data lake ingestion). Most enterprise SOC deployments use Pro per TB for cross-source correlation.</p>
@@ -94,7 +95,7 @@
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-database"></i></div>
                             <h4>SIEM</h4>
-                            <p>Security Information and Event Management. Ingests logs broadly, requires analyst-written detection rules. Complementary to XDR â€” XDR provides enriched detections, SIEM provides broad log retention and compliance.</p>
+                            <p>Security Information and Event Management. Ingests logs broadly, requires analyst-written detection rules. Complementary to XDR — XDR provides enriched detections, SIEM provides broad log retention and compliance.</p>
                         </div>
                     </div>
                 </section>
@@ -110,11 +111,11 @@
                             <tbody>
                                 <tr><td>Incidents</td><td>Correlated groups of related alerts. The primary analyst workspace for investigation.</td></tr>
                                 <tr><td>Alerts</td><td>Individual detections from any data source before correlation into incidents.</td></tr>
-                                <tr><td>Investigation</td><td>Causality chains â€” visual process trees and event timelines.</td></tr>
+                                <tr><td>Investigation</td><td>Causality chains — visual process trees and event timelines.</td></tr>
                                 <tr><td>Threat Hunting</td><td>XQL query interface for proactive hunting across the data lake.</td></tr>
                                 <tr><td>Assets</td><td>Endpoint inventory, agent status, host isolation controls.</td></tr>
                                 <tr><td>Policies</td><td>Prevention and detection policy management per endpoint group.</td></tr>
-                                <tr><td>Response</td><td>Remote action management â€” live terminal, file retrieval, quarantine.</td></tr>
+                                <tr><td>Response</td><td>Remote action management — live terminal, file retrieval, quarantine.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -150,7 +151,7 @@
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-2"></i></div>
                             <h4>Causality Chain</h4>
-                            <p>Open the Causality View to see the full process tree â€” parent processes, child spawns, network connections, file writes. Identify the root cause.</p>
+                            <p>Open the Causality View to see the full process tree — parent processes, child spawns, network connections, file writes. Identify the root cause.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-3"></i></div>
@@ -160,7 +161,7 @@
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-4"></i></div>
                             <h4>Response</h4>
-                            <p>Take action â€” isolate host, quarantine files, terminate processes, retrieve evidence. Escalate if needed.</p>
+                            <p>Take action — isolate host, quarantine files, terminate processes, retrieve evidence. Escalate if needed.</p>
                         </div>
                     </div>
                 </section>
@@ -174,12 +175,12 @@
                                 <tr><th>Alert field</th><th>What to check</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Alert name</td><td>Describes the detection â€” e.g. "Credential Dumping via LSASS" or "Suspicious PowerShell Execution"</td></tr>
-                                <tr><td>Source</td><td>Which data source triggered it â€” XDR agent, NGFW, Prisma Cloud, third-party</td></tr>
-                                <tr><td>MITRE Technique</td><td>Tactic and technique tagged â€” use this to understand attacker intent</td></tr>
+                                <tr><td>Alert name</td><td>Describes the detection — e.g. "Credential Dumping via LSASS" or "Suspicious PowerShell Execution"</td></tr>
+                                <tr><td>Source</td><td>Which data source triggered it — XDR agent, NGFW, Prisma Cloud, third-party</td></tr>
+                                <tr><td>MITRE Technique</td><td>Tactic and technique tagged — use this to understand attacker intent</td></tr>
                                 <tr><td>Actor</td><td>The user account or process that triggered the alert</td></tr>
-                                <tr><td>Causality Group Owner (CGO)</td><td>The root process of the alert's process tree â€” often the initial access vector</td></tr>
-                                <tr><td>Host</td><td>The affected endpoint â€” check agent version, OS, criticality</td></tr>
+                                <tr><td>Causality Group Owner (CGO)</td><td>The root process of the alert's process tree — often the initial access vector</td></tr>
+                                <tr><td>Host</td><td>The affected endpoint — check agent version, OS, criticality</td></tr>
                                 <tr><td>Action taken</td><td>Whether XDR prevented, blocked, or only detected the activity</td></tr>
                             </tbody>
                         </table>
@@ -187,13 +188,13 @@
 
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
-                        <p>Pay attention to the <strong>Action</strong> field. An alert with <em>Action: Detected</em> means XDR saw it but did not block it â€” the activity may still be running. An alert with <em>Action: Prevented</em> means the agent blocked execution before it could cause harm.</p>
+                        <p>Pay attention to the <strong>Action</strong> field. An alert with <em>Action: Detected</em> means XDR saw it but did not block it — the activity may still be running. An alert with <em>Action: Prevented</em> means the agent blocked execution before it could cause harm.</p>
                     </div>
                 </section>
 
                 <section id="causality" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Causality Chain Analysis</h2>
-                    <p>The Causality View is Cortex XDR's most powerful investigation feature. It displays a visual process tree showing the full chain of events that led to an alert â€” from the initial execution through every child process, network connection, file operation, and registry modification.</p>
+                    <p>The Causality View is Cortex XDR's most powerful investigation feature. It displays a visual process tree showing the full chain of events that led to an alert — from the initial execution through every child process, network connection, file operation, and registry modification.</p>
 
                     <h3 class="sub-heading">Reading the process tree</h3>
                     <div class="kql-table-wrap">
@@ -202,11 +203,11 @@
                                 <tr><th>Node type</th><th>Colour / Icon</th><th>Description</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Process</td><td>Blue circle</td><td>A running process â€” click to see command line, hash, user, timestamps</td></tr>
+                                <tr><td>Process</td><td>Blue circle</td><td>A running process — click to see command line, hash, user, timestamps</td></tr>
                                 <tr><td>Alerted process</td><td>Red/orange circle</td><td>The process that triggered the alert</td></tr>
-                                <tr><td>Network connection</td><td>Globe icon</td><td>Outbound/inbound connection â€” shows IP, port, protocol, bytes</td></tr>
-                                <tr><td>File operation</td><td>Document icon</td><td>File created, modified, or deleted â€” shows full path and hash</td></tr>
-                                <tr><td>Registry operation</td><td>Key icon</td><td>Registry read, write, or delete â€” common persistence mechanism</td></tr>
+                                <tr><td>Network connection</td><td>Globe icon</td><td>Outbound/inbound connection — shows IP, port, protocol, bytes</td></tr>
+                                <tr><td>File operation</td><td>Document icon</td><td>File created, modified, or deleted — shows full path and hash</td></tr>
+                                <tr><td>Registry operation</td><td>Key icon</td><td>Registry read, write, or delete — common persistence mechanism</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -215,43 +216,43 @@
                     <div class="concept-grid">
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-file-code"></i></div>
-                            <h4>Office â†’ Script Engine</h4>
-                            <p>Word.exe or Excel.exe spawning cmd.exe, PowerShell, or wscript â€” classic macro-based initial access indicator.</p>
+                            <h4>Office ? Script Engine</h4>
+                            <p>Word.exe or Excel.exe spawning cmd.exe, PowerShell, or wscript — classic macro-based initial access indicator.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-network-wired"></i></div>
-                            <h4>Process â†’ Outbound Connection</h4>
-                            <p>A script or executable making an immediate outbound connection â€” often dropper downloading next-stage payload or C2 check-in.</p>
+                            <h4>Process ? Outbound Connection</h4>
+                            <p>A script or executable making an immediate outbound connection — often dropper downloading next-stage payload or C2 check-in.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-user-secret"></i></div>
                             <h4>LSASS Access</h4>
-                            <p>Any non-system process opening LSASS.exe â€” credential dumping. Look for process name, PID, and whether the access was read or write.</p>
+                            <p>Any non-system process opening LSASS.exe — credential dumping. Look for process name, PID, and whether the access was read or write.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-project-diagram"></i></div>
                             <h4>Living-off-the-Land</h4>
-                            <p>System binaries (certutil, regsvr32, mshta, bitsadmin) used with unusual arguments â€” LOLBins used to evade detection.</p>
+                            <p>System binaries (certutil, regsvr32, mshta, bitsadmin) used with unusual arguments — LOLBins used to evade detection.</p>
                         </div>
                     </div>
                 </section>
 
                 <section id="response" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Response Actions</h2>
-                    <p>Cortex XDR provides direct response capabilities from the console â€” no need to log into the endpoint separately.</p>
+                    <p>Cortex XDR provides direct response capabilities from the console — no need to log into the endpoint separately.</p>
                     <div class="kql-table-wrap">
                         <table class="kql-table">
                             <thead>
                                 <tr><th>Action</th><th>What it does</th><th>When to use</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Isolate Endpoint</td><td>Cuts the endpoint off from the network (except XDR management traffic)</td><td>Confirmed compromise â€” prevent lateral movement or data exfiltration</td></tr>
-                                <tr><td>Quarantine File</td><td>Moves a file to a quarantine folder and blocks execution</td><td>Malicious file confirmed â€” remove without deleting (preserves evidence)</td></tr>
+                                <tr><td>Isolate Endpoint</td><td>Cuts the endpoint off from the network (except XDR management traffic)</td><td>Confirmed compromise — prevent lateral movement or data exfiltration</td></tr>
+                                <tr><td>Quarantine File</td><td>Moves a file to a quarantine folder and blocks execution</td><td>Malicious file confirmed — remove without deleting (preserves evidence)</td></tr>
                                 <tr><td>Kill Process</td><td>Terminates a running process by PID</td><td>Active malicious process that hasn't been automatically blocked</td></tr>
-                                <tr><td>Retrieve File</td><td>Pulls a file from the endpoint to the XDR console</td><td>Evidence collection â€” samples, logs, memory files</td></tr>
-                                <tr><td>Run Script</td><td>Executes a Python or shell script on the endpoint</td><td>Custom triage collection â€” gather artefacts, check persistence</td></tr>
+                                <tr><td>Retrieve File</td><td>Pulls a file from the endpoint to the XDR console</td><td>Evidence collection — samples, logs, memory files</td></tr>
+                                <tr><td>Run Script</td><td>Executes a Python or shell script on the endpoint</td><td>Custom triage collection — gather artefacts, check persistence</td></tr>
                                 <tr><td>Live Terminal</td><td>Interactive shell session on the endpoint</td><td>Deep investigation when GUI doesn't show what you need</td></tr>
-                                <tr><td>Block Indicator</td><td>Adds a hash/IP/domain to the block list across all agents</td><td>Confirmed IOC â€” prevent re-infection</td></tr>
+                                <tr><td>Block Indicator</td><td>Adds a hash/IP/domain to the block list across all agents</td><td>Confirmed IOC — prevent re-infection</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -264,7 +265,7 @@
 
                 <section id="xql" class="writeup-section">
                     <h2><span class="title-prefix">// </span>XQL Hunting Queries</h2>
-                    <p>XQL (Cortex Query Language) is used in the Threat Hunting module to query the Cortex data lake directly. It's similar to SQL â€” you select fields, filter with <code>where</code>, and aggregate with <code>group by</code>.</p>
+                    <p>XQL (Cortex Query Language) is used in the Threat Hunting module to query the Cortex data lake directly. It's similar to SQL — you select fields, filter with <code>where</code>, and aggregate with <code>group by</code>.</p>
 
                     <h3 class="sub-heading">Basic structure</h3>
                     <div class="code-block">
@@ -278,7 +279,7 @@
 
                     <h3 class="sub-heading">Hunting queries</h3>
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">XQL â€” Encoded PowerShell</span></div>
+                        <div class="code-header"><span class="code-lang">XQL — Encoded PowerShell</span></div>
                         <pre><code>dataset = xdr_data
 | filter event_type = "ENUM.PROCESS"
     and action_process_image_name ~= "powershell"
@@ -288,7 +289,7 @@
                     </div>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">XQL â€” Rogue lsass.exe masquerading</span></div>
+                        <div class="code-header"><span class="code-lang">XQL — Rogue lsass.exe masquerading</span></div>
                         <pre><code>// Detects processes named lsass.exe spawned by unexpected parents
 // lsass.exe should only ever be started by wininit.exe
 dataset = xdr_data
@@ -299,7 +300,7 @@ dataset = xdr_data
                     </div>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">XQL â€” Outbound connections to rare destinations</span></div>
+                        <div class="code-header"><span class="code-lang">XQL — Outbound connections to rare destinations</span></div>
                         <pre><code>dataset = xdr_data
 | filter event_type = "ENUM.NETWORK" and action_local_port > 1024
 | comp count() as connection_count by action_remote_ip
@@ -308,7 +309,7 @@ dataset = xdr_data
                     </div>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">XQL â€” Scheduled task creation</span></div>
+                        <div class="code-header"><span class="code-lang">XQL — Scheduled task creation</span></div>
                         <pre><code>dataset = xdr_data
 | filter event_type = "ENUM.PROCESS"
     and (action_process_image_name = "schtasks.exe" and action_process_image_command_line ~= "/create")
@@ -321,19 +322,19 @@ dataset = xdr_data
                     <h2><span class="title-prefix">// </span>Tips &amp; Best Practices</h2>
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
-                        <p><strong>Use starred indicators.</strong> When you identify a confirmed IOC during an investigation, add it to your IOC list immediately. Cortex XDR will retroactively search the data lake and alert on historical matches â€” useful for scoping the incident.</p>
+                        <p><strong>Use starred indicators.</strong> When you identify a confirmed IOC during an investigation, add it to your IOC list immediately. Cortex XDR will retroactively search the data lake and alert on historical matches — useful for scoping the incident.</p>
                     </div>
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
-                        <p><strong>Check the Causality Group Owner (CGO).</strong> The CGO is the root of the process tree â€” the process responsible for all the activity in the chain. This is almost always where the initial access happened. Start your investigation here.</p>
+                        <p><strong>Check the Causality Group Owner (CGO).</strong> The CGO is the root of the process tree — the process responsible for all the activity in the chain. This is almost always where the initial access happened. Start your investigation here.</p>
                     </div>
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
-                        <p><strong>XSOAR integration.</strong> Cortex XDR integrates natively with XSOAR. High-severity incidents can automatically trigger XSOAR playbooks for enrichment, escalation, or automated response â€” reducing analyst workload on repetitive tasks.</p>
+                        <p><strong>XSOAR integration.</strong> Cortex XDR integrates natively with XSOAR. High-severity incidents can automatically trigger XSOAR playbooks for enrichment, escalation, or automated response — reducing analyst workload on repetitive tasks.</p>
                     </div>
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p><strong>Prevention policies affect detections.</strong> If an endpoint is in <em>Learn</em> mode (no prevention), malicious activity is only alerted on â€” not blocked. Understand which endpoints have which policy mode applied before assuming a "Detected" alert means the threat is contained.</p>
+                        <p><strong>Prevention policies affect detections.</strong> If an endpoint is in <em>Learn</em> mode (no prevention), malicious activity is only alerted on — not blocked. Understand which endpoints have which policy mode applied before assuming a "Detected" alert means the threat is contained.</p>
                     </div>
                 </section>
 

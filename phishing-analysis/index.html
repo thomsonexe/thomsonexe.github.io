@@ -1,4 +1,4 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
@@ -20,6 +20,7 @@
                 <img src="/mouse_t.png" class="nav-mouse" alt="">
             </a>
             <div class="nav-right">
+                <button class="auth-nav-btn" id="authNavBtn"></button>
                 <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
                 <a href="/vm" class="btn btn-secondary back-btn"><i class="fas fa-terminal"></i> vm</a>
                 <a href="/#ctf" class="btn btn-secondary back-btn">
@@ -37,7 +38,7 @@
                 <span class="writeup-category"><i class="fas fa-tag"></i> Email Analysis / Threat Intel</span>
             </div>
             <h1 class="writeup-title">Phishing Analysis</h1>
-            <p class="writeup-subtitle">A practical guide to analysing phishing emails â€” tools, techniques, and methodology for blue teamers.</p>
+            <p class="writeup-subtitle">A practical guide to analysing phishing emails — tools, techniques, and methodology for blue teamers.</p>
             <div class="writeup-stats">
                 <span><i class="fas fa-clock"></i> 15 min read</span>
                 <span><i class="fas fa-tools"></i> 10+ tools covered</span>
@@ -67,7 +68,7 @@
 
                 <section id="methodology" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Methodology</h2>
-                    <p>Phishing analysis follows a clear order of priority. Start with reputation services â€” they are fast, passive, and often sufficient to confirm a verdict. Only move to sandboxes when you need to observe active behaviour, such as a macro executing or a payload dropping.</p>
+                    <p>Phishing analysis follows a clear order of priority. Start with reputation services — they are fast, passive, and often sufficient to confirm a verdict. Only move to sandboxes when you need to observe active behaviour, such as a macro executing or a payload dropping.</p>
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
                         <p>Never click links or open attachments on your host machine. Always use a sandbox or isolated VM.</p>
@@ -117,7 +118,7 @@
 
                 <section id="reputation" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Reputation Lookup</h2>
-                    <p>Reputation services are your first stop. They are passive â€” you are querying existing databases, not interacting with malicious infrastructure. Use these for every indicator you extract from the email.</p>
+                    <p>Reputation services are your first stop. They are passive — you are querying existing databases, not interacting with malicious infrastructure. Use these for every indicator you extract from the email.</p>
                     <div class="tool-grid">
                         <div class="tool-card">
                             <div class="tool-header">
@@ -127,7 +128,7 @@
                                     <span class="tool-url">virustotal.com</span>
                                 </div>
                             </div>
-                            <p>Cross-references URLs, IPs, domains, and file hashes across 70+ detection engines simultaneously. Also maps relationships between indicators â€” useful for pivoting from a URL to its hosting IP to other URLs on the same infrastructure.</p>
+                            <p>Cross-references URLs, IPs, domains, and file hashes across 70+ detection engines simultaneously. Also maps relationships between indicators — useful for pivoting from a URL to its hosting IP to other URLs on the same infrastructure.</p>
                             <div class="tool-tags">
                                 <span class="tag">URLs</span>
                                 <span class="tag">IPs</span>
@@ -143,7 +144,7 @@
                                     <span class="tool-url">urlhaus.abuse.ch</span>
                                 </div>
                             </div>
-                            <p>Tracks URLs actively used for malware distribution. Useful for context on suspicious links found in phishing emails â€” if the URL is listed, you have strong evidence of malicious intent and can see what malware family it is associated with.</p>
+                            <p>Tracks URLs actively used for malware distribution. Useful for context on suspicious links found in phishing emails — if the URL is listed, you have strong evidence of malicious intent and can see what malware family it is associated with.</p>
                             <div class="tool-tags">
                                 <span class="tag">URLs</span>
                                 <span class="tag">Malware Distribution</span>
@@ -214,7 +215,7 @@
                                     <span class="tool-url">toolbox.googleapps.com/apps/messageheader</span>
                                 </div>
                             </div>
-                            <p>Google's equivalent header parser. Works with any email headers â€” not limited to Gmail. Useful as a second opinion or when MxToolbox is unavailable.</p>
+                            <p>Google's equivalent header parser. Works with any email headers — not limited to Gmail. Useful as a second opinion or when MxToolbox is unavailable.</p>
                             <div class="tool-tags">
                                 <span class="tag">SPF</span>
                                 <span class="tag">DKIM</span>
@@ -236,7 +237,7 @@
                                     <span class="tool-url">urlscan.io</span>
                                 </div>
                             </div>
-                            <p>Loads the URL in a safe, isolated environment and returns a full report â€” screenshot of the page, all contacted domains and IPs, technologies detected, and extracted IOCs. An essential tool for seeing exactly what a link leads to without any risk.</p>
+                            <p>Loads the URL in a safe, isolated environment and returns a full report — screenshot of the page, all contacted domains and IPs, technologies detected, and extracted IOCs. An essential tool for seeing exactly what a link leads to without any risk.</p>
                             <div class="tool-tags">
                                 <span class="tag">URLs</span>
                                 <span class="tag">Screenshots</span>
@@ -262,7 +263,7 @@
 
                 <section id="sandboxes" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Sandboxes</h2>
-                    <p>Use sandboxes when reputation services are inconclusive and you need to observe active behaviour â€” macros executing, payloads dropping, network callbacks. All three options below have a free tier.</p>
+                    <p>Use sandboxes when reputation services are inconclusive and you need to observe active behaviour — macros executing, payloads dropping, network callbacks. All three options below have a free tier.</p>
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
                         <p>Files submitted to public sandboxes are visible to other users including threat actors. If you are handling a real incident at work, check your organisation's policy before submitting.</p>
@@ -276,7 +277,7 @@
                                     <span class="tool-url">any.run</span>
                                 </div>
                             </div>
-                            <p>Interactive sandbox â€” you can click inside the virtual machine in real time. Excellent for observing process trees, network connections, registry changes, and dropped files as they happen. Best choice when you need to interact with the sample.</p>
+                            <p>Interactive sandbox — you can click inside the virtual machine in real time. Excellent for observing process trees, network connections, registry changes, and dropped files as they happen. Best choice when you need to interact with the sample.</p>
                             <div class="tool-tags">
                                 <span class="tag">Interactive</span>
                                 <span class="tag">Process Tree</span>
@@ -322,7 +323,7 @@
                     <p>If you have a raw <code>.eml</code> file rather than viewing the email in a client, you can parse it directly from the terminal. This gives you access to headers, body, and any embedded attachments.</p>
 
                     <h3 class="sub-heading">Read headers and body</h3>
-                    <p>The simplest approach â€” pipe the file through <code>cat</code> to read the raw content including all headers:</p>
+                    <p>The simplest approach — pipe the file through <code>cat</code> to read the raw content including all headers:</p>
                     <div class="code-block">
                         <div class="code-header">
                             <span class="code-lang">bash</span>

@@ -1,9 +1,9 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FTK Imager â€” Digital Forensics | Ben Thomson</title>
+    <title>FTK Imager — Digital Forensics | Ben Thomson</title>
     <link rel="icon" type="image/png" href="/mouse_t.png">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/writeup.css">
@@ -20,6 +20,7 @@
                 <img src="/mouse_t.png" class="nav-mouse" alt="">
             </a>
             <div class="nav-right">
+                <button class="auth-nav-btn" id="authNavBtn"></button>
                 <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
                 <a href="/vm" class="btn btn-secondary back-btn"><i class="fas fa-terminal"></i> vm</a>
                 <a href="/labs" class="btn btn-secondary back-btn">
@@ -36,8 +37,8 @@
                 <span class="ctf-difficulty easy">Beginner</span>
                 <span class="writeup-category"><i class="fas fa-tag"></i> Digital Forensics / Disk Imaging / DFIR</span>
             </div>
-            <h1 class="writeup-title">FTK Imager â€” Digital Forensics</h1>
-            <p class="writeup-subtitle">A practical guide to FTK Imager â€” creating forensically sound disk images, browsing evidence, recovering deleted files, exporting artefacts, capturing memory, and verifying integrity.</p>
+            <h1 class="writeup-title">FTK Imager — Digital Forensics</h1>
+            <p class="writeup-subtitle">A practical guide to FTK Imager — creating forensically sound disk images, browsing evidence, recovering deleted files, exporting artefacts, capturing memory, and verifying integrity.</p>
             <div class="writeup-stats">
                 <span><i class="fas fa-clock"></i> 14 min read</span>
                 <span><i class="fas fa-hdd"></i> Disk Forensics</span>
@@ -71,8 +72,8 @@
 
                 <section id="intro" class="writeup-section">
                     <h2><span class="title-prefix">// </span>What is FTK Imager?</h2>
-                    <p>FTK Imager is a free forensic imaging tool developed by Exterro (formerly AccessData). It creates forensically sound, bit-for-bit copies of storage media â€” disk images â€” that can be analysed without touching the original evidence. It also provides a lightweight evidence browser for examining image contents and exporting specific files and artefacts.</p>
-                    <p>FTK Imager is distinct from the full Forensic Toolkit (FTK) product â€” Imager is free and focused on acquisition, while full FTK is a commercial analysis platform. Imager is the standard tool for creating images that are then analysed in Autopsy, FTK, or other platforms.</p>
+                    <p>FTK Imager is a free forensic imaging tool developed by Exterro (formerly AccessData). It creates forensically sound, bit-for-bit copies of storage media — disk images — that can be analysed without touching the original evidence. It also provides a lightweight evidence browser for examining image contents and exporting specific files and artefacts.</p>
+                    <p>FTK Imager is distinct from the full Forensic Toolkit (FTK) product — Imager is free and focused on acquisition, while full FTK is a commercial analysis platform. Imager is the standard tool for creating images that are then analysed in Autopsy, FTK, or other platforms.</p>
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
                         <p>FTK Imager is a Windows application. For Linux-based imaging, the equivalent tools are <code>dd</code> or <code>dcfldd</code> (raw images) or <code>ewfacquire</code> for E01 format. When imaging a live Windows system, use FTK Imager's <strong>physical drive</strong> mode or the portable version (<strong>FTK Imager Lite</strong>) run directly from a USB drive to avoid installing software on the evidence machine.</p>
@@ -87,11 +88,11 @@
                                 <tr><th>Panel</th><th>Purpose</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Evidence Tree</td><td>Hierarchical view of all added evidence sources â€” drives, images, folders</td></tr>
+                                <tr><td>Evidence Tree</td><td>Hierarchical view of all added evidence sources — drives, images, folders</td></tr>
                                 <tr><td>File List</td><td>Contents of the selected folder in the evidence tree</td></tr>
-                                <tr><td>Properties</td><td>Metadata for the selected file â€” hash, timestamps, size, physical location</td></tr>
+                                <tr><td>Properties</td><td>Metadata for the selected file — hash, timestamps, size, physical location</td></tr>
                                 <tr><td>Hex Viewer</td><td>Raw hex dump of the selected file or sector</td></tr>
-                                <tr><td>Text Viewer</td><td>Decoded text view â€” ASCII or Unicode interpretation of raw bytes</td></tr>
+                                <tr><td>Text Viewer</td><td>Decoded text view — ASCII or Unicode interpretation of raw bytes</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -99,17 +100,17 @@
 
                 <section id="imaging" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Creating Disk Images</h2>
-                    <p>Creating a forensic image is the first step in any DFIR investigation. The image is a sector-by-sector copy of the source â€” preserving everything including deleted files, unallocated space, and file system metadata.</p>
+                    <p>Creating a forensic image is the first step in any DFIR investigation. The image is a sector-by-sector copy of the source — preserving everything including deleted files, unallocated space, and file system metadata.</p>
 
                     <h3 class="sub-heading">Imaging a physical drive</h3>
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">Process â€” FTK Imager</span></div>
-                        <pre><code>1. File â†’ Create Disk Image
+                        <div class="code-header"><span class="code-lang">Process — FTK Imager</span></div>
+                        <pre><code>1. File ? Create Disk Image
 2. Select source type:
-   - Physical Drive    â†’ full drive including all partitions
-   - Logical Drive     â†’ single partition (e.g. C:\)
-   - Image File        â†’ re-image or convert existing image
-   - Contents of a Folder â†’ logical acquisition (no deleted files)
+   - Physical Drive    ? full drive including all partitions
+   - Logical Drive     ? single partition (e.g. C:\)
+   - Image File        ? re-image or convert existing image
+   - Contents of a Folder ? logical acquisition (no deleted files)
 3. Select the source drive from the dropdown
 4. Add a destination image:
    - Choose format (E01 recommended)
@@ -117,12 +118,12 @@
    - Fill in case information (case number, examiner, notes)
    - Set fragment size (0 = single file, or 1500MB for manageable chunks)
 5. Enable "Verify images after they are created"
-6. Start â†’ monitor progress and hash verification at completion</code></pre>
+6. Start ? monitor progress and hash verification at completion</code></pre>
                     </div>
 
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p><strong>Write-protect the source.</strong> Before connecting a suspect drive, use a hardware write blocker to prevent any writes to the evidence. Software write blockers (Windows registry setting) are a fallback but hardware is preferred â€” forensic integrity depends on proving the source was not modified.</p>
+                        <p><strong>Write-protect the source.</strong> Before connecting a suspect drive, use a hardware write blocker to prevent any writes to the evidence. Software write blockers (Windows registry setting) are a fallback but hardware is preferred — forensic integrity depends on proving the source was not modified.</p>
                     </div>
                 </section>
 
@@ -134,10 +135,10 @@
                                 <tr><th>Format</th><th>Extension</th><th>Description</th><th>Best for</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Expert Witness Format</td><td>.E01</td><td>Industry standard. Supports compression, metadata, internal hash verification, multi-segment. Default choice for most investigations.</td><td>Most forensic investigations â€” widely supported by analysis tools</td></tr>
+                                <tr><td>Expert Witness Format</td><td>.E01</td><td>Industry standard. Supports compression, metadata, internal hash verification, multi-segment. Default choice for most investigations.</td><td>Most forensic investigations — widely supported by analysis tools</td></tr>
                                 <tr><td>Raw</td><td>.dd / .img / .raw</td><td>Uncompressed bit-for-bit copy. No internal metadata. Largest file size but maximum compatibility.</td><td>When you need compatibility with Linux tools (dd, Autopsy, Volatility)</td></tr>
                                 <tr><td>SMART</td><td>.s01</td><td>Compressed format from ASR Data. Similar to E01 but less common.</td><td>Legacy SMART-based workflows</td></tr>
-                                <tr><td>AFF</td><td>.aff</td><td>Advanced Forensic Format â€” open standard with metadata support. Less commonly used today.</td><td>Open-source toolchain workflows</td></tr>
+                                <tr><td>AFF</td><td>.aff</td><td>Advanced Forensic Format — open standard with metadata support. Less commonly used today.</td><td>Open-source toolchain workflows</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -145,7 +146,7 @@
 
                 <section id="browsing" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Evidence Browsing</h2>
-                    <p>FTK Imager can open and browse disk images without a full analysis tool. Add evidence via <strong>File â†’ Add Evidence Item</strong> and select the image file.</p>
+                    <p>FTK Imager can open and browse disk images without a full analysis tool. Add evidence via <strong>File ? Add Evidence Item</strong> and select the image file.</p>
 
                     <h3 class="sub-heading">Navigating the file system</h3>
                     <p>The Evidence Tree shows the image's partition structure. Expand partitions to see the file system, then navigate directory trees just like Windows Explorer. Key directories to check during investigation:</p>
@@ -156,14 +157,14 @@
                                 <tr><th>Path</th><th>What you'll find</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td><code>C:\Users\{user}\AppData\Roaming</code></td><td>Application data â€” browser profiles, malware configs, C2 artefacts</td></tr>
+                                <tr><td><code>C:\Users\{user}\AppData\Roaming</code></td><td>Application data — browser profiles, malware configs, C2 artefacts</td></tr>
                                 <tr><td><code>C:\Users\{user}\AppData\Local\Temp</code></td><td>Common malware drop location</td></tr>
-                                <tr><td><code>C:\Windows\Prefetch</code></td><td>Prefetch files â€” evidence of program execution even after deletion</td></tr>
-                                <tr><td><code>C:\Windows\System32\winevt\Logs</code></td><td>Windows Event Log files (.evtx) â€” export for analysis</td></tr>
-                                <tr><td><code>C:\Windows\System32\Tasks</code></td><td>Scheduled tasks â€” check for persistence</td></tr>
+                                <tr><td><code>C:\Windows\Prefetch</code></td><td>Prefetch files — evidence of program execution even after deletion</td></tr>
+                                <tr><td><code>C:\Windows\System32\winevt\Logs</code></td><td>Windows Event Log files (.evtx) — export for analysis</td></tr>
+                                <tr><td><code>C:\Windows\System32\Tasks</code></td><td>Scheduled tasks — check for persistence</td></tr>
                                 <tr><td><code>C:\ProgramData</code></td><td>Common malware installation directory</td></tr>
-                                <tr><td><code>C:\Users\{user}\NTUSER.DAT</code></td><td>User registry hive â€” run keys, recently opened files, typed URLs</td></tr>
-                                <tr><td><code>C:\Windows\System32\config</code></td><td>System registry hives â€” SAM, SYSTEM, SOFTWARE, SECURITY</td></tr>
+                                <tr><td><code>C:\Users\{user}\NTUSER.DAT</code></td><td>User registry hive — run keys, recently opened files, typed URLs</td></tr>
+                                <tr><td><code>C:\Windows\System32\config</code></td><td>System registry hives — SAM, SYSTEM, SOFTWARE, SECURITY</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -171,12 +172,12 @@
 
                 <section id="deleted" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Recovering Deleted Files</h2>
-                    <p>FTK Imager shows deleted files â€” they appear with a red X icon in the file list. When a file is deleted on NTFS, the directory entry is marked as deleted but the data remains on disk until overwritten. FTK Imager recovers these by parsing the MFT (Master File Table) directly.</p>
+                    <p>FTK Imager shows deleted files — they appear with a red X icon in the file list. When a file is deleted on NTFS, the directory entry is marked as deleted but the data remains on disk until overwritten. FTK Imager recovers these by parsing the MFT (Master File Table) directly.</p>
 
                     <div class="concept-grid">
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-times-circle" style="color:#ff4d4d"></i></div>
-                            <h4>Red X â€” Deleted</h4>
+                            <h4>Red X — Deleted</h4>
                             <p>File's directory entry is marked deleted. Data may still be intact on disk. Recoverable unless the clusters have been overwritten.</p>
                         </div>
                         <div class="concept-card">
@@ -196,7 +197,7 @@
                         </div>
                     </div>
 
-                    <p>To export a deleted file: right-click â†’ Export Files. If the data clusters are intact, you'll get a working copy of the file.</p>
+                    <p>To export a deleted file: right-click ? Export Files. If the data clusters are intact, you'll get a working copy of the file.</p>
                 </section>
 
                 <section id="export" class="writeup-section">
@@ -207,10 +208,10 @@
                                 <tr><th>Export type</th><th>How</th><th>Use case</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Export files</td><td>Right-click file or folder â†’ Export Files</td><td>Extract specific files â€” logs, registry hives, malware samples</td></tr>
-                                <tr><td>Export directory listing</td><td>File â†’ Export Directory Listing</td><td>Generate CSV of all files with metadata â€” useful for timeline analysis</td></tr>
-                                <tr><td>Export hash list</td><td>File â†’ Export File Hash List</td><td>Generate MD5/SHA-1 hashes for all files â€” compare against known-good baseline</td></tr>
-                                <tr><td>Export custom content image</td><td>File â†’ Create Custom Content Image</td><td>Create a new image containing only selected files â€” carve specific artefacts</td></tr>
+                                <tr><td>Export files</td><td>Right-click file or folder ? Export Files</td><td>Extract specific files — logs, registry hives, malware samples</td></tr>
+                                <tr><td>Export directory listing</td><td>File ? Export Directory Listing</td><td>Generate CSV of all files with metadata — useful for timeline analysis</td></tr>
+                                <tr><td>Export hash list</td><td>File ? Export File Hash List</td><td>Generate MD5/SHA-1 hashes for all files — compare against known-good baseline</td></tr>
+                                <tr><td>Export custom content image</td><td>File ? Create Custom Content Image</td><td>Create a new image containing only selected files — carve specific artefacts</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -223,45 +224,45 @@
 
                 <section id="hashing" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Hash Verification</h2>
-                    <p>Forensic integrity is proven through hashing. FTK Imager calculates MD5 and SHA-1 hashes of the source drive and the resulting image â€” if they match, the image is a verified bit-for-bit copy.</p>
+                    <p>Forensic integrity is proven through hashing. FTK Imager calculates MD5 and SHA-1 hashes of the source drive and the resulting image — if they match, the image is a verified bit-for-bit copy.</p>
 
                     <h3 class="sub-heading">Verify an existing image</h3>
                     <div class="code-block">
                         <div class="code-header"><span class="code-lang">FTK Imager</span></div>
-                        <pre><code>File â†’ Verify Drive/Image
-â†’ Select the image file (.E01, .dd, etc.)
-â†’ FTK Imager recalculates the hash and compares to the stored value
-â†’ Verified = image has not been modified since acquisition
-â†’ Failed = evidence integrity compromised â€” do not use for legal proceedings</code></pre>
+                        <pre><code>File ? Verify Drive/Image
+? Select the image file (.E01, .dd, etc.)
+? FTK Imager recalculates the hash and compares to the stored value
+? Verified = image has not been modified since acquisition
+? Failed = evidence integrity compromised — do not use for legal proceedings</code></pre>
                     </div>
 
                     <h3 class="sub-heading">Hashing individual files</h3>
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">FTK Imager â€” File hash</span></div>
+                        <div class="code-header"><span class="code-lang">FTK Imager — File hash</span></div>
                         <pre><code>Select file in file list
-â†’ Right-click â†’ Properties
-â†’ MD5 Hash and SHA-1 Hash shown in the Properties panel
-â†’ Cross-reference with VirusTotal, threat intel, or known-good hash list</code></pre>
+? Right-click ? Properties
+? MD5 Hash and SHA-1 Hash shown in the Properties panel
+? Cross-reference with VirusTotal, threat intel, or known-good hash list</code></pre>
                     </div>
                 </section>
 
                 <section id="memory" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Memory Capture</h2>
-                    <p>FTK Imager can capture a live memory dump from a running Windows system. This is critical â€” memory contains running processes, network connections, encryption keys, plaintext credentials, and injected code that won't appear in a disk image.</p>
+                    <p>FTK Imager can capture a live memory dump from a running Windows system. This is critical — memory contains running processes, network connections, encryption keys, plaintext credentials, and injected code that won't appear in a disk image.</p>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">Process â€” FTK Imager live memory capture</span></div>
-                        <pre><code>File â†’ Capture Memory
-â†’ Destination path: output to external evidence drive (not the system drive)
-â†’ Include pagefile: Yes (recommended â€” additional volatile data)
-â†’ Create AD1 file: optional â€” wraps the dump with metadata
-â†’ Click Capture Memory
-â†’ Output: .mem file â†’ analyse with Volatility or Magnet AXIOM</code></pre>
+                        <div class="code-header"><span class="code-lang">Process — FTK Imager live memory capture</span></div>
+                        <pre><code>File ? Capture Memory
+? Destination path: output to external evidence drive (not the system drive)
+? Include pagefile: Yes (recommended — additional volatile data)
+? Create AD1 file: optional — wraps the dump with metadata
+? Click Capture Memory
+? Output: .mem file ? analyse with Volatility or Magnet AXIOM</code></pre>
                     </div>
 
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p><strong>Memory capture writes to disk.</strong> Running FTK Imager on a live system modifies memory â€” the tool itself loads into RAM and its process appears in the dump. This is unavoidable but acceptable and must be documented. Never install FTK Imager to the suspect's drive â€” run from USB or a network share.</p>
+                        <p><strong>Memory capture writes to disk.</strong> Running FTK Imager on a live system modifies memory — the tool itself loads into RAM and its process appears in the dump. This is unavoidable but acceptable and must be documented. Never install FTK Imager to the suspect's drive — run from USB or a network share.</p>
                     </div>
                 </section>
 
@@ -269,19 +270,19 @@
                     <h2><span class="title-prefix">// </span>Tips &amp; Best Practices</h2>
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
-                        <p><strong>Document everything.</strong> Record the time you connected the drive, the write blocker used, the image start and end times, the hash values, and the destination storage device. Forensic reports require this provenance â€” if you can't prove chain of custody, the evidence may be inadmissible.</p>
+                        <p><strong>Document everything.</strong> Record the time you connected the drive, the write blocker used, the image start and end times, the hash values, and the destination storage device. Forensic reports require this provenance — if you can't prove chain of custody, the evidence may be inadmissible.</p>
                     </div>
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
-                        <p><strong>Image to a drive larger than the source.</strong> An E01 image of a 1TB drive might compress to 200GB depending on data content â€” but always have more space than the source size in case compression is minimal. Running out of space mid-image corrupts the evidence file.</p>
+                        <p><strong>Image to a drive larger than the source.</strong> An E01 image of a 1TB drive might compress to 200GB depending on data content — but always have more space than the source size in case compression is minimal. Running out of space mid-image corrupts the evidence file.</p>
                     </div>
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
-                        <p><strong>FTK Imager Lite.</strong> The portable version of FTK Imager runs directly from a USB drive without installation. This is the preferred option when imaging a live suspect machine â€” you avoid installing software to the evidence drive, which would modify timestamps and potentially overwrite deleted data.</p>
+                        <p><strong>FTK Imager Lite.</strong> The portable version of FTK Imager runs directly from a USB drive without installation. This is the preferred option when imaging a live suspect machine — you avoid installing software to the evidence drive, which would modify timestamps and potentially overwrite deleted data.</p>
                     </div>
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
-                        <p><strong>E01 vs raw for analysis.</strong> E01 images work directly in Autopsy and FTK. For Volatility (memory analysis), you need a raw <code>.mem</code> or <code>.raw</code> dump. When in doubt, create both â€” convert E01 to raw using FTK Imager's image conversion feature if needed.</p>
+                        <p><strong>E01 vs raw for analysis.</strong> E01 images work directly in Autopsy and FTK. For Volatility (memory analysis), you need a raw <code>.mem</code> or <code>.raw</code> dump. When in doubt, create both — convert E01 to raw using FTK Imager's image conversion feature if needed.</p>
                     </div>
                 </section>
 

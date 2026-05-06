@@ -1,4 +1,4 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
@@ -31,6 +31,7 @@
                 
             </ul>
             <div class="nav-right">
+                <button class="auth-nav-btn" id="authNavBtn"></button>
                 <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
                 <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
                     <span></span><span></span><span></span>
@@ -46,7 +47,7 @@
             <div class="tm-header">
                 <div class="tm-live-badge"><span class="tm-pulse"></span>LIVE</div>
                 <h1 class="tm-title">APT Activity Monitor</h1>
-                <p class="tm-data-label" id="tmDataLabel">Connecting to feedâ€¦</p>
+                <p class="tm-data-label" id="tmDataLabel">Connecting to feed…</p>
             </div>
 
             <div class="tm-globe-wrap">
@@ -70,7 +71,7 @@
                 </div>
                 <div class="tm-intel-card">
                     <div class="tm-intel-top">
-                        <span class="tm-intel-val" id="tmStatSources">â€”</span>
+                        <span class="tm-intel-val" id="tmStatSources">—</span>
                         <span class="tm-intel-tag">THREAT ACTORS</span>
                     </div>
                     <p class="tm-intel-desc">Named APT groups and state-sponsored threat actors tracked by public cyber intelligence sources.</p>
@@ -84,7 +85,7 @@
                 </div>
                 <div class="tm-intel-card">
                     <div class="tm-intel-top">
-                        <span class="tm-intel-val" id="tmStatMalware">â€”</span>
+                        <span class="tm-intel-val" id="tmStatMalware">—</span>
                         <span class="tm-intel-tag">ATT&amp;CK TECHNIQUES</span>
                     </div>
                     <p class="tm-intel-desc">MITRE ATT&CK technique IDs observed across active intrusion campaigns from tracked threat actor groups.</p>
@@ -99,7 +100,7 @@
                 Live Attack Feed
             </div>
             <div class="tm-feed" id="threatLog">
-                <div class="threat-placeholder">Initialising feedâ€¦</div>
+                <div class="threat-placeholder">Initialising feed…</div>
             </div>
         </div>
 
@@ -115,7 +116,7 @@
                 <span class="egg-dot red"></span>
                 <span class="egg-dot yellow"></span>
                 <span class="egg-dot green"></span>
-                <span class="egg-title">root@thomson.cx â€” bash</span>
+                <span class="egg-title">root@thomson.cx — bash</span>
             </div>
             <div class="egg-body" id="eggBody"></div>
         </div>

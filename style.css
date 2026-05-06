@@ -1714,3 +1714,17 @@ mark.regex-match {
     .tools-tab { padding: 0.65rem 1rem; font-size: 0.78rem; }
     .breach-grid { grid-template-columns: 1fr; }
 }
+
+
+/* ── Global CTF auth nav button ── */
+.auth-nav-btn {
+    font-family: var(--font-mono); font-size: 0.78rem;
+    color: var(--accent); background: transparent;
+    border: 1px solid rgba(0,255,136,0.35);
+    padding: 0.35rem 0.85rem; border-radius: 6px;
+    cursor: pointer; transition: var(--transition);
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    white-space: nowrap;
+}
+.auth-nav-btn:hover { background: rgba(0,255,136,0.08); }
+.auth-nav-btn.active { border-color: var(--accent); }

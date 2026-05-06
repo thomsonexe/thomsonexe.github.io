@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <style>
+        /* PROFILE LAYOUT */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+        @media (max-width: 760px) { .profile-grid { grid-template-columns: 1fr; } }
+
+        /* AVATAR */
+        .avatar-wrap {
+            position: relative;
+            width: 120px; height: 120px;
+            margin: 0 auto 1.25rem;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .avatar-img {
+            width: 120px; height: 120px; border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border-accent);
+            display: block;
+        }
+        .avatar-initials {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: rgba(0,255,136,0.1);
+            border: 2px solid var(--border-accent);
+            display: flex; align-items: center; justify-content: center;
+            font-family: var(--font-mono); font-size: 2.5rem;
+            font-weight: 700; color: var(--accent);
+        }
+        .avatar-overlay {
+            position: absolute; inset: 0; border-radius: 50%;
+            background: rgba(0,0,0,0.55);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.2s;
+            font-size: 1.4rem; color: #fff;
+        }
+        .avatar-wrap:hover .avatar-overlay { opacity: 1; }
+
+        /* PROFILE CARD */
+        .profile-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+        }
+        .profile-card:hover { border-color: var(--border-accent); }
+        .profile-username {
+            font-family: var(--font-mono); font-size: 1.2rem;
+            color: var(--text-primary); margin-bottom: 0.4rem;
+        }
+        .profile-stats {
+            font-family: var(--font-mono); font-size: 0.82rem;
+            color: var(--accent); margin-bottom: 1.5rem;
+        }
+        .profile-email {
+            font-family: var(--font-mono); font-size: 0.75rem;
+            color: var(--text-secondary); margin-bottom: 1.5rem;
+            word-break: break-all;
+        }
+        .btn-signout {
+            font-family: var(--font-mono); font-size: 0.78rem;
+            color: var(--text-secondary); background: none;
+            border: 1px solid var(--border); border-radius: 6px;
+            padding: 0.4rem 1rem; cursor: pointer; transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 0.4rem;
+        }
+        .btn-signout:hover { color: #ff5f57; border-color: #ff5f57; }
+        .avatar-status {
+            font-family: var(--font-mono); font-size: 0.75rem;
+            margin-top: 0.6rem; min-height: 1em;
+            color: var(--text-secondary);
+        }
+        .avatar-status.ok  { color: var(--accent); }
+        .avatar-status.err { color: #ff5f57; }
+
+        /* BIO PANEL */
+        .bio-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .bio-panel:hover { border-color: var(--border-accent); }
+        .panel-label {
+            font-family: var(--font-mono); font-size: 0.72rem;
+            color: var(--accent); text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 0.85rem;
+        }
+        .bio-textarea {
+            width: 100%; background: var(--bg-primary);
+            border: 1px solid var(--border); border-radius: 8px;
+            padding: 0.75rem 0.9rem; color: var(--text-primary);
+            font-family: var(--font-mono); font-size: 0.85rem;
+            line-height: 1.65; resize: vertical; min-height: 100px;
+            box-sizing: border-box; transition: var(--transition);
+        }
+        .bio-textarea:focus { outline: none; border-color: var(--border-accent); }
+        .bio-footer {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-top: 0.6rem;
+        }
+        .bio-count { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-secondary); }
+        .btn-save {
+            font-family: var(--font-mono); font-size: 0.8rem;
+            color: var(--bg-primary); background: var(--accent);
+            border: 1px solid var(--accent); border-radius: 6px;
+            padding: 0.4rem 1rem; cursor: pointer; transition: var(--transition);
+        }
+        .btn-save:hover { opacity: 0.88; }
+        .bio-status {
+            font-family: var(--font-mono); font-size: 0.78rem;
+            margin-top: 0.4rem; min-height: 1em;
+        }
+        .bio-status.ok  { color: var(--accent); }
+        .bio-status.err { color: #ff5f57; }
+
+        /* SOLVE HISTORY */
+        .solve-list { display: flex; flex-direction: column; gap: 0.5rem; }
+        .solve-item {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 8px; transition: var(--transition);
+        }
+        .solve-item:hover { border-color: var(--border-accent); }
+        .solve-icon { color: var(--accent); font-size: 0.75rem; flex-shrink: 0; }
+        .solve-name {
+            font-family: var(--font-mono); font-size: 0.85rem;
+            color: var(--text-primary); flex: 1;
+        }
+        .solve-pts {
+            font-family: var(--font-mono); font-size: 0.78rem;
+            color: var(--accent); font-weight: 600; flex-shrink: 0;
+        }
+        .solve-time {
+            font-family: var(--font-mono); font-size: 0.72rem;
+            color: var(--text-secondary); flex-shrink: 0;
+        }
+        .no-solves {
+            font-family: var(--font-mono); font-size: 0.85rem;
+            color: var(--text-secondary); padding: 1.5rem 0;
+        }
+
+        /* AUTH NAV BTN */
+        .auth-nav-btn {
+            font-family: var(--font-mono); font-size: 0.78rem;
+            color: var(--accent); background: transparent;
+            border: 1px solid rgba(0,255,136,0.35);
+            padding: 0.35rem 0.85rem; border-radius: 6px;
+            cursor: pointer; transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            white-space: nowrap; text-decoration: none;
+        }
+        .auth-nav-btn:hover { background: rgba(0,255,136,0.08); }
+        .auth-nav-btn.active { border-color: var(--accent); }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/home" class="nav-logo writeup-logo">
+                <img src="/mouse_t.png" class="nav-mouse" alt="">
+                <span class="glitch glitch-nav glitch-brand" data-text="thomsoN">thomsoN</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/" class="nav-link">home</a></li>
+                <li><a href="/about" class="nav-link">about</a></li>
+                <li><a href="/labs" class="nav-link">labs</a></li>
+                <li><a href="/tools" class="nav-link">tools</a></li>
+                <li><a href="/cves" class="nav-link">cves</a></li>
+                <li><a href="/map" class="nav-link">map</a></li>
+                <li><a href="/intel" class="nav-link">intel</a></li>
+                <li><a href="/vm" class="nav-link">vm</a></li>
+                <li><a href="/guestbook" class="nav-link">guestbook</a></li>
+            </ul>
+            <div class="nav-right">
+                <button class="auth-nav-btn active" id="authNavBtn">
+                    <i class="fas fa-user"></i> <span id="authNavLabel">profile</span>
+                </button>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="page-hero">
+        <div class="container">
+            <p class="page-hero-prompt"><span class="prompt">ben@thomson.cx:~$</span> whoami</p>
+            <h1 class="page-hero-title" id="heroUsername">Profile</h1>
+            <p class="page-hero-sub" id="heroSub">Loading…</p>
+        </div>
+        <div class="grid-overlay"></div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="profile-grid" id="profileGrid" style="display:none">
+
+                <!-- Left: avatar + card -->
+                <div>
+                    <div class="profile-card">
+                        <div class="avatar-wrap" onclick="triggerAvatarUpload()" title="Click to change avatar">
+                            <div id="avatarDisplay"></div>
+                            <div class="avatar-overlay"><i class="fas fa-camera"></i></div>
+                        </div>
+                        <input type="file" id="avatarInput" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none">
+                        <p class="avatar-status" id="avatarStatus"></p>
+                        <h2 class="profile-username" id="cardUsername"></h2>
+                        <p class="profile-stats" id="cardStats"></p>
+                        <p class="profile-email" id="cardEmail"></p>
+                        <button class="btn-signout" onclick="doSignOut()">
+                            <i class="fas fa-sign-out-alt"></i> Sign Out
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right: bio + solves -->
+                <div>
+                    <div class="bio-panel">
+                        <p class="panel-label"><i class="fas fa-id-card" style="margin-right:0.4rem;"></i>About</p>
+                        <textarea id="bioInput" class="bio-textarea" maxlength="160" placeholder="Tell visitors who you are — background, tools you use, goals…"></textarea>
+                        <div class="bio-footer">
+                            <span class="bio-count"><span id="bioChars">160</span> chars left</span>
+                            <button class="btn-save" onclick="saveBio()"><i class="fas fa-save" style="margin-right:0.3rem;"></i>Save</button>
+                        </div>
+                        <p class="bio-status" id="bioStatus"></p>
+                    </div>
+
+                    <h2 class="section-title" style="margin-bottom:1rem;"><span class="title-prefix">//</span> Solve History</h2>
+                    <div id="solveHistory"><p class="no-solves">Loading solves…</p></div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; id
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const SB_URL = 'https://nqrdljwhvjjoahpjfrlh.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xcmRsandodmpqb2FocGpmcmxoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MzYzMzAsImV4cCI6MjA5MzQxMjMzMH0.YO_3Ul7BzuzG7zJahTf5aOQNslOItPqCRRGXwyRCdyI';
+        const sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+        let currentUser = null;
+
+        async function init() {
+            const { data: { session } } = await sb.auth.getSession();
+            if (!session) { window.location.href = '/vm'; return; }
+            currentUser = session.user;
+            await loadProfile();
+
+            sb.auth.onAuthStateChange((_e, s) => { if (!s) window.location.href = '/vm'; });
+        }
+
+        async function loadProfile() {
+            const { data: profile } = await sb.from('profiles')
+                .select('username, bio, avatar_url')
+                .eq('id', currentUser.id)
+                .single();
+
+            if (!profile) { window.location.href = '/vm'; return; }
+
+            const username = profile.username;
+            document.getElementById('heroUsername').textContent = username;
+            document.getElementById('authNavLabel').textContent = username;
+            document.getElementById('cardUsername').textContent = username;
+            document.getElementById('cardEmail').textContent = currentUser.email;
+
+            // Avatar
+            renderAvatar(profile.avatar_url, username);
+
+            // Bio
+            const bio = profile.bio || '';
+            document.getElementById('bioInput').value = bio;
+            document.getElementById('bioChars').textContent = 160 - bio.length;
+
+            // Load solve stats
+            await loadSolves(username);
+
+            document.getElementById('profileGrid').style.display = '';
+        }
+
+        function renderAvatar(url, username) {
+            const el = document.getElementById('avatarDisplay');
+            if (url) {
+                el.innerHTML = `<img src="${escHtml(url)}" class="avatar-img" alt="avatar" onerror="this.parentElement.innerHTML='<div class=\\'avatar-initials\\'>${escHtml(username.charAt(0).toUpperCase())}</div>'">`;
+            } else {
+                el.innerHTML = `<div class="avatar-initials">${escHtml(username.charAt(0).toUpperCase())}</div>`;
+            }
+        }
+
+        async function loadSolves(username) {
+            const { data } = await sb.from('solves')
+                .select('challenge_id, solved_at, challenges(name, points)')
+                .eq('user_id', currentUser.id)
+                .order('solved_at', { ascending: false });
+
+            const total = (data || []).reduce((s, r) => s + (r.challenges?.points || 0), 0);
+            document.getElementById('cardStats').textContent = total + ' pts · ' + (data || []).length + ' solves';
+            document.getElementById('heroSub').textContent = total + ' pts · ' + (data || []).length + ' challenges solved';
+
+            const el = document.getElementById('solveHistory');
+            if (!data || data.length === 0) {
+                el.innerHTML = '<p class="no-solves">No solves yet — go crack some flags at <a href="/vm" style="color:var(--accent);">/vm</a>.</p>';
+                return;
+            }
+
+            el.innerHTML = '<div class="solve-list">' + data.map(s => {
+                const dt = new Date(s.solved_at);
+                const time = dt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                return `<div class="solve-item">
+                    <i class="fas fa-flag solve-icon"></i>
+                    <span class="solve-name">${escHtml(s.challenges?.name || s.challenge_id)}</span>
+                    <span class="solve-pts">+${s.challenges?.points || 0} pts</span>
+                    <span class="solve-time">${time}</span>
+                </div>`;
+            }).join('') + '</div>';
+        }
+
+        // ── Avatar upload ─────────────────────────────────────────────
+        function triggerAvatarUpload() {
+            document.getElementById('avatarInput').click();
+        }
+
+        document.getElementById('avatarInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (file.size > 2 * 1024 * 1024) {
+                setAvatarStatus('File must be under 2 MB.', 'err'); return;
+            }
+            setAvatarStatus('Uploading…', '');
+
+            const path = currentUser.id + '/avatar';
+            const { error: upErr } = await sb.storage.from('avatars').upload(path, file, {
+                upsert: true, contentType: file.type
+            });
+            if (upErr) { setAvatarStatus(upErr.message, 'err'); return; }
+
+            const { data: urlData } = sb.storage.from('avatars').getPublicUrl(path);
+            const url = urlData.publicUrl + '?v=' + Date.now();
+
+            const { error: dbErr } = await sb.from('profiles').update({ avatar_url: url }).eq('id', currentUser.id);
+            if (dbErr) { setAvatarStatus(dbErr.message, 'err'); return; }
+
+            const { data: p } = await sb.from('profiles').select('username').eq('id', currentUser.id).single();
+            renderAvatar(url, p?.username || '');
+            localStorage.setItem('ctf_avatar', url);
+            setAvatarStatus('Avatar updated!', 'ok');
+            e.target.value = '';
+        });
+
+        function setAvatarStatus(msg, cls) {
+            const el = document.getElementById('avatarStatus');
+            el.textContent = msg;
+            el.className = 'avatar-status' + (cls ? ' ' + cls : '');
+        }
+
+        // ── Bio save ──────────────────────────────────────────────────
+        document.getElementById('bioInput').addEventListener('input', () => {
+            const left = 160 - document.getElementById('bioInput').value.length;
+            document.getElementById('bioChars').textContent = left;
+        });
+
+        async function saveBio() {
+            const bio    = document.getElementById('bioInput').value.trim();
+            const status = document.getElementById('bioStatus');
+            status.textContent = 'Saving…'; status.className = 'bio-status';
+
+            const { error } = await sb.from('profiles').update({ bio }).eq('id', currentUser.id);
+            if (error) { status.textContent = error.message; status.className = 'bio-status err'; }
+            else { status.textContent = 'Saved.'; status.className = 'bio-status ok'; }
+        }
+
+        // ── Sign out ──────────────────────────────────────────────────
+        async function doSignOut() {
+            localStorage.removeItem('ctf_username');
+            localStorage.removeItem('ctf_avatar');
+            await sb.auth.signOut();
+            window.location.href = '/vm';
+        }
+
+        // ── Theme ─────────────────────────────────────────────────────
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const cur = document.documentElement.getAttribute('data-theme');
+            const next = cur === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+
+        // ── Navbar ────────────────────────────────────────────────────
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+        const navToggle = document.getElementById('navToggle');
+        const navLinks  = document.getElementById('navLinks');
+        navToggle.addEventListener('click', () => {
+            navToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        function escHtml(s) {
+            return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        init();
+    </script>
+</body>
+</html>

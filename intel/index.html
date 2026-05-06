@@ -1,4 +1,4 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
@@ -30,6 +30,7 @@
                 <li><a href="/vm" class="nav-link">vm</a></li><li><a href="/guestbook" class="nav-link">guestbook</a></li>
             </ul>
             <div class="nav-right">
+                <button class="auth-nav-btn" id="authNavBtn"></button>
                 <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
                 <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
                     <span></span><span></span><span></span>
@@ -65,7 +66,7 @@
 
             <div class="intel-grid" id="intelGrid">
                 <div class="intel-loading">
-                    <i class="fas fa-circle-notch fa-spin"></i> Fetching threat intelligenceâ€¦
+                    <i class="fas fa-circle-notch fa-spin"></i> Fetching threat intelligence…
                 </div>
             </div>
         </div>
@@ -90,7 +91,7 @@
                 <span class="egg-dot red"></span>
                 <span class="egg-dot yellow"></span>
                 <span class="egg-dot green"></span>
-                <span class="egg-title">root@thomson.cx â€” bash</span>
+                <span class="egg-title">root@thomson.cx — bash</span>
             </div>
             <div class="egg-body" id="eggBody"></div>
         </div>

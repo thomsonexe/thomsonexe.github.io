@@ -1,9 +1,9 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Splunk SPL â€” SIEM & Threat Hunting | Ben Thomson</title>
+    <title>Splunk SPL — SIEM & Threat Hunting | Ben Thomson</title>
     <link rel="icon" type="image/png" href="/mouse_t.png">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/writeup.css">
@@ -20,6 +20,7 @@
                 <img src="/mouse_t.png" class="nav-mouse" alt="">
             </a>
             <div class="nav-right">
+                <button class="auth-nav-btn" id="authNavBtn"></button>
                 <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
                 <a href="/vm" class="btn btn-secondary back-btn"><i class="fas fa-terminal"></i> vm</a>
                 <a href="/labs" class="btn btn-secondary back-btn">
@@ -36,8 +37,8 @@
                 <span class="ctf-difficulty medium">Intermediate</span>
                 <span class="writeup-category"><i class="fas fa-tag"></i> SIEM / Threat Hunting / Log Analysis</span>
             </div>
-            <h1 class="writeup-title">Splunk SPL â€” SIEM &amp; Threat Hunting</h1>
-            <p class="writeup-subtitle">A practical SPL reference for SOC analysts â€” covering search syntax, essential commands, field extraction, statistical analysis, and real-world threat hunting queries for common attack patterns.</p>
+            <h1 class="writeup-title">Splunk SPL — SIEM &amp; Threat Hunting</h1>
+            <p class="writeup-subtitle">A practical SPL reference for SOC analysts — covering search syntax, essential commands, field extraction, statistical analysis, and real-world threat hunting queries for common attack patterns.</p>
             <div class="writeup-stats">
                 <span><i class="fas fa-clock"></i> 20 min read</span>
                 <span><i class="fas fa-terminal"></i> Reference Guide</span>
@@ -71,11 +72,11 @@
 
                 <section id="intro" class="writeup-section">
                     <h2><span class="title-prefix">// </span>What is Splunk?</h2>
-                    <p>Splunk is a Security Information and Event Management (SIEM) platform that ingests, indexes, and correlates log data from across an environment â€” endpoints, servers, firewalls, identity providers, cloud services, and more. SOC analysts use it to search for threats, build detection rules, and investigate alerts.</p>
-                    <p>Data is queried using <strong>SPL (Search Processing Language)</strong> â€” a pipeline-based query language similar in concept to Unix pipes. Understanding SPL is a core skill for any blue team analyst working in a Splunk environment.</p>
+                    <p>Splunk is a Security Information and Event Management (SIEM) platform that ingests, indexes, and correlates log data from across an environment — endpoints, servers, firewalls, identity providers, cloud services, and more. SOC analysts use it to search for threats, build detection rules, and investigate alerts.</p>
+                    <p>Data is queried using <strong>SPL (Search Processing Language)</strong> — a pipeline-based query language similar in concept to Unix pipes. Understanding SPL is a core skill for any blue team analyst working in a Splunk environment.</p>
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
-                        <p>Splunk organises data into <strong>indexes</strong>, which are sets of events stored on disk. Data is broken into <strong>events</strong> â€” individual log lines â€” each with a timestamp and a set of <strong>fields</strong> parsed from the raw text. The most common default index is <code>main</code>; many environments use custom indexes per data source (e.g. <code>windows</code>, <code>firewall</code>, <code>aws</code>).</p>
+                        <p>Splunk organises data into <strong>indexes</strong>, which are sets of events stored on disk. Data is broken into <strong>events</strong> — individual log lines — each with a timestamp and a set of <strong>fields</strong> parsed from the raw text. The most common default index is <code>main</code>; many environments use custom indexes per data source (e.g. <code>windows</code>, <code>firewall</code>, <code>aws</code>).</p>
                     </div>
                 </section>
 
@@ -84,14 +85,14 @@
                     <p>Every SPL search starts with a <strong>search command</strong> (implicit or explicit) and passes results through a pipeline using the pipe character <code>|</code>. Each command in the pipeline transforms or filters the result set.</p>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">SPL â€” Basic Structure</span></div>
+                        <div class="code-header"><span class="code-lang">SPL — Basic Structure</span></div>
                         <pre><code>index=main sourcetype=WinEventLog EventCode=4625
 | stats count by src_ip, user
 | sort -count
 | head 20</code></pre>
                     </div>
 
-                    <p>This search: finds failed logins (EventCode 4625) â†’ counts them grouped by source IP and user â†’ sorts descending â†’ shows the top 20.</p>
+                    <p>This search: finds failed logins (EventCode 4625) ? counts them grouped by source IP and user ? sorts descending ? shows the top 20.</p>
 
                     <h3 class="sub-heading">Search terms</h3>
                     <div class="kql-table-wrap">
@@ -139,7 +140,7 @@
 
                 <section id="stats" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Statistical Commands</h2>
-                    <p>Statistical commands aggregate data â€” essential for summarising large volumes of log events and spotting anomalies.</p>
+                    <p>Statistical commands aggregate data — essential for summarising large volumes of log events and spotting anomalies.</p>
 
                     <h3 class="sub-heading">stats</h3>
                     <p>The workhorse aggregation command. Groups events and computes aggregate functions.</p>
@@ -171,7 +172,7 @@
                     </div>
 
                     <h3 class="sub-heading">timechart</h3>
-                    <p>Like <code>stats</code> but bucketed by time â€” ideal for visualising activity over time.</p>
+                    <p>Like <code>stats</code> but bucketed by time — ideal for visualising activity over time.</p>
                     <div class="code-block">
                         <div class="code-header"><span class="code-lang">SPL</span></div>
                         <pre><code>index=firewall action=blocked
@@ -179,7 +180,7 @@
                     </div>
 
                     <h3 class="sub-heading">top / rare</h3>
-                    <p><code>top</code> returns the most common values for a field; <code>rare</code> returns the least common â€” useful for anomaly detection.</p>
+                    <p><code>top</code> returns the most common values for a field; <code>rare</code> returns the least common — useful for anomaly detection.</p>
                     <div class="code-block">
                         <div class="code-header"><span class="code-lang">SPL</span></div>
                         <pre><code>index=windows EventCode=4688
@@ -191,14 +192,14 @@
                     <h2><span class="title-prefix">// </span>Fields &amp; Extraction</h2>
                     <p>Splunk auto-extracts fields from common log formats. For custom or unstructured logs, you extract fields yourself using <code>rex</code> or the field extractor UI.</p>
 
-                    <h3 class="sub-heading">rex â€” Regex field extraction</h3>
+                    <h3 class="sub-heading">rex — Regex field extraction</h3>
                     <div class="code-block">
                         <div class="code-header"><span class="code-lang">SPL</span></div>
                         <pre><code>| rex field=_raw "src=(?P&lt;src_ip&gt;\d{1,3}(?:\.\d{1,3}){3})"
 | rex field=_raw "dst=(?P&lt;dst_ip&gt;\d{1,3}(?:\.\d{1,3}){3})"</code></pre>
                     </div>
 
-                    <h3 class="sub-heading">spath â€” JSON / XML extraction</h3>
+                    <h3 class="sub-heading">spath — JSON / XML extraction</h3>
                     <p>Extracts fields from structured data like JSON logs (common with cloud logs, API events).</p>
                     <div class="code-block">
                         <div class="code-header"><span class="code-lang">SPL</span></div>
@@ -228,10 +229,10 @@
 
                 <section id="eval" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Eval &amp; Conditional Logic</h2>
-                    <p><code>eval</code> creates or modifies fields using expressions. It's one of the most flexible SPL commands â€” used for calculations, string manipulation, and conditional logic.</p>
+                    <p><code>eval</code> creates or modifies fields using expressions. It's one of the most flexible SPL commands — used for calculations, string manipulation, and conditional logic.</p>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">SPL â€” Conditional classification</span></div>
+                        <div class="code-header"><span class="code-lang">SPL — Conditional classification</span></div>
                         <pre><code>index=windows EventCode=4625
 | eval risk = case(
     count > 100, "High",
@@ -285,7 +286,7 @@
                     <h3 class="sub-heading">Subsearches</h3>
                     <p>A subsearch runs first and feeds its results as a filter into the outer search. Useful for cross-referencing threat intel or joining datasets without a lookup.</p>
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">SPL â€” Subsearch</span></div>
+                        <div class="code-header"><span class="code-lang">SPL — Subsearch</span></div>
                         <pre><code>index=firewall
     [search index=threatintel | return 100 malicious_ip]
 | table _time, src_ip, dst_ip, action</code></pre>
@@ -293,7 +294,7 @@
 
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p>Subsearches are limited to returning 10,000 results and have a 60-second timeout by default. For large lookups, use a <strong>lookup table</strong> instead â€” it's faster and not subject to these limits.</p>
+                        <p>Subsearches are limited to returning 10,000 results and have a 60-second timeout by default. For large lookups, use a <strong>lookup table</strong> instead — it's faster and not subject to these limits.</p>
                     </div>
                 </section>
 
@@ -329,7 +330,7 @@
 | sort -_time</code></pre>
                     </div>
 
-                    <h3 class="sub-heading">Lateral movement â€” remote service creation</h3>
+                    <h3 class="sub-heading">Lateral movement — remote service creation</h3>
                     <div class="code-block">
                         <div class="code-header"><span class="code-lang">SPL</span></div>
                         <pre><code>index=windows EventCode=7045 earliest=-24h
@@ -347,7 +348,7 @@
 | table _time, SubjectUserName, SubjectDomainName, host</code></pre>
                     </div>
 
-                    <h3 class="sub-heading">Beaconing detection â€” regular outbound connections</h3>
+                    <h3 class="sub-heading">Beaconing detection — regular outbound connections</h3>
                     <div class="code-block">
                         <div class="code-header"><span class="code-lang">SPL</span></div>
                         <pre><code>index=network earliest=-6h
@@ -368,7 +369,7 @@
 
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
-                        <p>Build a <strong>baseline</strong> first â€” run hunting queries over a 30-day window to establish what's normal before hunting anomalies over a 1-day window. High count thresholds in a query should reflect your environment, not arbitrary numbers.</p>
+                        <p>Build a <strong>baseline</strong> first — run hunting queries over a 30-day window to establish what's normal before hunting anomalies over a 1-day window. High count thresholds in a query should reflect your environment, not arbitrary numbers.</p>
                     </div>
                 </section>
 
@@ -394,7 +395,7 @@
                         </table>
                     </div>
 
-                    <h3 class="sub-heading">Windows Event IDs â€” Quick Reference</h3>
+                    <h3 class="sub-heading">Windows Event IDs — Quick Reference</h3>
                     <div class="kql-table-wrap">
                         <table class="kql-table">
                             <thead>
@@ -422,7 +423,7 @@
 
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
-                        <p><strong>Filter early, aggregate late.</strong> Always put your most restrictive filters (index, sourcetype, EventCode) at the start of the search before any <code>|</code> commands. Splunk reads raw data before passing to the pipeline â€” the more you filter before the first pipe, the faster the search.</p>
+                        <p><strong>Filter early, aggregate late.</strong> Always put your most restrictive filters (index, sourcetype, EventCode) at the start of the search before any <code>|</code> commands. Splunk reads raw data before passing to the pipeline — the more you filter before the first pipe, the faster the search.</p>
                     </div>
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
@@ -430,11 +431,11 @@
                     </div>
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
-                        <p><strong>Save searches as alerts or reports.</strong> Any SPL search can be scheduled. Set up alerts to trigger when hunting queries match above a threshold â€” this turns a one-off hunt into continuous detection.</p>
+                        <p><strong>Save searches as alerts or reports.</strong> Any SPL search can be scheduled. Set up alerts to trigger when hunting queries match above a threshold — this turns a one-off hunt into continuous detection.</p>
                     </div>
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
-                        <p><strong>Use <code>tstats</code> for speed.</strong> The <code>tstats</code> command queries the TSIDX index metadata rather than raw events â€” orders of magnitude faster for large time ranges. Requires the Common Information Model (CIM) data models to be accelerated.</p>
+                        <p><strong>Use <code>tstats</code> for speed.</strong> The <code>tstats</code> command queries the TSIDX index metadata rather than raw events — orders of magnitude faster for large time ranges. Requires the Common Information Model (CIM) data models to be accelerated.</p>
                     </div>
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>

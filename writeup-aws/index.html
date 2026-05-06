@@ -1,4 +1,4 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
@@ -20,6 +20,7 @@
                 <img src="/mouse_t.png" class="nav-mouse" alt="">
             </a>
             <div class="nav-right">
+                <button class="auth-nav-btn" id="authNavBtn"></button>
                 <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
                 <a href="/vm" class="btn btn-secondary back-btn"><i class="fas fa-terminal"></i> vm</a>
                 <a href="/labs" class="btn btn-secondary back-btn">
@@ -37,7 +38,7 @@
                 <span class="writeup-category"><i class="fas fa-tag"></i> Cloud / AWS / Threat Hunting</span>
             </div>
             <h1 class="writeup-title">AWS CloudTrail Threat Hunting</h1>
-            <p class="writeup-subtitle">A practical guide to hunting threats in AWS â€” CloudTrail key events, GuardDuty alerts, IAM enumeration detection, persistence mechanisms, and Athena hunting queries.</p>
+            <p class="writeup-subtitle">A practical guide to hunting threats in AWS — CloudTrail key events, GuardDuty alerts, IAM enumeration detection, persistence mechanisms, and Athena hunting queries.</p>
             <div class="writeup-stats">
                 <span><i class="fas fa-clock"></i> 18 min read</span>
                 <span><i class="fas fa-search"></i> 20+ queries</span>
@@ -68,17 +69,17 @@
 
                 <section id="intro" class="writeup-section">
                     <h2><span class="title-prefix">// </span>CloudTrail Overview</h2>
-                    <p>AWS CloudTrail records API calls made to AWS services â€” who made the call, from which IP, when, which service and action, and whether it succeeded or failed. CloudTrail is the primary audit log for AWS environments and the foundation for cloud threat hunting.</p>
-                    <p>CloudTrail events fall into three categories: <strong>Management Events</strong> (control plane â€” creating/deleting resources), <strong>Data Events</strong> (S3 object-level access, Lambda invocations), and <strong>Insights Events</strong> (anomaly detection for unusual API activity). By default, only management events are enabled.</p>
+                    <p>AWS CloudTrail records API calls made to AWS services — who made the call, from which IP, when, which service and action, and whether it succeeded or failed. CloudTrail is the primary audit log for AWS environments and the foundation for cloud threat hunting.</p>
+                    <p>CloudTrail events fall into three categories: <strong>Management Events</strong> (control plane — creating/deleting resources), <strong>Data Events</strong> (S3 object-level access, Lambda invocations), and <strong>Insights Events</strong> (anomaly detection for unusual API activity). By default, only management events are enabled.</p>
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p>Data events are not enabled by default and incur additional cost. Without them, you cannot see S3 object reads/writes â€” a significant blind spot for detecting data exfiltration from S3 buckets.</p>
+                        <p>Data events are not enabled by default and incur additional cost. Without them, you cannot see S3 object reads/writes — a significant blind spot for detecting data exfiltration from S3 buckets.</p>
                     </div>
                 </section>
 
                 <section id="events" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Key API Events</h2>
-                    <p>These are the high-value CloudTrail events for threat hunters â€” the ones that appear in attacker playbooks and are worth alerting on.</p>
+                    <p>These are the high-value CloudTrail events for threat hunters — the ones that appear in attacker playbooks and are worth alerting on.</p>
 
                     <h3>Authentication & Credential Abuse</h3>
                     <div class="kql-table-wrap">
@@ -87,10 +88,10 @@
                                 <tr><th>Event</th><th>Service</th><th>Why It Matters</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td><code>ConsoleLogin</code></td><td>signin.amazonaws.com</td><td>Console logins â€” check sourceIPAddress and mfaUsed fields</td></tr>
-                                <tr><td><code>GetCallerIdentity</code></td><td>STS</td><td>First call attackers make to identify their access â€” "who am I?"</td></tr>
+                                <tr><td><code>ConsoleLogin</code></td><td>signin.amazonaws.com</td><td>Console logins — check sourceIPAddress and mfaUsed fields</td></tr>
+                                <tr><td><code>GetCallerIdentity</code></td><td>STS</td><td>First call attackers make to identify their access — "who am I?"</td></tr>
                                 <tr><td><code>AssumeRole</code></td><td>STS</td><td>Cross-account access and privilege escalation via role chaining</td></tr>
-                                <tr><td><code>GetSessionToken</code></td><td>STS</td><td>Temporary credential generation â€” watch for unusual source IPs</td></tr>
+                                <tr><td><code>GetSessionToken</code></td><td>STS</td><td>Temporary credential generation — watch for unusual source IPs</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -103,11 +104,11 @@
                             </thead>
                             <tbody>
                                 <tr><td><code>CreateUser</code></td><td>Attacker creating a backdoor IAM user for persistence</td></tr>
-                                <tr><td><code>CreateAccessKey</code></td><td>Generating new long-term credentials â€” high risk if done by non-admin</td></tr>
-                                <tr><td><code>AttachUserPolicy / AttachRolePolicy</code></td><td>Privilege escalation â€” attaching AdministratorAccess to an account</td></tr>
-                                <tr><td><code>PutUserPolicy</code></td><td>Inline policy addition â€” less visible than managed policy attachment</td></tr>
-                                <tr><td><code>UpdateLoginProfile</code></td><td>Password change on another user's console login â€” account takeover</td></tr>
-                                <tr><td><code>DeleteTrail / StopLogging</code></td><td>Defence evasion â€” attacker disabling CloudTrail to hide their tracks</td></tr>
+                                <tr><td><code>CreateAccessKey</code></td><td>Generating new long-term credentials — high risk if done by non-admin</td></tr>
+                                <tr><td><code>AttachUserPolicy / AttachRolePolicy</code></td><td>Privilege escalation — attaching AdministratorAccess to an account</td></tr>
+                                <tr><td><code>PutUserPolicy</code></td><td>Inline policy addition — less visible than managed policy attachment</td></tr>
+                                <tr><td><code>UpdateLoginProfile</code></td><td>Password change on another user's console login — account takeover</td></tr>
+                                <tr><td><code>DeleteTrail / StopLogging</code></td><td>Defence evasion — attacker disabling CloudTrail to hide their tracks</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -119,10 +120,10 @@
                                 <tr><th>Event</th><th>Why It Matters</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td><code>RunInstances</code></td><td>EC2 instance launch â€” cryptomining in new regions is common</td></tr>
-                                <tr><td><code>CreateFunction / UpdateFunctionCode</code></td><td>Lambda deployment â€” execution via serverless is hard to detect without data events</td></tr>
-                                <tr><td><code>SendCommand</code></td><td>SSM Run Command on EC2 â€” lateral movement / code execution without SSH</td></tr>
-                                <tr><td><code>GetParameter</code></td><td>SSM Parameter Store reads â€” attackers accessing stored secrets and credentials</td></tr>
+                                <tr><td><code>RunInstances</code></td><td>EC2 instance launch — cryptomining in new regions is common</td></tr>
+                                <tr><td><code>CreateFunction / UpdateFunctionCode</code></td><td>Lambda deployment — execution via serverless is hard to detect without data events</td></tr>
+                                <tr><td><code>SendCommand</code></td><td>SSM Run Command on EC2 — lateral movement / code execution without SSH</td></tr>
+                                <tr><td><code>GetParameter</code></td><td>SSM Parameter Store reads — attackers accessing stored secrets and credentials</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -138,13 +139,13 @@
                                 <tr><th>Finding Type</th><th>Description</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td><code>UnauthorizedAccess:IAMUser/TorIPCaller</code></td><td>API call from a Tor exit node â€” deliberate anonymisation</td></tr>
+                                <tr><td><code>UnauthorizedAccess:IAMUser/TorIPCaller</code></td><td>API call from a Tor exit node — deliberate anonymisation</td></tr>
                                 <tr><td><code>Recon:IAMUser/MaliciousIPCaller</code></td><td>API recon calls (ListUsers, DescribeInstances) from known-bad IP</td></tr>
                                 <tr><td><code>PrivilegeEscalation:IAMUser/AdministrativePermissions</code></td><td>User attached Admin policy to themselves</td></tr>
-                                <tr><td><code>Persistence:IAMUser/UserPermissions</code></td><td>New IAM user or access key created â€” possible backdoor</td></tr>
+                                <tr><td><code>Persistence:IAMUser/UserPermissions</code></td><td>New IAM user or access key created — possible backdoor</td></tr>
                                 <tr><td><code>CryptoCurrency:EC2/BitcoinTool.B</code></td><td>EC2 instance communicating with cryptocurrency mining pool</td></tr>
                                 <tr><td><code>Exfiltration:S3/ObjectRead.Unusual</code></td><td>Unusual volume of S3 object reads from an IAM entity</td></tr>
-                                <tr><td><code>Impact:S3/AnomalousBehavior.Delete</code></td><td>Mass S3 delete â€” potential ransomware or destructive attack</td></tr>
+                                <tr><td><code>Impact:S3/AnomalousBehavior.Delete</code></td><td>Mass S3 delete — potential ransomware or destructive attack</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -155,7 +156,7 @@
                     <p>After gaining initial access, attackers enumerate IAM to understand what permissions they have and what escalation paths exist. This enumeration leaves a distinctive pattern in CloudTrail.</p>
 
                     <div class="code-block">
-                        <span class="code-comment"># Classic IAM enumeration sequence â€” look for these in rapid succession from one source</span><br>
+                        <span class="code-comment"># Classic IAM enumeration sequence — look for these in rapid succession from one source</span><br>
                         sts:GetCallerIdentity<br>
                         iam:GetAccountSummary<br>
                         iam:ListUsers<br>
@@ -186,7 +187,7 @@
                                 <tr><td>Shadow admin role</td><td><code>CreateRole</code>, <code>AttachRolePolicy</code></td><td>Role with Admin access created, or existing role policy expanded</td></tr>
                                 <tr><td>Lambda backdoor</td><td><code>CreateFunction</code>, <code>AddPermission</code></td><td>Lambda with wide permissions and public URL or unusual trigger</td></tr>
                                 <tr><td>EC2 user-data persistence</td><td><code>RunInstances</code>, <code>ModifyInstanceAttribute</code></td><td>Large user-data payload; base64-encoded scripts in instance launch</td></tr>
-                                <tr><td>SSM session persistence</td><td><code>CreateActivation</code></td><td>SSM activation for non-EC2 instance â€” attacker registering external machine</td></tr>
+                                <tr><td>SSM session persistence</td><td><code>CreateActivation</code></td><td>SSM activation for non-EC2 instance — attacker registering external machine</td></tr>
                             </tbody>
                         </table>
                     </div>

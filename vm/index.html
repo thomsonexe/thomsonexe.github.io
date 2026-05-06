@@ -321,11 +321,11 @@
             letter-spacing: 1px; border-bottom: 1px solid var(--border-accent);
             background: var(--bg-secondary);
         }
-        .lb-table td { padding: 0.72rem 1.1rem; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+        .lb-table td { padding: 0.65rem 1.1rem; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
         .lb-table tr:last-child td { border-bottom: none; }
         .lb-table tr:hover td { background: rgba(0,255,136,0.02); }
         .lb-rank { width: 48px; color: var(--text-secondary); }
-        .lb-name { color: var(--text-primary); font-weight: 500; }
+        .lb-name-cell { display: flex; align-items: center; gap: 0.6rem; color: var(--text-primary); font-weight: 500; }
         .lb-pts  { color: var(--accent); font-weight: 600; }
         .lb-table tr.lb-you td { background: rgba(0,255,136,0.04); }
         .lb-table tr.lb-gold   .lb-rank { color: #febc2e; font-weight: 700; }
@@ -335,6 +335,16 @@
             text-align: center; color: var(--text-secondary);
             font-family: var(--font-mono); font-size: 0.84rem;
             padding: 2.5rem 1rem;
+        }
+        .lb-avatar-img {
+            width: 26px; height: 26px; border-radius: 50%;
+            object-fit: cover; border: 1px solid var(--border); flex-shrink: 0;
+        }
+        .lb-avatar-init {
+            width: 26px; height: 26px; border-radius: 50%;
+            background: rgba(0,255,136,0.12); border: 1px solid rgba(0,255,136,0.25);
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; font-weight: 700; color: var(--accent); flex-shrink: 0;
         }
 
         @media (max-width: 600px) {
@@ -382,8 +392,16 @@
         <div class="grid-overlay"></div>
     </section>
 
+    <!-- LEADERBOARD (top) -->
+    <section class="section section-alt" id="leaderboardSection">
+        <div class="container">
+            <h2 class="section-title"><span class="title-prefix">//</span> Leaderboard</h2>
+            <div id="lbContent"><div class="lb-empty">Loading…</div></div>
+        </div>
+    </section>
+
     <!-- HOW IT WORKS -->
-    <section class="section section-alt">
+    <section class="section">
         <div class="container">
             <h2 class="section-title"><span class="title-prefix">//</span> How it works</h2>
             <div class="how-grid">
@@ -626,16 +644,6 @@
         </div>
     </section>
 
-    <!-- LEADERBOARD -->
-    <section class="section" id="leaderboardSection">
-        <div class="container">
-            <h2 class="section-title"><span class="title-prefix">//</span> Leaderboard</h2>
-            <div id="lbContent">
-                <div class="lb-empty">Loading...</div>
-            </div>
-        </div>
-    </section>
-
     <footer class="footer">
         <div class="container">
             <p class="footer-text">
@@ -673,8 +681,13 @@
                 <p style="font-family:var(--font-mono);font-size:0.9rem;color:var(--text-primary);margin-bottom:0.5rem;">
                     Signed in as <span id="authUsername" style="color:var(--accent)"></span>
                 </p>
-                <p style="font-family:var(--font-mono);font-size:0.8rem;color:var(--text-secondary);margin-bottom:1.5rem;" id="authPoints"></p>
-                <button class="auth-signout" onclick="doSignOut()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+                <p style="font-family:var(--font-mono);font-size:0.8rem;color:var(--text-secondary);margin-bottom:1.25rem;" id="authPoints"></p>
+                <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+                    <a href="/profile" class="btn-launch" style="text-decoration:none;font-size:0.78rem;padding:0.4rem 0.9rem;">
+                        <i class="fas fa-id-card"></i> Edit Profile
+                    </a>
+                    <button class="auth-signout" onclick="doSignOut()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+                </div>
             </div>
         </div>
     </div>
@@ -920,18 +933,23 @@
             currentUser = user;
 
             // Fetch or auto-create profile
-            let { data: profile } = await sb.from('profiles').select('username').eq('id', user.id).single();
+            let { data: profile } = await sb.from('profiles').select('username, avatar_url').eq('id', user.id).single();
             if (!profile) {
                 const fallback = (user.user_metadata?.username || user.email.split('@')[0])
                                    .replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 20);
                 await sb.from('profiles').insert({ id: user.id, username: fallback });
-                profile = { username: fallback };
+                profile = { username: fallback, avatar_url: null };
             }
 
             const uname = profile.username;
             document.getElementById('authBtn').innerHTML = '<i class="fas fa-user"></i> ' + escHtml(uname);
             document.getElementById('authBtn').classList.add('logged-in');
+            document.getElementById('authBtn').onclick = () => window.location.href = '/profile';
             document.getElementById('authUsername').textContent = uname;
+
+            // Persist for global nav
+            localStorage.setItem('ctf_username', uname);
+            if (profile.avatar_url) localStorage.setItem('ctf_avatar', profile.avatar_url);
 
             // Load solves + update points display
             await refreshSolves(user.id);
@@ -948,8 +966,11 @@
         function onSignedOut() {
             currentUser = null;
             userSolves.clear();
+            localStorage.removeItem('ctf_username');
+            localStorage.removeItem('ctf_avatar');
             document.getElementById('authBtn').innerHTML = '<i class="fas fa-user"></i> sign in';
             document.getElementById('authBtn').classList.remove('logged-in');
+            document.getElementById('authBtn').onclick = openAuthModal;
             document.getElementById('flagSubmitLoggedIn').style.display = 'none';
             document.getElementById('flagSubmitAnon').style.display = '';
             document.getElementById('authSignedOut').style.display = '';
@@ -1024,13 +1045,17 @@
             }
 
             const rows = data.map((row, i) => {
-                const rank    = i + 1;
-                const tier    = rank === 1 ? 'lb-gold' : rank === 2 ? 'lb-silver' : rank === 3 ? 'lb-bronze' : '';
-                const isYou   = currentUser && row.user_id === currentUser.id ? ' lb-you' : '';
-                const medal   = rank === 1 ? '&#127881;' : rank === 2 ? '&#129352;' : rank === 3 ? '&#129353;' : '#' + rank;
+                const rank  = i + 1;
+                const tier  = rank === 1 ? 'lb-gold' : rank === 2 ? 'lb-silver' : rank === 3 ? 'lb-bronze' : '';
+                const isYou = currentUser && row.user_id === currentUser.id ? ' lb-you' : '';
+                const medal = rank === 1 ? '&#127881;' : rank === 2 ? '&#129352;' : rank === 3 ? '&#129353;' : '#' + rank;
+                const avatar = row.avatar_url
+                    ? `<img src="${escHtml(row.avatar_url)}" class="lb-avatar-img" alt="">`
+                    : `<span class="lb-avatar-init">${escHtml(row.username.charAt(0).toUpperCase())}</span>`;
+                const youTag = isYou ? ' <span style="color:var(--text-secondary);font-size:0.7rem;">(you)</span>' : '';
                 return `<tr class="${tier}${isYou}">
                     <td class="lb-rank">${medal}</td>
-                    <td class="lb-name">${escHtml(row.username)}${isYou ? ' <span style="color:var(--text-secondary);font-size:0.7rem;">(you)</span>' : ''}</td>
+                    <td><div class="lb-name-cell">${avatar}${escHtml(row.username)}${youTag}</div></td>
                     <td class="lb-pts">${row.total_points} pts</td>
                     <td>${row.solves_count} solve${row.solves_count !== 1 ? 's' : ''}</td>
                 </tr>`;

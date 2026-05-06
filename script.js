@@ -2394,3 +2394,20 @@ initGuestbook();
         [patInp, flagsInp, testInp].forEach(el => el.addEventListener('input', run));
     })();
 })();
+
+// ── Global CTF auth nav button ────────────────────────────────────────────────
+// Shows username+link to /profile if signed in, otherwise links to /vm to sign in
+(function initAuthNavBtn() {
+    const btn = document.getElementById('authNavBtn');
+    if (!btn) return;
+
+    const username = localStorage.getItem('ctf_username');
+    if (username) {
+        btn.innerHTML = '<i class="fas fa-user"></i> ' + username.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        btn.classList.add('active');
+        btn.onclick = () => window.location.href = '/profile';
+    } else {
+        btn.innerHTML = '<i class="fas fa-user"></i> sign in';
+        btn.onclick = () => window.location.href = '/vm';
+    }
+})();

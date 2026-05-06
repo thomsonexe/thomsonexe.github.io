@@ -1,9 +1,9 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Incident Response â€” Methodology & Playbook | Ben Thomson</title>
+    <title>Incident Response — Methodology & Playbook | Ben Thomson</title>
     <link rel="icon" type="image/png" href="/mouse_t.png">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/writeup.css">
@@ -20,6 +20,7 @@
                 <img src="/mouse_t.png" class="nav-mouse" alt="">
             </a>
             <div class="nav-right">
+                <button class="auth-nav-btn" id="authNavBtn"></button>
                 <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
                 <a href="/vm" class="btn btn-secondary back-btn"><i class="fas fa-terminal"></i> vm</a>
                 <a href="/labs" class="btn btn-secondary back-btn">
@@ -36,8 +37,8 @@
                 <span class="ctf-difficulty medium">Intermediate</span>
                 <span class="writeup-category"><i class="fas fa-tag"></i> Incident Response / DFIR / SOC</span>
             </div>
-            <h1 class="writeup-title">Incident Response â€” Methodology &amp; Playbook</h1>
-            <p class="writeup-subtitle">A practical incident response reference â€” the NIST IR lifecycle, triage checklists, containment strategies, evidence collection, eradication and recovery, and post-incident review.</p>
+            <h1 class="writeup-title">Incident Response — Methodology &amp; Playbook</h1>
+            <p class="writeup-subtitle">A practical incident response reference — the NIST IR lifecycle, triage checklists, containment strategies, evidence collection, eradication and recovery, and post-incident review.</p>
             <div class="writeup-stats">
                 <span><i class="fas fa-clock"></i> 16 min read</span>
                 <span><i class="fas fa-fire-alt"></i> Incident Response</span>
@@ -70,13 +71,13 @@
 
                 <section id="lifecycle" class="writeup-section">
                     <h2><span class="title-prefix">// </span>IR Lifecycle</h2>
-                    <p>The NIST SP 800-61 incident response lifecycle defines four phases that guide how an organisation responds to a security incident. Each phase feeds into the next, and the cycle repeats â€” lessons from post-incident review inform better preparation for the next incident.</p>
+                    <p>The NIST SP 800-61 incident response lifecycle defines four phases that guide how an organisation responds to a security incident. Each phase feeds into the next, and the cycle repeats — lessons from post-incident review inform better preparation for the next incident.</p>
 
                     <div class="concept-grid">
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-tools"></i></div>
                             <h4>1. Preparation</h4>
-                            <p>Build capabilities before incidents happen â€” IR plans, playbooks, tooling, team training, and communication channels.</p>
+                            <p>Build capabilities before incidents happen — IR plans, playbooks, tooling, team training, and communication channels.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-search"></i></div>
@@ -86,19 +87,19 @@
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-lock"></i></div>
                             <h4>3. Containment, Eradication & Recovery</h4>
-                            <p>Stop the attack from spreading, remove the threat, and restore systems to a known-good state â€” in a controlled, documented sequence.</p>
+                            <p>Stop the attack from spreading, remove the threat, and restore systems to a known-good state — in a controlled, documented sequence.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-clipboard-check"></i></div>
                             <h4>4. Post-Incident Activity</h4>
-                            <p>Document what happened, review the response, identify gaps, and implement improvements â€” the lessons-learned loop.</p>
+                            <p>Document what happened, review the response, identify gaps, and implement improvements — the lessons-learned loop.</p>
                         </div>
                     </div>
                 </section>
 
                 <section id="preparation" class="writeup-section">
                     <h2><span class="title-prefix">// </span>1. Preparation</h2>
-                    <p>Preparation is the most important phase â€” the quality of everything else depends on it. Key preparation activities:</p>
+                    <p>Preparation is the most important phase — the quality of everything else depends on it. Key preparation activities:</p>
 
                     <h3 class="sub-heading">IR Plan components</h3>
                     <div class="kql-table-wrap">
@@ -107,17 +108,17 @@
                                 <tr><th>Component</th><th>Description</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Incident classification matrix</td><td>Defines severity levels and what constitutes each â€” P1 through P4</td></tr>
-                                <tr><td>Escalation paths</td><td>Who to contact at each severity â€” SOC lead, CISO, legal, PR, executives</td></tr>
-                                <tr><td>Contact list</td><td>Internal and external contacts â€” MSSP, law enforcement, threat intel vendors, forensics retainer</td></tr>
-                                <tr><td>Playbooks</td><td>Type-specific response procedures â€” phishing, ransomware, insider threat, data breach</td></tr>
-                                <tr><td>Asset inventory</td><td>Critical systems and their owners â€” needed to assess impact and prioritise response</td></tr>
+                                <tr><td>Incident classification matrix</td><td>Defines severity levels and what constitutes each — P1 through P4</td></tr>
+                                <tr><td>Escalation paths</td><td>Who to contact at each severity — SOC lead, CISO, legal, PR, executives</td></tr>
+                                <tr><td>Contact list</td><td>Internal and external contacts — MSSP, law enforcement, threat intel vendors, forensics retainer</td></tr>
+                                <tr><td>Playbooks</td><td>Type-specific response procedures — phishing, ransomware, insider threat, data breach</td></tr>
+                                <tr><td>Asset inventory</td><td>Critical systems and their owners — needed to assess impact and prioritise response</td></tr>
                                 <tr><td>Communication templates</td><td>Pre-approved messaging for internal and external notifications</td></tr>
                             </tbody>
                         </table>
                     </div>
 
-                    <h3 class="sub-heading">Jump bag â€” analyst toolkit</h3>
+                    <h3 class="sub-heading">Jump bag — analyst toolkit</h3>
                     <div class="kql-table-wrap">
                         <table class="kql-table">
                             <thead>
@@ -127,9 +128,9 @@
                                 <tr><td>Forensic imaging (FTK Imager, dd)</td><td>Create disk images before touching a compromised system</td></tr>
                                 <tr><td>Memory capture (WinPmem, Magnet RAM)</td><td>Capture volatile memory before power-off</td></tr>
                                 <tr><td>Log collection scripts</td><td>Pull Windows event logs, prefetch, registry hives, browser artefacts</td></tr>
-                                <tr><td>Hash verification</td><td>sha256sum, md5sum â€” verify integrity of collected evidence</td></tr>
+                                <tr><td>Hash verification</td><td>sha256sum, md5sum — verify integrity of collected evidence</td></tr>
                                 <tr><td>Network packet capture (tcpdump, Wireshark)</td><td>Capture live traffic during active incident</td></tr>
-                                <tr><td>Encrypted note-taking</td><td>Timestamped investigation notes â€” never store on the compromised system</td></tr>
+                                <tr><td>Encrypted note-taking</td><td>Timestamped investigation notes — never store on the compromised system</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -137,7 +138,7 @@
 
                 <section id="detection" class="writeup-section">
                     <h2><span class="title-prefix">// </span>2. Detection &amp; Analysis</h2>
-                    <p>When an alert or report comes in, the first priority is to understand what you're dealing with â€” incident type, scope, severity â€” before taking any action. Acting too fast without understanding the scope can alert the attacker, cause them to accelerate, or result in incomplete containment.</p>
+                    <p>When an alert or report comes in, the first priority is to understand what you're dealing with — incident type, scope, severity — before taking any action. Acting too fast without understanding the scope can alert the attacker, cause them to accelerate, or result in incomplete containment.</p>
 
                     <h3 class="sub-heading">Common detection sources</h3>
                     <div class="kql-table-wrap">
@@ -147,9 +148,9 @@
                             </thead>
                             <tbody>
                                 <tr><td>SIEM alerts</td><td>Correlation rules matching known attack patterns in log data</td></tr>
-                                <tr><td>EDR / XDR alerts</td><td>Behavioural detections on endpoints â€” process injection, LSASS access, lateral movement</td></tr>
-                                <tr><td>User reports</td><td>Phishing clicks, locked files, unusual pop-ups â€” often first detection of ransomware</td></tr>
-                                <tr><td>Help desk tickets</td><td>"My account is locked", "I can't access files" â€” early indicators of compromise</td></tr>
+                                <tr><td>EDR / XDR alerts</td><td>Behavioural detections on endpoints — process injection, LSASS access, lateral movement</td></tr>
+                                <tr><td>User reports</td><td>Phishing clicks, locked files, unusual pop-ups — often first detection of ransomware</td></tr>
+                                <tr><td>Help desk tickets</td><td>"My account is locked", "I can't access files" — early indicators of compromise</td></tr>
                                 <tr><td>Threat intel feeds</td><td>IOCs seen in your environment matching known malicious infrastructure</td></tr>
                                 <tr><td>External notification</td><td>MSSP, CISA, cert team, law enforcement reporting your organisation has been compromised</td></tr>
                             </tbody>
@@ -163,10 +164,10 @@
                                 <tr><th>Severity</th><th>Criteria</th><th>Response time</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>P1 â€” Critical</td><td>Active ransomware / confirmed breach of critical systems / data exfiltration in progress</td><td>Immediate â€” all hands</td></tr>
-                                <tr><td>P2 â€” High</td><td>Confirmed malware / credential theft / lateral movement detected</td><td>Within 1 hour</td></tr>
-                                <tr><td>P3 â€” Medium</td><td>Suspicious activity requiring investigation / policy violation</td><td>Within 4 hours</td></tr>
-                                <tr><td>P4 â€” Low</td><td>Informational / potential phishing / failed attack attempt</td><td>Next business day</td></tr>
+                                <tr><td>P1 — Critical</td><td>Active ransomware / confirmed breach of critical systems / data exfiltration in progress</td><td>Immediate — all hands</td></tr>
+                                <tr><td>P2 — High</td><td>Confirmed malware / credential theft / lateral movement detected</td><td>Within 1 hour</td></tr>
+                                <tr><td>P3 — Medium</td><td>Suspicious activity requiring investigation / policy violation</td><td>Within 4 hours</td></tr>
+                                <tr><td>P4 — Low</td><td>Informational / potential phishing / failed attack attempt</td><td>Next business day</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -179,43 +180,43 @@
                     <div class="code-block">
                         <div class="code-header"><span class="code-lang">IR Triage Checklist</span></div>
                         <pre><code>INITIAL TRIAGE
-â–¡ What is the incident type? (Malware / Phishing / Data Breach / Insider / DDoS)
-â–¡ When did it start? (First-seen timestamp)
-â–¡ What is the severity? (P1 / P2 / P3 / P4)
-â–¡ Is the attack active or historical?
-â–¡ Which systems are affected? (Hostnames, IPs, business criticality)
-â–¡ Which user accounts are involved?
-â–¡ Is sensitive data at risk or confirmed exfiltrated?
-â–¡ Is this a single host or has lateral movement occurred?
+? What is the incident type? (Malware / Phishing / Data Breach / Insider / DDoS)
+? When did it start? (First-seen timestamp)
+? What is the severity? (P1 / P2 / P3 / P4)
+? Is the attack active or historical?
+? Which systems are affected? (Hostnames, IPs, business criticality)
+? Which user accounts are involved?
+? Is sensitive data at risk or confirmed exfiltrated?
+? Is this a single host or has lateral movement occurred?
 
 SCOPE QUESTIONS
-â–¡ Are other hosts showing the same IOCs in the SIEM?
-â–¡ Has the attacker established persistence?
-â–¡ Are there external communications (C2 active)?
-â–¡ Is this a known malware family or campaign?
+? Are other hosts showing the same IOCs in the SIEM?
+? Has the attacker established persistence?
+? Are there external communications (C2 active)?
+? Is this a known malware family or campaign?
 
 DECISIONS TO MAKE
-â–¡ Contain now (risk of tipping off attacker) or observe longer?
-â–¡ Who needs to be notified? (Manager / Legal / PR / Executives)
-â–¡ Do we need law enforcement?
-â–¡ Are there regulatory notification obligations? (GDPR 72h, etc.)</code></pre>
+? Contain now (risk of tipping off attacker) or observe longer?
+? Who needs to be notified? (Manager / Legal / PR / Executives)
+? Do we need law enforcement?
+? Are there regulatory notification obligations? (GDPR 72h, etc.)</code></pre>
                     </div>
                 </section>
 
                 <section id="containment" class="writeup-section">
                     <h2><span class="title-prefix">// </span>3. Containment</h2>
-                    <p>Containment stops the spread without fully shutting down the business. There are two approaches â€” choose based on severity and business impact.</p>
+                    <p>Containment stops the spread without fully shutting down the business. There are two approaches — choose based on severity and business impact.</p>
 
                     <div class="concept-grid">
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-clock"></i></div>
                             <h4>Short-term containment</h4>
-                            <p>Immediate actions to stop spread â€” isolate the compromised host in the EDR, block IOCs at the firewall, disable compromised accounts, reset credentials.</p>
+                            <p>Immediate actions to stop spread — isolate the compromised host in the EDR, block IOCs at the firewall, disable compromised accounts, reset credentials.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-calendar-alt"></i></div>
                             <h4>Long-term containment</h4>
-                            <p>Broader protective measures while investigation continues â€” network segmentation, enhanced monitoring on adjacent systems, patch deployment, out-of-band credential resets.</p>
+                            <p>Broader protective measures while investigation continues — network segmentation, enhanced monitoring on adjacent systems, patch deployment, out-of-band credential resets.</p>
                         </div>
                     </div>
 
@@ -238,7 +239,7 @@ DECISIONS TO MAKE
 
                 <section id="evidence" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Evidence Collection</h2>
-                    <p>Collect evidence in order of volatility â€” most volatile first. Once a system is powered off or reimaged, volatile data is lost permanently.</p>
+                    <p>Collect evidence in order of volatility — most volatile first. Once a system is powered off or reimaged, volatile data is lost permanently.</p>
 
                     <h3 class="sub-heading">Order of volatility</h3>
                     <div class="kql-table-wrap">
@@ -247,19 +248,19 @@ DECISIONS TO MAKE
                                 <tr><th>Priority</th><th>Data type</th><th>Why it's volatile</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>1 â€” Highest</td><td>RAM / memory</td><td>Lost on power-off â€” contains running processes, encryption keys, network connections, plaintext credentials</td></tr>
+                                <tr><td>1 — Highest</td><td>RAM / memory</td><td>Lost on power-off — contains running processes, encryption keys, network connections, plaintext credentials</td></tr>
                                 <tr><td>2</td><td>Network connections (ss, netstat)</td><td>Active connections disappear when the session ends</td></tr>
                                 <tr><td>3</td><td>Running processes (ps aux)</td><td>Malware may clean up on termination or system shutdown</td></tr>
                                 <tr><td>4</td><td>Logged-in users, open files</td><td>Changes with sessions and file access</td></tr>
-                                <tr><td>5</td><td>Disk image / log files</td><td>More stable â€” but still collect before reimaging</td></tr>
-                                <tr><td>6 â€” Lowest</td><td>Archived logs (SIEM)</td><td>Stored remotely â€” least likely to be lost</td></tr>
+                                <tr><td>5</td><td>Disk image / log files</td><td>More stable — but still collect before reimaging</td></tr>
+                                <tr><td>6 — Lowest</td><td>Archived logs (SIEM)</td><td>Stored remotely — least likely to be lost</td></tr>
                             </tbody>
                         </table>
                     </div>
 
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p><strong>Chain of custody.</strong> Every piece of evidence must be documented â€” who collected it, when, from what system, using what tool, and stored where. Hash evidence files immediately after collection. This is critical if the incident leads to legal action or regulatory investigation.</p>
+                        <p><strong>Chain of custody.</strong> Every piece of evidence must be documented — who collected it, when, from what system, using what tool, and stored where. Hash evidence files immediately after collection. This is critical if the incident leads to legal action or regulatory investigation.</p>
                     </div>
                 </section>
 
@@ -274,18 +275,18 @@ DECISIONS TO MAKE
                                 <tr><th>Step</th><th>Description</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Remove malware</td><td>Delete or quarantine all identified malicious files â€” verify with AV/EDR that detection is clean</td></tr>
-                                <tr><td>Remove persistence</td><td>Delete all persistence mechanisms â€” scheduled tasks, registry run keys, startup folders, services, cron jobs</td></tr>
-                                <tr><td>Reset credentials</td><td>Reset all accounts that may have been compromised â€” don't skip service accounts or cloud identities</td></tr>
-                                <tr><td>Revoke sessions/tokens</td><td>Force logout of all active sessions in identity providers â€” invalidate OAuth tokens, session cookies</td></tr>
-                                <tr><td>Patch vulnerabilities</td><td>Apply patches for the vulnerability used for initial access â€” validate they're applied before reconnecting</td></tr>
-                                <tr><td>Verify clean state</td><td>Run AV/EDR full scan, review process list and network connections â€” confirm no remaining indicators</td></tr>
+                                <tr><td>Remove malware</td><td>Delete or quarantine all identified malicious files — verify with AV/EDR that detection is clean</td></tr>
+                                <tr><td>Remove persistence</td><td>Delete all persistence mechanisms — scheduled tasks, registry run keys, startup folders, services, cron jobs</td></tr>
+                                <tr><td>Reset credentials</td><td>Reset all accounts that may have been compromised — don't skip service accounts or cloud identities</td></tr>
+                                <tr><td>Revoke sessions/tokens</td><td>Force logout of all active sessions in identity providers — invalidate OAuth tokens, session cookies</td></tr>
+                                <tr><td>Patch vulnerabilities</td><td>Apply patches for the vulnerability used for initial access — validate they're applied before reconnecting</td></tr>
+                                <tr><td>Verify clean state</td><td>Run AV/EDR full scan, review process list and network connections — confirm no remaining indicators</td></tr>
                             </tbody>
                         </table>
                     </div>
 
                     <h3 class="sub-heading">Recovery</h3>
-                    <p>Restore systems from known-good backups (verify backup integrity first). Reimage compromised hosts where there's any doubt about completeness of eradication. Reconnect to the network incrementally â€” monitor closely for 30+ days post-recovery for signs of re-infection or remaining access.</p>
+                    <p>Restore systems from known-good backups (verify backup integrity first). Reimage compromised hosts where there's any doubt about completeness of eradication. Reconnect to the network incrementally — monitor closely for 30+ days post-recovery for signs of re-infection or remaining access.</p>
                 </section>
 
                 <section id="postincident" class="writeup-section">
@@ -299,13 +300,13 @@ DECISIONS TO MAKE
                                 <tr><th>Section</th><th>Contents</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Executive summary</td><td>Plain-language summary of what happened, impact, and resolution â€” for non-technical leadership</td></tr>
-                                <tr><td>Timeline</td><td>Chronological sequence from first indicator to closure â€” each event timestamped</td></tr>
-                                <tr><td>Root cause</td><td>The initial access vector â€” unpatched vulnerability, phishing, weak credentials, misconfiguration</td></tr>
+                                <tr><td>Executive summary</td><td>Plain-language summary of what happened, impact, and resolution — for non-technical leadership</td></tr>
+                                <tr><td>Timeline</td><td>Chronological sequence from first indicator to closure — each event timestamped</td></tr>
+                                <tr><td>Root cause</td><td>The initial access vector — unpatched vulnerability, phishing, weak credentials, misconfiguration</td></tr>
                                 <tr><td>Impact</td><td>Systems affected, data accessed or exfiltrated, business disruption, financial impact</td></tr>
-                                <tr><td>Response actions</td><td>Everything done to contain, eradicate, and recover â€” with rationale for decisions made</td></tr>
+                                <tr><td>Response actions</td><td>Everything done to contain, eradicate, and recover — with rationale for decisions made</td></tr>
                                 <tr><td>Lessons learned</td><td>What worked, what didn't, and what needs to change</td></tr>
-                                <tr><td>Recommendations</td><td>Prioritised action items to prevent recurrence â€” with owners and deadlines</td></tr>
+                                <tr><td>Recommendations</td><td>Prioritised action items to prevent recurrence — with owners and deadlines</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -320,7 +321,7 @@ DECISIONS TO MAKE
                     <h2><span class="title-prefix">// </span>Communication &amp; Escalation</h2>
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p><strong>Never communicate about a live incident over channels you suspect are compromised.</strong> If email or Slack may be compromised, use out-of-band communication â€” phone, Signal, in-person. Attackers monitor your communication channels during an incident to understand your response and cover their tracks.</p>
+                        <p><strong>Never communicate about a live incident over channels you suspect are compromised.</strong> If email or Slack may be compromised, use out-of-band communication — phone, Signal, in-person. Attackers monitor your communication channels during an incident to understand your response and cover their tracks.</p>
                     </div>
 
                     <h3 class="sub-heading">Escalation triggers</h3>
@@ -330,12 +331,12 @@ DECISIONS TO MAKE
                                 <tr><th>Trigger</th><th>Who to notify</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Personal data suspected or confirmed breached</td><td>DPO / Legal â€” GDPR requires notification within 72 hours</td></tr>
-                                <tr><td>Ransomware or critical system outage</td><td>CISO / Executives / Board â€” business continuity decisions needed</td></tr>
+                                <tr><td>Personal data suspected or confirmed breached</td><td>DPO / Legal — GDPR requires notification within 72 hours</td></tr>
+                                <tr><td>Ransomware or critical system outage</td><td>CISO / Executives / Board — business continuity decisions needed</td></tr>
                                 <tr><td>Nation-state or sophisticated threat actor</td><td>CISA, NCSC, or relevant national cyber agency</td></tr>
-                                <tr><td>Criminal activity (fraud, extortion)</td><td>Law enforcement â€” FBI IC3, Action Fraud, local police</td></tr>
+                                <tr><td>Criminal activity (fraud, extortion)</td><td>Law enforcement — FBI IC3, Action Fraud, local police</td></tr>
                                 <tr><td>Customer or partner data at risk</td><td>Legal for breach notification obligations</td></tr>
-                                <tr><td>Public-facing systems compromised</td><td>PR / Communications â€” manage public messaging</td></tr>
+                                <tr><td>Public-facing systems compromised</td><td>PR / Communications — manage public messaging</td></tr>
                             </tbody>
                         </table>
                     </div>

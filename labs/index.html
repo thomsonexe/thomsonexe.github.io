@@ -1,4 +1,4 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
@@ -31,6 +31,7 @@
                 
             </ul>
             <div class="nav-right">
+                <button class="auth-nav-btn" id="authNavBtn"></button>
                 <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
                 <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
                     <span></span><span></span><span></span>
@@ -85,7 +86,7 @@
                     </div>
                     <h3 class="ctf-title">Prompt Injection</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> AI Security / LLM Attacks</p>
-                    <p class="ctf-excerpt">How LLMs can be manipulated through direct and indirect prompt injection â€” covering real-world incidents, injection techniques, and a hands-on practical with CalBot.</p>
+                    <p class="ctf-excerpt">How LLMs can be manipulated through direct and indirect prompt injection — covering real-world incidents, injection techniques, and a hands-on practical with CalBot.</p>
                     <a href="/prompt-injection" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -107,7 +108,7 @@
                     </div>
                     <h3 class="ctf-title">KQL & Log Analytics</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> SIEM / Threat Hunting</p>
-                    <p class="ctf-excerpt">A practical KQL reference for Microsoft Sentinel â€” covering key operators, Sentinel tables, authentication and endpoint queries, and threat hunting techniques with real-world examples.</p>
+                    <p class="ctf-excerpt">A practical KQL reference for Microsoft Sentinel — covering key operators, Sentinel tables, authentication and endpoint queries, and threat hunting techniques with real-world examples.</p>
                     <a href="/writeup-kql" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -116,9 +117,9 @@
                         <span class="ctf-platform forensics">Forensics</span>
                         <span class="ctf-difficulty easy">Beginner</span>
                     </div>
-                    <h3 class="ctf-title">Autopsy â€” Digital Forensics</h3>
+                    <h3 class="ctf-title">Autopsy — Digital Forensics</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Digital Forensics / DFIR</p>
-                    <p class="ctf-excerpt">A practical guide to Autopsy â€” building a case, adding disk images, recovering deleted files, extracting browser and registry artefacts, and generating investigation reports.</p>
+                    <p class="ctf-excerpt">A practical guide to Autopsy — building a case, adding disk images, recovering deleted files, extracting browser and registry artefacts, and generating investigation reports.</p>
                     <a href="/writeup-autopsy" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -127,9 +128,9 @@
                         <span class="ctf-platform forensics">Forensics</span>
                         <span class="ctf-difficulty medium">Intermediate</span>
                     </div>
-                    <h3 class="ctf-title">Volatility â€” Memory Forensics</h3>
+                    <h3 class="ctf-title">Volatility — Memory Forensics</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Memory Forensics / Malware Analysis</p>
-                    <p class="ctf-excerpt">A practical guide to Volatility 3 â€” analysing memory dumps to uncover running processes, network connections, injected shellcode, registry persistence, and hidden malware.</p>
+                    <p class="ctf-excerpt">A practical guide to Volatility 3 — analysing memory dumps to uncover running processes, network connections, injected shellcode, registry persistence, and hidden malware.</p>
                     <a href="/writeup-volatility" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -138,9 +139,9 @@
                         <span class="ctf-platform network">Network</span>
                         <span class="ctf-difficulty easy">Beginner</span>
                     </div>
-                    <h3 class="ctf-title">Wireshark â€” Network Analysis</h3>
+                    <h3 class="ctf-title">Wireshark — Network Analysis</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Network Analysis / Packet Capture</p>
-                    <p class="ctf-excerpt">A practical guide to Wireshark â€” capture and display filters, protocol dissection, following streams, spotting C2 beaconing and DNS exfiltration, and extracting artefacts from packet captures.</p>
+                    <p class="ctf-excerpt">A practical guide to Wireshark — capture and display filters, protocol dissection, following streams, spotting C2 beaconing and DNS exfiltration, and extracting artefacts from packet captures.</p>
                     <a href="/writeup-wireshark" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -151,7 +152,7 @@
                     </div>
                     <h3 class="ctf-title">Rapid7 InsightVM</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Vulnerability Management</p>
-                    <p class="ctf-excerpt">A practical introduction to InsightVM â€” core concepts, scanning workflow, understanding risk scores, and how to prioritise vulnerabilities across your organisation.</p>
+                    <p class="ctf-excerpt">A practical introduction to InsightVM — core concepts, scanning workflow, understanding risk scores, and how to prioritise vulnerabilities across your organisation.</p>
                     <a href="/blog-rapid7-ivm" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -160,9 +161,9 @@
                         <span class="ctf-platform detection">Detection</span>
                         <span class="ctf-difficulty medium">Intermediate</span>
                     </div>
-                    <h3 class="ctf-title">Active Directory â€” Blue Team</h3>
+                    <h3 class="ctf-title">Active Directory — Blue Team</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Active Directory / Threat Hunting / Windows</p>
-                    <p class="ctf-excerpt">Detecting the most common Active Directory attacks â€” Kerberoasting, Pass-the-Hash, DCSync, Golden Tickets, and LDAP enumeration â€” using Windows Event Logs and key IOCs.</p>
+                    <p class="ctf-excerpt">Detecting the most common Active Directory attacks — Kerberoasting, Pass-the-Hash, DCSync, Golden Tickets, and LDAP enumeration — using Windows Event Logs and key IOCs.</p>
                     <a href="/writeup-active-directory" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -173,7 +174,7 @@
                     </div>
                     <h3 class="ctf-title">Linux Log Analysis</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Linux / Log Analysis / DFIR</p>
-                    <p class="ctf-excerpt">A practical reference for investigating Linux systems â€” covering key log files, SSH attack patterns, privilege escalation indicators, persistence mechanisms, and the commands to find them.</p>
+                    <p class="ctf-excerpt">A practical reference for investigating Linux systems — covering key log files, SSH attack patterns, privilege escalation indicators, persistence mechanisms, and the commands to find them.</p>
                     <a href="/writeup-linux-logs" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -184,18 +185,18 @@
                     </div>
                     <h3 class="ctf-title">Email Header Analysis</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Email Analysis / Phishing / Threat Intel</p>
-                    <p class="ctf-excerpt">Reading and analysing email headers â€” tracing the delivery path, validating SPF, DKIM, and DMARC, identifying spoofing attempts, and extracting IOCs from suspicious emails.</p>
+                    <p class="ctf-excerpt">Reading and analysing email headers — tracing the delivery path, validating SPF, DKIM, and DMARC, identifying spoofing attempts, and extracting IOCs from suspicious emails.</p>
                     <a href="/writeup-email-headers" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
                 <div class="ctf-card" data-platform="revision">
                     <div class="ctf-meta">
                         <span class="ctf-platform revision">Revision</span>
-                        <span class="ctf-difficulty easy">Beginner â€“ Intermediate</span>
+                        <span class="ctf-difficulty easy">Beginner – Intermediate</span>
                     </div>
                     <h3 class="ctf-title">CompTIA Security+ SY0-701</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Certification / Exam Prep</p>
-                    <p class="ctf-excerpt">A revision reference for the Security+ exam â€” all five domains, key concepts, important terminology, CIA triad, encryption, attack types, IR phases, and exam strategy tips.</p>
+                    <p class="ctf-excerpt">A revision reference for the Security+ exam — all five domains, key concepts, important terminology, CIA triad, encryption, attack types, IR phases, and exam strategy tips.</p>
                     <a href="/writeup-secplus" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -206,18 +207,18 @@
                     </div>
                     <h3 class="ctf-title">CompTIA SecurityX CAS-005</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Certification / Exam Prep</p>
-                    <p class="ctf-excerpt">A revision reference for the SecurityX CAS-005 exam â€” security architecture, advanced operations, cryptography, threat hunting, GRC, and what separates it from Security+.</p>
+                    <p class="ctf-excerpt">A revision reference for the SecurityX CAS-005 exam — security architecture, advanced operations, cryptography, threat hunting, GRC, and what separates it from Security+.</p>
                     <a href="/writeup-securityx" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
                 <div class="ctf-card" data-platform="revision">
                     <div class="ctf-meta">
                         <span class="ctf-platform revision">Revision</span>
-                        <span class="ctf-difficulty easy">Beginner â€“ Intermediate</span>
+                        <span class="ctf-difficulty easy">Beginner – Intermediate</span>
                     </div>
                     <h3 class="ctf-title">CompTIA Network+ N10-009</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Certification / Exam Prep</p>
-                    <p class="ctf-excerpt">A revision reference for the Network+ exam â€” OSI model, subnetting, common ports and protocols, network devices, wireless standards, network security, and troubleshooting methodology.</p>
+                    <p class="ctf-excerpt">A revision reference for the Network+ exam — OSI model, subnetting, common ports and protocols, network devices, wireless standards, network security, and troubleshooting methodology.</p>
                     <a href="/writeup-netplus" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -226,9 +227,9 @@
                         <span class="ctf-platform revision">Revision</span>
                         <span class="ctf-difficulty medium">Intermediate</span>
                     </div>
-                    <h3 class="ctf-title">BTL1 â€” Blue Team Level 1</h3>
+                    <h3 class="ctf-title">BTL1 — Blue Team Level 1</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Certification / Exam Prep</p>
-                    <p class="ctf-excerpt">A revision reference for the Security Blue Team BTL1 24-hour practical exam â€” phishing analysis, threat intelligence, Autopsy, Volatility, Splunk SPL, incident response, and report writing.</p>
+                    <p class="ctf-excerpt">A revision reference for the Security Blue Team BTL1 24-hour practical exam — phishing analysis, threat intelligence, Autopsy, Volatility, Splunk SPL, incident response, and report writing.</p>
                     <a href="/writeup-btl1" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -237,9 +238,9 @@
                         <span class="ctf-platform detection">Detection</span>
                         <span class="ctf-difficulty medium">Intermediate</span>
                     </div>
-                    <h3 class="ctf-title">Splunk SPL â€” SIEM & Threat Hunting</h3>
+                    <h3 class="ctf-title">Splunk SPL — SIEM & Threat Hunting</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> SIEM / Threat Hunting / Log Analysis</p>
-                    <p class="ctf-excerpt">A practical SPL reference for SOC analysts â€” search syntax, statistical commands, field extraction, time modifiers, subsearches, and real-world threat hunting queries for common attack patterns.</p>
+                    <p class="ctf-excerpt">A practical SPL reference for SOC analysts — search syntax, statistical commands, field extraction, time modifiers, subsearches, and real-world threat hunting queries for common attack patterns.</p>
                     <a href="/writeup-splunk" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -248,9 +249,9 @@
                         <span class="ctf-platform detection">Detection</span>
                         <span class="ctf-difficulty medium">Intermediate</span>
                     </div>
-                    <h3 class="ctf-title">Cortex XDR â€” Threat Detection & Response</h3>
+                    <h3 class="ctf-title">Cortex XDR — Threat Detection & Response</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> XDR / EDR / Threat Detection</p>
-                    <p class="ctf-excerpt">A practical guide to Palo Alto Cortex XDR â€” incident management, alert triage, causality chain analysis, response actions, and XQL threat hunting queries for SOC analysts.</p>
+                    <p class="ctf-excerpt">A practical guide to Palo Alto Cortex XDR — incident management, alert triage, causality chain analysis, response actions, and XQL threat hunting queries for SOC analysts.</p>
                     <a href="/writeup-cortex-xdr" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -259,9 +260,9 @@
                         <span class="ctf-platform detection">Detection</span>
                         <span class="ctf-difficulty medium">Intermediate</span>
                     </div>
-                    <h3 class="ctf-title">Cortex XSOAR â€” SOAR & Automation</h3>
+                    <h3 class="ctf-title">Cortex XSOAR — SOAR & Automation</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> SOAR / Automation / Incident Response</p>
-                    <p class="ctf-excerpt">A practical guide to Palo Alto Cortex XSOAR â€” playbooks, incident management, war room investigation, context data, integrations, and automation scripts for SOC orchestration.</p>
+                    <p class="ctf-excerpt">A practical guide to Palo Alto Cortex XSOAR — playbooks, incident management, war room investigation, context data, integrations, and automation scripts for SOC orchestration.</p>
                     <a href="/writeup-xsoar" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -270,9 +271,9 @@
                         <span class="ctf-platform detection">Detection</span>
                         <span class="ctf-difficulty medium">Intermediate</span>
                     </div>
-                    <h3 class="ctf-title">Microsoft Entra ID â€” Identity Security</h3>
+                    <h3 class="ctf-title">Microsoft Entra ID — Identity Security</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Identity / Cloud / Zero Trust</p>
-                    <p class="ctf-excerpt">A practical guide to Microsoft Entra ID â€” sign-in log investigation, Conditional Access, Identity Protection, risky users, PIM, and detecting identity-based attacks including AiTM and password spray.</p>
+                    <p class="ctf-excerpt">A practical guide to Microsoft Entra ID — sign-in log investigation, Conditional Access, Identity Protection, risky users, PIM, and detecting identity-based attacks including AiTM and password spray.</p>
                     <a href="/writeup-entra-id" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -281,9 +282,9 @@
                         <span class="ctf-platform forensics">Forensics</span>
                         <span class="ctf-difficulty easy">Beginner</span>
                     </div>
-                    <h3 class="ctf-title">Linux Commands â€” Security Reference</h3>
+                    <h3 class="ctf-title">Linux Commands — Security Reference</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Linux / CLI / DFIR</p>
-                    <p class="ctf-excerpt">An essential Linux CLI reference for security analysts â€” file navigation, user investigation, process and network analysis, log searching, file integrity checking, and persistence hunting.</p>
+                    <p class="ctf-excerpt">An essential Linux CLI reference for security analysts — file navigation, user investigation, process and network analysis, log searching, file integrity checking, and persistence hunting.</p>
                     <a href="/writeup-linux-commands" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -292,9 +293,9 @@
                         <span class="ctf-platform forensics">Forensics</span>
                         <span class="ctf-difficulty easy">Beginner</span>
                     </div>
-                    <h3 class="ctf-title">Any.Run â€” Malware Sandbox Analysis</h3>
+                    <h3 class="ctf-title">Any.Run — Malware Sandbox Analysis</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Malware Analysis / Sandbox / DFIR</p>
-                    <p class="ctf-excerpt">A practical guide to Any.Run â€” submitting samples, reading process trees, analysing network activity, extracting IOCs, and mapping malware behaviour to MITRE ATT&amp;CK for incident response.</p>
+                    <p class="ctf-excerpt">A practical guide to Any.Run — submitting samples, reading process trees, analysing network activity, extracting IOCs, and mapping malware behaviour to MITRE ATT&amp;CK for incident response.</p>
                     <a href="/writeup-anyrun" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -305,7 +306,7 @@
                     </div>
                     <h3 class="ctf-title">Microsoft Defender for Endpoint</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> EDR / Threat Detection / Microsoft</p>
-                    <p class="ctf-excerpt">A practical guide to MDE â€” alert investigation, device timeline, Advanced Hunting with KQL, response actions, Threat &amp; Vulnerability Management, and Attack Surface Reduction rules.</p>
+                    <p class="ctf-excerpt">A practical guide to MDE — alert investigation, device timeline, Advanced Hunting with KQL, response actions, Threat &amp; Vulnerability Management, and Attack Surface Reduction rules.</p>
                     <a href="/writeup-mde" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -314,9 +315,9 @@
                         <span class="ctf-platform forensics">Forensics</span>
                         <span class="ctf-difficulty medium">Intermediate</span>
                     </div>
-                    <h3 class="ctf-title">Incident Response â€” Methodology & Playbook</h3>
+                    <h3 class="ctf-title">Incident Response — Methodology & Playbook</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Incident Response / DFIR / SOC</p>
-                    <p class="ctf-excerpt">A practical IR reference â€” the NIST lifecycle, triage checklists, containment strategies by incident type, evidence collection order of volatility, eradication, and post-incident review.</p>
+                    <p class="ctf-excerpt">A practical IR reference — the NIST lifecycle, triage checklists, containment strategies by incident type, evidence collection order of volatility, eradication, and post-incident review.</p>
                     <a href="/writeup-incident-response" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -325,9 +326,9 @@
                         <span class="ctf-platform forensics">Forensics</span>
                         <span class="ctf-difficulty easy">Beginner</span>
                     </div>
-                    <h3 class="ctf-title">FTK Imager â€” Digital Forensics</h3>
+                    <h3 class="ctf-title">FTK Imager — Digital Forensics</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Digital Forensics / Disk Imaging / DFIR</p>
-                    <p class="ctf-excerpt">A practical guide to FTK Imager â€” creating forensically sound disk images, browsing evidence, recovering deleted files, exporting artefacts, capturing live memory, and verifying hash integrity.</p>
+                    <p class="ctf-excerpt">A practical guide to FTK Imager — creating forensically sound disk images, browsing evidence, recovering deleted files, exporting artefacts, capturing live memory, and verifying hash integrity.</p>
                     <a href="/writeup-ftk-imager" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -336,9 +337,9 @@
                         <span class="ctf-platform detection">Detection</span>
                         <span class="ctf-difficulty medium">Intermediate</span>
                     </div>
-                    <h3 class="ctf-title">PowerShell for Security â€” Blue Team Reference</h3>
+                    <h3 class="ctf-title">PowerShell for Security — Blue Team Reference</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> PowerShell / Windows / Threat Hunting</p>
-                    <p class="ctf-excerpt">A practical PowerShell reference for blue team analysts â€” system and network investigation, event log querying, Active Directory queries, persistence hunting, remote investigation, and defensive hardening.</p>
+                    <p class="ctf-excerpt">A practical PowerShell reference for blue team analysts — system and network investigation, event log querying, Active Directory queries, persistence hunting, remote investigation, and defensive hardening.</p>
                     <a href="/writeup-powershell" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -347,9 +348,9 @@
                         <span class="ctf-platform network">Network</span>
                         <span class="ctf-difficulty easy">Beginner</span>
                     </div>
-                    <h3 class="ctf-title">Nmap â€” Network Scanning Reference</h3>
+                    <h3 class="ctf-title">Nmap — Network Scanning Reference</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Network Scanning / Reconnaissance / Enumeration</p>
-                    <p class="ctf-excerpt">A practical Nmap reference â€” host discovery, port scanning techniques, service and OS detection, NSE scripts, output formats, and common ports reference for asset discovery and vulnerability assessment.</p>
+                    <p class="ctf-excerpt">A practical Nmap reference — host discovery, port scanning techniques, service and OS detection, NSE scripts, output formats, and common ports reference for asset discovery and vulnerability assessment.</p>
                     <a href="/writeup-nmap" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -358,9 +359,9 @@
                         <span class="ctf-platform detection">Detection</span>
                         <span class="ctf-difficulty medium">Intermediate</span>
                     </div>
-                    <h3 class="ctf-title">Sysmon â€” Windows Event Telemetry</h3>
+                    <h3 class="ctf-title">Sysmon — Windows Event Telemetry</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Windows / Sysmon / Threat Hunting</p>
-                    <p class="ctf-excerpt">A practical guide to deploying and using Sysmon â€” key event IDs, configuration, hunting queries for credential dumping, process injection, named pipe C2, and lateral movement detection.</p>
+                    <p class="ctf-excerpt">A practical guide to deploying and using Sysmon — key event IDs, configuration, hunting queries for credential dumping, process injection, named pipe C2, and lateral movement detection.</p>
                     <a href="/writeup-sysmon" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -371,7 +372,7 @@
                     </div>
                     <h3 class="ctf-title">YARA Rule Writing</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Malware Analysis / YARA / Detection Engineering</p>
-                    <p class="ctf-excerpt">A practical guide to writing YARA rules â€” rule structure, string types, modifiers, conditions, and real examples for detecting Mimikatz, XOR-obfuscated shellcode, and PowerShell download cradles.</p>
+                    <p class="ctf-excerpt">A practical guide to writing YARA rules — rule structure, string types, modifiers, conditions, and real examples for detecting Mimikatz, XOR-obfuscated shellcode, and PowerShell download cradles.</p>
                     <a href="/writeup-yara" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -382,7 +383,7 @@
                     </div>
                     <h3 class="ctf-title">Threat Intelligence &amp; IOC Analysis</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Threat Intelligence / OSINT / IOC Analysis</p>
-                    <p class="ctf-excerpt">A practical guide to threat intelligence â€” IOC types, enrichment tools (VirusTotal, Shodan, MISP), threat feeds, investigation workflow, the Pyramid of Pain, and the Diamond Model.</p>
+                    <p class="ctf-excerpt">A practical guide to threat intelligence — IOC types, enrichment tools (VirusTotal, Shodan, MISP), threat feeds, investigation workflow, the Pyramid of Pain, and the Diamond Model.</p>
                     <a href="/writeup-threat-intel" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -393,7 +394,7 @@
                     </div>
                     <h3 class="ctf-title">Windows Registry Forensics</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Windows / Registry / Persistence / DFIR</p>
-                    <p class="ctf-excerpt">A practical reference for registry forensics â€” hive file locations, persistence run keys, forensic artefacts (shellbags, UserAssist, USB history), and PowerShell investigation commands.</p>
+                    <p class="ctf-excerpt">A practical reference for registry forensics — hive file locations, persistence run keys, forensic artefacts (shellbags, UserAssist, USB history), and PowerShell investigation commands.</p>
                     <a href="/writeup-registry" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -404,7 +405,7 @@
                     </div>
                     <h3 class="ctf-title">DNS Threat Hunting</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Network / DNS / Threat Hunting</p>
-                    <p class="ctf-excerpt">A practical guide to hunting threats through DNS â€” record types, suspicious patterns, DGA detection, DNS tunneling, C2 over DNS beaconing, and hunting queries using Sysmon and DnsEvents.</p>
+                    <p class="ctf-excerpt">A practical guide to hunting threats through DNS — record types, suspicious patterns, DGA detection, DNS tunneling, C2 over DNS beaconing, and hunting queries using Sysmon and DnsEvents.</p>
                     <a href="/writeup-dns" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -413,9 +414,9 @@
                         <span class="ctf-platform network">Network</span>
                         <span class="ctf-difficulty medium">Intermediate</span>
                     </div>
-                    <h3 class="ctf-title">Suricata IDS â€” Rules &amp; Analysis</h3>
+                    <h3 class="ctf-title">Suricata IDS — Rules &amp; Analysis</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> IDS / Network Detection / Rule Writing</p>
-                    <p class="ctf-excerpt">A practical guide to Suricata â€” rule anatomy, actions, protocol headers, key rule options, example detections for C2 and tunneling, EVE JSON log analysis, and tuning for production environments.</p>
+                    <p class="ctf-excerpt">A practical guide to Suricata — rule anatomy, actions, protocol headers, key rule options, example detections for C2 and tunneling, EVE JSON log analysis, and tuning for production environments.</p>
                     <a href="/writeup-suricata" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
@@ -426,7 +427,7 @@
                     </div>
                     <h3 class="ctf-title">AWS CloudTrail Threat Hunting</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Cloud / AWS / Threat Hunting</p>
-                    <p class="ctf-excerpt">A practical guide to hunting threats in AWS â€” key CloudTrail API events, GuardDuty findings, IAM enumeration detection, persistence mechanisms, and Athena SQL queries for cloud investigations.</p>
+                    <p class="ctf-excerpt">A practical guide to hunting threats in AWS — key CloudTrail API events, GuardDuty findings, IAM enumeration detection, persistence mechanisms, and Athena SQL queries for cloud investigations.</p>
                     <a href="/writeup-aws" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 

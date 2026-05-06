@@ -1,4 +1,4 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
@@ -20,6 +20,7 @@
                 <img src="/mouse_t.png" class="nav-mouse" alt="">
             </a>
             <div class="nav-right">
+                <button class="auth-nav-btn" id="authNavBtn"></button>
                 <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
                 <a href="/vm" class="btn btn-secondary back-btn"><i class="fas fa-terminal"></i> vm</a>
                 <a href="/labs" class="btn btn-secondary back-btn">
@@ -37,7 +38,7 @@
                 <span class="writeup-category"><i class="fas fa-tag"></i> Threat Intelligence / OSINT / IOC Analysis</span>
             </div>
             <h1 class="writeup-title">Threat Intelligence &amp; IOC Analysis</h1>
-            <p class="writeup-subtitle">A practical guide to threat intelligence â€” IOC types, enrichment tools, OSINT sources, threat feeds, and a structured workflow for investigating suspicious indicators.</p>
+            <p class="writeup-subtitle">A practical guide to threat intelligence — IOC types, enrichment tools, OSINT sources, threat feeds, and a structured workflow for investigating suspicious indicators.</p>
             <div class="writeup-stats">
                 <span><i class="fas fa-clock"></i> 15 min read</span>
                 <span><i class="fas fa-tools"></i> 12+ tools</span>
@@ -68,8 +69,8 @@
 
                 <section id="intro" class="writeup-section">
                     <h2><span class="title-prefix">// </span>What is Threat Intelligence?</h2>
-                    <p>Threat intelligence (TI) is evidence-based knowledge about threats â€” who is attacking, how they operate, what infrastructure they use, and what their objectives are. For SOC analysts, practical TI primarily means enriching indicators of compromise (IOCs) to understand whether a suspicious IP, domain, hash, or email address is malicious and what threat actor or campaign it belongs to.</p>
-                    <p>TI is commonly split into three tiers: <strong>strategic</strong> (APT reports, industry trends â€” for management), <strong>operational</strong> (TTPs, campaign analysis â€” for security architects), and <strong>tactical</strong> (IOCs, YARA rules, Sigma rules â€” for analysts).</p>
+                    <p>Threat intelligence (TI) is evidence-based knowledge about threats — who is attacking, how they operate, what infrastructure they use, and what their objectives are. For SOC analysts, practical TI primarily means enriching indicators of compromise (IOCs) to understand whether a suspicious IP, domain, hash, or email address is malicious and what threat actor or campaign it belongs to.</p>
+                    <p>TI is commonly split into three tiers: <strong>strategic</strong> (APT reports, industry trends — for management), <strong>operational</strong> (TTPs, campaign analysis — for security architects), and <strong>tactical</strong> (IOCs, YARA rules, Sigma rules — for analysts).</p>
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
                         <p>IOCs have a short shelf life. IP addresses used by C2 servers rotate within days. Focus on TTPs (how attackers behave) for durable detection value, not just raw IOC lists.</p>
@@ -93,7 +94,7 @@
                                 <tr><td>Registry Key</td><td><code>HKCU\...\Run\PersistMalware</code></td><td>Medium</td><td>More durable than network IOCs; specific persistence locations are reused</td></tr>
                                 <tr><td>Mutex</td><td><code>Global\\ControlMutex01</code></td><td>Medium</td><td>Malware families often reuse mutexes across versions</td></tr>
                                 <tr><td>User-Agent</td><td><code>Mozilla/5.0 (compatible; MSIE 9.0)</code></td><td>Medium</td><td>Custom UAs in malware C2 are often reused; useful in proxy logs</td></tr>
-                                <tr><td>JARM / JA3</td><td>TLS fingerprint</td><td>Mediumâ€“High</td><td>TLS fingerprints are harder to change; effective for C2 detection in encrypted traffic</td></tr>
+                                <tr><td>JARM / JA3</td><td>TLS fingerprint</td><td>Medium–High</td><td>TLS fingerprints are harder to change; effective for C2 detection in encrypted traffic</td></tr>
                                 <tr><td>TTP (MITRE ATT&CK)</td><td>T1059.001 PowerShell</td><td>High</td><td>Behavioural patterns persist across campaigns and tool changes</td></tr>
                             </tbody>
                         </table>
@@ -109,7 +110,7 @@
                                 <tr><th>Tool</th><th>Best For</th><th>Free Tier?</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td><strong>VirusTotal</strong></td><td>File hashes, IPs, domains, URLs â€” multi-engine scanning and historical data</td><td>Yes (limited)</td></tr>
+                                <tr><td><strong>VirusTotal</strong></td><td>File hashes, IPs, domains, URLs — multi-engine scanning and historical data</td><td>Yes (limited)</td></tr>
                                 <tr><td><strong>Shodan</strong></td><td>Banner grabbing IPs, finding C2 infrastructure, exposed services</td><td>Yes (limited)</td></tr>
                                 <tr><td><strong>AbuseIPDB</strong></td><td>IP reputation, abuse reports with categories and confidence scores</td><td>Yes</td></tr>
                                 <tr><td><strong>URLScan.io</strong></td><td>Scanning URLs, screenshots, DOM analysis, redirect chains</td><td>Yes</td></tr>
@@ -163,8 +164,8 @@
                                 <tr><td>3</td><td>Look up WHOIS / registration history for domains</td><td>Whois lookup, DomainTools</td></tr>
                                 <tr><td>4</td><td>Check hosting provider and geo for IPs</td><td>Shodan, ipinfo.io</td></tr>
                                 <tr><td>5</td><td>Search for the IOC in threat intel platforms</td><td>OTX, MISP, Pulsedive</td></tr>
-                                <tr><td>6</td><td>Pivot â€” what else is hosted on that IP/domain?</td><td>Censys, Shodan, VirusTotal graph</td></tr>
-                                <tr><td>7</td><td>Correlate with internal logs â€” who touched it?</td><td>SIEM, EDR</td></tr>
+                                <tr><td>6</td><td>Pivot — what else is hosted on that IP/domain?</td><td>Censys, Shodan, VirusTotal graph</td></tr>
+                                <tr><td>7</td><td>Correlate with internal logs — who touched it?</td><td>SIEM, EDR</td></tr>
                                 <tr><td>8</td><td>Determine if indicator is internal or ISP-shared</td><td>RFC 1918 check, ASN lookup</td></tr>
                                 <tr><td>9</td><td>Document findings and assign confidence level</td><td>Ticket / SOAR platform</td></tr>
                                 <tr><td>10</td><td>Share enriched IOCs with team / block if confirmed</td><td>MISP, EDR, firewall</td></tr>
@@ -180,7 +181,7 @@
                     <p>The Diamond Model represents an intrusion event across four axes: <strong>Adversary</strong> (who), <strong>Capability</strong> (what tool/exploit), <strong>Infrastructure</strong> (IP, domain, C2), and <strong>Victim</strong> (who was targeted). Pivoting between axes reveals related infrastructure and campaigns.</p>
 
                     <h3>Pyramid of Pain</h3>
-                    <p>Created by David Bianco, the Pyramid of Pain ranks IOC types by how much pain they cause an adversary when blocked. Hash â†’ IP â†’ Domain â†’ Artefact â†’ TTP â€” blocking TTPs (the top) forces adversaries to fundamentally change how they operate, while blocking hashes (the bottom) is trivially bypassed.</p>
+                    <p>Created by David Bianco, the Pyramid of Pain ranks IOC types by how much pain they cause an adversary when blocked. Hash ? IP ? Domain ? Artefact ? TTP — blocking TTPs (the top) forces adversaries to fundamentally change how they operate, while blocking hashes (the bottom) is trivially bypassed.</p>
 
                     <div class="kql-table-wrap">
                         <table class="kql-table">
@@ -188,12 +189,12 @@
                                 <tr><th>Level</th><th>IOC Type</th><th>Pain to Attacker</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>6 (top)</td><td>TTPs</td><td>Tough â€” forces fundamental changes to how they operate</td></tr>
-                                <tr><td>5</td><td>Tools (YARA/signatures)</td><td>Challenging â€” must find or build new tools</td></tr>
-                                <tr><td>4</td><td>Network / Host Artefacts</td><td>Annoying â€” registry keys, mutexes, filenames</td></tr>
-                                <tr><td>3</td><td>Domain Names</td><td>Simple â€” register new domain in minutes</td></tr>
-                                <tr><td>2</td><td>IP Addresses</td><td>Easy â€” spin up new VPS</td></tr>
-                                <tr><td>1 (bottom)</td><td>File Hashes</td><td>Trivial â€” change one byte</td></tr>
+                                <tr><td>6 (top)</td><td>TTPs</td><td>Tough — forces fundamental changes to how they operate</td></tr>
+                                <tr><td>5</td><td>Tools (YARA/signatures)</td><td>Challenging — must find or build new tools</td></tr>
+                                <tr><td>4</td><td>Network / Host Artefacts</td><td>Annoying — registry keys, mutexes, filenames</td></tr>
+                                <tr><td>3</td><td>Domain Names</td><td>Simple — register new domain in minutes</td></tr>
+                                <tr><td>2</td><td>IP Addresses</td><td>Easy — spin up new VPS</td></tr>
+                                <tr><td>1 (bottom)</td><td>File Hashes</td><td>Trivial — change one byte</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -208,7 +209,7 @@
                     </div>
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
-                        <p><strong>Low VT detection count doesn't mean benign.</strong> Fresh malware or targeted samples may have 0/70 detections on VirusTotal for days. Use behavioural analysis and context â€” a file dropped by mshta.exe with 0 detections is still suspicious.</p>
+                        <p><strong>Low VT detection count doesn't mean benign.</strong> Fresh malware or targeted samples may have 0/70 detections on VirusTotal for days. Use behavioural analysis and context — a file dropped by mshta.exe with 0 detections is still suspicious.</p>
                     </div>
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>

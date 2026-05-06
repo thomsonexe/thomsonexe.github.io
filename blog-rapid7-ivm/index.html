@@ -1,4 +1,4 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
@@ -20,6 +20,7 @@
                 <img src="/mouse_t.png" class="nav-mouse" alt="">
             </a>
             <div class="nav-right">
+                <button class="auth-nav-btn" id="authNavBtn"></button>
                 <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
                 <a href="/vm" class="btn btn-secondary back-btn"><i class="fas fa-terminal"></i> vm</a>
                 <a href="/labs" class="btn btn-secondary back-btn">
@@ -35,7 +36,7 @@
                 <span class="writeup-category"><i class="fas fa-shield-alt"></i> Vulnerability Management</span>
             </div>
             <h1 class="writeup-title">Getting Started with Rapid7 InsightVM</h1>
-            <p class="writeup-subtitle">A practical introduction to InsightVM â€” core concepts, scanning workflow, understanding risk scores, and how to start prioritising vulnerabilities across your organisation.</p>
+            <p class="writeup-subtitle">A practical introduction to InsightVM — core concepts, scanning workflow, understanding risk scores, and how to start prioritising vulnerabilities across your organisation.</p>
             <div class="writeup-stats">
                 <span><i class="fas fa-tag"></i> Vulnerability Management</span>
                 <span><i class="fas fa-signal"></i> Intermediate</span>
@@ -66,7 +67,7 @@
 
                 <section id="what-is-ivm" class="writeup-section">
                     <h2><span class="title-prefix">// </span>What is InsightVM?</h2>
-                    <p>Rapid7 InsightVM is a vulnerability management platform that continuously discovers, assesses, and prioritises vulnerabilities across your organisation's assets â€” on-premises, cloud, and remote endpoints. It is part of the Rapid7 Insight platform and integrates with other Rapid7 products such as InsightIDR (SIEM) and InsightConnect (SOAR).</p>
+                    <p>Rapid7 InsightVM is a vulnerability management platform that continuously discovers, assesses, and prioritises vulnerabilities across your organisation's assets — on-premises, cloud, and remote endpoints. It is part of the Rapid7 Insight platform and integrates with other Rapid7 products such as InsightIDR (SIEM) and InsightConnect (SOAR).</p>
                     <p>Unlike a simple vulnerability scanner, InsightVM provides a live risk view of your environment. Rather than producing a static report once a week, it maintains an up-to-date picture of your attack surface by continuously pulling data from scan engines and agents.</p>
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
@@ -91,7 +92,7 @@
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-microchip"></i></div>
                             <h4>Insight Agent</h4>
-                            <p>A lightweight agent installed directly on endpoints. Provides continuous assessment without needing network access to the asset â€” ideal for laptops and remote workers.</p>
+                            <p>A lightweight agent installed directly on endpoints. Provides continuous assessment without needing network access to the asset — ideal for laptops and remote workers.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-database"></i></div>
@@ -110,24 +111,24 @@
                     <p>Before diving into scanning, it is worth getting familiar with InsightVM's terminology. These terms appear throughout the UI and documentation.</p>
 
                     <h3 class="sub-heading">Sites</h3>
-                    <p>A <strong>Site</strong> is a logical grouping of assets that you want to scan together. You define the targets (IP ranges, hostnames, or asset groups), choose which scan engine to use, configure credentials, and set a scan schedule â€” all within a site.</p>
+                    <p>A <strong>Site</strong> is a logical grouping of assets that you want to scan together. You define the targets (IP ranges, hostnames, or asset groups), choose which scan engine to use, configure credentials, and set a scan schedule — all within a site.</p>
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
                         <p>Organise sites by network segment or business unit rather than dumping everything into one site. This makes scheduling, credentialing, and reporting much easier to manage.</p>
                     </div>
 
                     <h3 class="sub-heading">Assets</h3>
-                    <p>An <strong>Asset</strong> is any discovered device â€” server, workstation, network device, cloud instance. InsightVM fingerprints each asset and tracks its vulnerabilities over time. Assets are identified by IP address, hostname, and MAC address.</p>
+                    <p>An <strong>Asset</strong> is any discovered device — server, workstation, network device, cloud instance. InsightVM fingerprints each asset and tracks its vulnerabilities over time. Assets are identified by IP address, hostname, and MAC address.</p>
 
                     <h3 class="sub-heading">Scan Templates</h3>
-                    <p>A <strong>Scan Template</strong> defines what checks to run during a scan â€” which vulnerability checks, network discovery methods, and how aggressively to probe. Rapid7 ships several built-in templates:</p>
+                    <p>A <strong>Scan Template</strong> defines what checks to run during a scan — which vulnerability checks, network discovery methods, and how aggressively to probe. Rapid7 ships several built-in templates:</p>
                     <div class="technique-list">
                         <div class="technique-item">
                             <div class="technique-header">
                                 <i class="fas fa-search"></i>
                                 <h4>Discovery Scan</h4>
                             </div>
-                            <p>Finds live assets only â€” no vulnerability checks. Fast. Good for getting an inventory of what is on your network before running full assessments.</p>
+                            <p>Finds live assets only — no vulnerability checks. Fast. Good for getting an inventory of what is on your network before running full assessments.</p>
                         </div>
                         <div class="technique-item">
                             <div class="technique-header">
@@ -141,7 +142,7 @@
                                 <i class="fas fa-key"></i>
                                 <h4>Exhaustive (with credentials)</h4>
                             </div>
-                            <p>The most thorough template â€” runs all checks including authenticated local checks. Requires credentials. Produces the most accurate and complete results.</p>
+                            <p>The most thorough template — runs all checks including authenticated local checks. Requires credentials. Produces the most accurate and complete results.</p>
                         </div>
                         <div class="technique-item">
                             <div class="technique-header">
@@ -153,14 +154,14 @@
                     </div>
 
                     <h3 class="sub-heading">Credentials</h3>
-                    <p>Authenticated scanning dramatically improves the quality of results. Without credentials, InsightVM can only see what is exposed over the network. With credentials, it can log into the asset and check patch levels, installed software, registry keys, and configuration â€” catching far more vulnerabilities.</p>
+                    <p>Authenticated scanning dramatically improves the quality of results. Without credentials, InsightVM can only see what is exposed over the network. With credentials, it can log into the asset and check patch levels, installed software, registry keys, and configuration — catching far more vulnerabilities.</p>
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p>Scan credentials should be dedicated service accounts with the minimum required privileges. Never use domain admin or shared admin accounts for scanning. Store credentials in InsightVM's credential store â€” never in scan templates directly.</p>
+                        <p>Scan credentials should be dedicated service accounts with the minimum required privileges. Never use domain admin or shared admin accounts for scanning. Store credentials in InsightVM's credential store — never in scan templates directly.</p>
                     </div>
 
                     <h3 class="sub-heading">Asset Groups &amp; Tags</h3>
-                    <p><strong>Asset Groups</strong> let you slice your asset inventory for reporting and remediation â€” for example, grouping all assets in a specific subnet, all Windows servers, or all assets owned by a particular team. <strong>Tags</strong> are labels you apply to assets to add context â€” criticality, owner, location, or environment (prod/dev/test).</p>
+                    <p><strong>Asset Groups</strong> let you slice your asset inventory for reporting and remediation — for example, grouping all assets in a specific subnet, all Windows servers, or all assets owned by a particular team. <strong>Tags</strong> are labels you apply to assets to add context — criticality, owner, location, or environment (prod/dev/test).</p>
                 </section>
 
                 <section id="risk-scoring" class="writeup-section">
@@ -171,12 +172,12 @@
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-star"></i></div>
                             <h4>CVSS Score</h4>
-                            <p>The industry-standard Common Vulnerability Scoring System. Rates vulnerabilities from 0â€“10 based on exploitability and impact. Does not account for your specific environment or whether exploits exist in the wild.</p>
+                            <p>The industry-standard Common Vulnerability Scoring System. Rates vulnerabilities from 0–10 based on exploitability and impact. Does not account for your specific environment or whether exploits exist in the wild.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-chart-line"></i></div>
                             <h4>Rapid7 Risk Score</h4>
-                            <p>Rapid7's proprietary score (0â€“1000) that factors in CVSS, asset criticality, exploit availability, and real-world threat data from Rapid7's research. More contextual than CVSS alone.</p>
+                            <p>Rapid7's proprietary score (0–1000) that factors in CVSS, asset criticality, exploit availability, and real-world threat data from Rapid7's research. More contextual than CVSS alone.</p>
                         </div>
                     </div>
 
@@ -185,10 +186,10 @@
                         <table class="kql-table">
                             <thead><tr><th>Score</th><th>Severity</th><th>Typical Response</th></tr></thead>
                             <tbody>
-                                <tr><td style="color:#ff4757;font-weight:600;">9.0 â€“ 10.0</td><td style="color:#ff4757;">Critical</td><td>Patch within 24â€“72 hours</td></tr>
-                                <tr><td style="color:#ff9f43;font-weight:600;">7.0 â€“ 8.9</td><td style="color:#ff9f43;">High</td><td>Patch within 7 days</td></tr>
-                                <tr><td style="color:#ffd32a;font-weight:600;">4.0 â€“ 6.9</td><td style="color:#ffd32a;">Medium</td><td>Patch within 30 days</td></tr>
-                                <tr><td style="color:#2ed573;font-weight:600;">0.1 â€“ 3.9</td><td style="color:#2ed573;">Low</td><td>Patch in next maintenance window</td></tr>
+                                <tr><td style="color:#ff4757;font-weight:600;">9.0 – 10.0</td><td style="color:#ff4757;">Critical</td><td>Patch within 24–72 hours</td></tr>
+                                <tr><td style="color:#ff9f43;font-weight:600;">7.0 – 8.9</td><td style="color:#ff9f43;">High</td><td>Patch within 7 days</td></tr>
+                                <tr><td style="color:#ffd32a;font-weight:600;">4.0 – 6.9</td><td style="color:#ffd32a;">Medium</td><td>Patch within 30 days</td></tr>
+                                <tr><td style="color:#2ed573;font-weight:600;">0.1 – 3.9</td><td style="color:#2ed573;">Low</td><td>Patch in next maintenance window</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -206,7 +207,7 @@
                             <span class="flow-num">01</span>
                             <div>
                                 <strong>Create a Site</strong>
-                                <p>Navigate to <strong>Assets â†’ Sites â†’ New Site</strong>. Give it a meaningful name (e.g. "Corp LAN â€“ 10.0.1.0/24"). Add your target IP ranges or hostnames.</p>
+                                <p>Navigate to <strong>Assets ? Sites ? New Site</strong>. Give it a meaningful name (e.g. "Corp LAN – 10.0.1.0/24"). Add your target IP ranges or hostnames.</p>
                             </div>
                         </div>
                         <div class="flow-arrow"><i class="fas fa-chevron-down"></i></div>
@@ -222,7 +223,7 @@
                             <span class="flow-num">03</span>
                             <div>
                                 <strong>Select a Scan Template</strong>
-                                <p>Choose a template that matches your goal. For a first scan, <strong>Full Audit</strong> is a good starting point. Add credentials if available â€” results will be significantly more complete.</p>
+                                <p>Choose a template that matches your goal. For a first scan, <strong>Full Audit</strong> is a good starting point. Add credentials if available — results will be significantly more complete.</p>
                             </div>
                         </div>
                         <div class="flow-arrow"><i class="fas fa-chevron-down"></i></div>
@@ -230,7 +231,7 @@
                             <span class="flow-num">04</span>
                             <div>
                                 <strong>Set a Schedule</strong>
-                                <p>Configure how often the site scans. Weekly is common for internal infrastructure. Consider scan windows â€” avoid scanning during business-critical hours on sensitive systems.</p>
+                                <p>Configure how often the site scans. Weekly is common for internal infrastructure. Consider scan windows — avoid scanning during business-critical hours on sensitive systems.</p>
                             </div>
                         </div>
                         <div class="flow-arrow"><i class="fas fa-chevron-down"></i></div>
@@ -238,7 +239,7 @@
                             <span class="flow-num">05</span>
                             <div>
                                 <strong>Run the Scan</strong>
-                                <p>Save and start the scan manually or let the schedule trigger it. Monitor progress in <strong>Scans â†’ Scan History</strong>. Scan duration depends on the number of targets and template used.</p>
+                                <p>Save and start the scan manually or let the schedule trigger it. Monitor progress in <strong>Scans ? Scan History</strong>. Scan duration depends on the number of targets and template used.</p>
                             </div>
                         </div>
                     </div>
@@ -249,7 +250,7 @@
                     <p>Once a scan completes, results are available immediately in the console. Here is where to look and what to pay attention to.</p>
 
                     <h3 class="sub-heading">The Dashboard</h3>
-                    <p>The InsightVM home dashboard gives you a high-level risk posture view â€” total assets, total vulnerabilities broken down by severity, and your overall risk score trend over time. Use this to track whether your remediation efforts are actually moving the needle.</p>
+                    <p>The InsightVM home dashboard gives you a high-level risk posture view — total assets, total vulnerabilities broken down by severity, and your overall risk score trend over time. Use this to track whether your remediation efforts are actually moving the needle.</p>
 
                     <h3 class="sub-heading">Vulnerability Details</h3>
                     <p>Clicking into a vulnerability gives you:</p>
@@ -260,11 +261,11 @@
                         </div>
                         <div class="technique-item">
                             <div class="technique-header"><i class="fas fa-wrench"></i><h4>Solution</h4></div>
-                            <p>The specific remediation â€” usually a patch version number or configuration change. This is what you hand off to your patching team.</p>
+                            <p>The specific remediation — usually a patch version number or configuration change. This is what you hand off to your patching team.</p>
                         </div>
                         <div class="technique-item">
                             <div class="technique-header"><i class="fas fa-bomb"></i><h4>Exploits &amp; Malware Kits</h4></div>
-                            <p>Whether a public exploit exists (and if it is in Metasploit). This is critical context for prioritisation â€” a vulnerability with a known working exploit needs faster attention.</p>
+                            <p>Whether a public exploit exists (and if it is in Metasploit). This is critical context for prioritisation — a vulnerability with a known working exploit needs faster attention.</p>
                         </div>
                         <div class="technique-item">
                             <div class="technique-header"><i class="fas fa-desktop"></i><h4>Affected Assets</h4></div>
@@ -275,11 +276,11 @@
 
                 <section id="prioritisation" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Prioritising Remediation</h2>
-                    <p>A large organisation can have tens of thousands of vulnerabilities. You cannot fix everything at once â€” prioritisation is the core skill of vulnerability management.</p>
+                    <p>A large organisation can have tens of thousands of vulnerabilities. You cannot fix everything at once — prioritisation is the core skill of vulnerability management.</p>
 
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
-                        <p>The goal of vulnerability management is not zero vulnerabilities â€” it is managed risk. Focus effort where the potential impact is highest and the likelihood of exploitation is greatest.</p>
+                        <p>The goal of vulnerability management is not zero vulnerabilities — it is managed risk. Focus effort where the potential impact is highest and the likelihood of exploitation is greatest.</p>
                     </div>
 
                     <h3 class="sub-heading">A Practical Prioritisation Framework</h3>
@@ -340,7 +341,7 @@
                         </div>
                         <div class="summary-card">
                             <i class="fas fa-users"></i>
-                            <p>Vulnerability management is a team sport. Use Remediation Projects to assign ownership and track progress â€” the security team cannot patch everything alone.</p>
+                            <p>Vulnerability management is a team sport. Use Remediation Projects to assign ownership and track progress — the security team cannot patch everything alone.</p>
                         </div>
                     </div>
                 </section>
