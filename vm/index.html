@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <style>
         .how-grid {
             display: grid;
@@ -125,7 +126,7 @@
         }
         .btn-objectives:hover { background: rgba(0,255,136,0.06); }
 
-        /* MODAL */
+        /* OBJECTIVES MODAL */
         .vm-modal-overlay {
             display: none; position: fixed; inset: 0;
             background: rgba(0,0,0,0.78); z-index: 2000;
@@ -186,9 +187,161 @@
         .ctf-card.dim { opacity: 0.55; pointer-events: none; }
         .ctf-card.dim .btn-launch, .ctf-card.dim .btn-objectives { pointer-events: none; }
 
+        /* SOLVED BADGE */
+        .solved-badge {
+            display: none;
+            font-family: var(--font-mono); font-size: 0.65rem;
+            color: var(--accent); background: rgba(0,255,136,0.1);
+            border: 1px solid rgba(0,255,136,0.3); border-radius: 4px;
+            padding: 0.15rem 0.5rem; margin-left: 0.4rem;
+        }
+        .ctf-card.solved { border-color: rgba(0,255,136,0.3); }
+        .ctf-card.solved .solved-badge { display: inline; }
+
+        /* AUTH BUTTON */
+        .auth-btn {
+            font-family: var(--font-mono); font-size: 0.78rem;
+            color: var(--accent); background: transparent;
+            border: 1px solid rgba(0,255,136,0.35);
+            padding: 0.35rem 0.85rem; border-radius: 6px;
+            cursor: pointer; transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            white-space: nowrap;
+        }
+        .auth-btn:hover { background: rgba(0,255,136,0.08); }
+        .auth-btn.logged-in { border-color: var(--accent); }
+
+        /* AUTH MODAL */
+        .auth-modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.82); z-index: 3000;
+            align-items: center; justify-content: center; padding: 1rem;
+        }
+        .auth-modal-overlay.active { display: flex; }
+        .auth-modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-accent);
+            border-radius: 12px; padding: 2rem;
+            max-width: 400px; width: 100%;
+            position: relative; box-shadow: var(--glow-strong);
+        }
+        .auth-tabs {
+            display: flex; margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .auth-tab {
+            font-family: var(--font-mono); font-size: 0.82rem;
+            color: var(--text-secondary); background: none;
+            border: none; border-bottom: 2px solid transparent;
+            padding: 0.6rem 1.1rem; margin-bottom: -1px;
+            cursor: pointer; transition: var(--transition);
+        }
+        .auth-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .auth-input {
+            width: 100%; background: var(--bg-primary);
+            border: 1px solid var(--border); border-radius: 8px;
+            padding: 0.65rem 0.9rem; color: var(--text-primary);
+            font-family: var(--font-mono); font-size: 0.85rem;
+            margin-bottom: 0.75rem; box-sizing: border-box;
+            transition: var(--transition);
+        }
+        .auth-input:focus { outline: none; border-color: var(--border-accent); }
+        .auth-submit {
+            width: 100%; background: var(--accent); color: var(--bg-primary);
+            border: none; border-radius: 8px;
+            padding: 0.72rem; font-family: var(--font-mono); font-size: 0.85rem;
+            font-weight: 600; cursor: pointer; transition: var(--transition);
+        }
+        .auth-submit:hover { opacity: 0.88; }
+        .auth-status {
+            font-family: var(--font-mono); font-size: 0.8rem;
+            margin-top: 0.75rem; min-height: 1.2em;
+        }
+        .auth-status.ok { color: var(--accent); }
+        .auth-status.err { color: #ff5f57; }
+        .auth-signout {
+            font-family: var(--font-mono); font-size: 0.78rem;
+            color: var(--text-secondary); background: none;
+            border: 1px solid var(--border); border-radius: 6px;
+            padding: 0.35rem 0.85rem; cursor: pointer; transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 0.4rem;
+        }
+        .auth-signout:hover { color: #ff5f57; border-color: #ff5f57; }
+
+        /* FLAG SUBMIT */
+        .flag-submit-wrap {
+            max-width: 620px; margin: 0 auto;
+        }
+        .flag-bar {
+            display: flex; gap: 0.75rem; align-items: center;
+            background: var(--bg-card); border: 1px solid var(--border-accent);
+            border-radius: 10px; padding: 1.1rem 1.25rem;
+        }
+        .flag-input {
+            flex: 1; background: var(--bg-primary);
+            border: 1px solid var(--border); border-radius: 6px;
+            padding: 0.55rem 0.9rem; color: var(--text-primary);
+            font-family: var(--font-mono); font-size: 0.85rem;
+            transition: var(--transition);
+        }
+        .flag-input:focus { outline: none; border-color: var(--border-accent); }
+        .flag-submit-btn {
+            font-family: var(--font-mono); font-size: 0.82rem;
+            color: var(--bg-primary); background: var(--accent);
+            border: 1px solid var(--accent); padding: 0.55rem 1.25rem;
+            border-radius: 6px; cursor: pointer; transition: var(--transition);
+            white-space: nowrap; display: inline-flex; align-items: center; gap: 0.4rem;
+        }
+        .flag-submit-btn:hover { opacity: 0.88; }
+        .flag-status {
+            text-align: center; font-family: var(--font-mono); font-size: 0.82rem;
+            margin-top: 0.6rem; min-height: 1.2em;
+        }
+        .flag-status.ok { color: var(--accent); }
+        .flag-status.err { color: #ff5f57; }
+        .flag-auth-prompt {
+            text-align: center; font-family: var(--font-mono); font-size: 0.84rem;
+            color: var(--text-secondary); padding: 1.25rem;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+        .flag-auth-prompt a {
+            color: var(--accent); cursor: pointer; text-decoration: underline;
+        }
+
+        /* LEADERBOARD */
+        .lb-wrap {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 10px; overflow: hidden;
+        }
+        .lb-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 0.84rem; }
+        .lb-table th {
+            text-align: left; padding: 0.7rem 1.1rem;
+            color: var(--accent); font-size: 0.7rem; text-transform: uppercase;
+            letter-spacing: 1px; border-bottom: 1px solid var(--border-accent);
+            background: var(--bg-secondary);
+        }
+        .lb-table td { padding: 0.72rem 1.1rem; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+        .lb-table tr:last-child td { border-bottom: none; }
+        .lb-table tr:hover td { background: rgba(0,255,136,0.02); }
+        .lb-rank { width: 48px; color: var(--text-secondary); }
+        .lb-name { color: var(--text-primary); font-weight: 500; }
+        .lb-pts  { color: var(--accent); font-weight: 600; }
+        .lb-table tr.lb-you td { background: rgba(0,255,136,0.04); }
+        .lb-table tr.lb-gold   .lb-rank { color: #febc2e; font-weight: 700; }
+        .lb-table tr.lb-silver .lb-rank { color: #b0b0b0; font-weight: 700; }
+        .lb-table tr.lb-bronze .lb-rank { color: #c97b3a; font-weight: 700; }
+        .lb-empty {
+            text-align: center; color: var(--text-secondary);
+            font-family: var(--font-mono); font-size: 0.84rem;
+            padding: 2.5rem 1rem;
+        }
+
         @media (max-width: 600px) {
             .vm-actions, .modal-actions { flex-direction: column; }
             .btn-launch, .btn-objectives { justify-content: center; }
+            .flag-bar { flex-direction: column; }
+            .flag-submit-btn { width: 100%; justify-content: center; }
         }
     </style>
 </head>
@@ -209,6 +362,9 @@
                 <li><a href="/intel" class="nav-link">intel</a></li><li><a href="/vm" class="nav-link active">vm</a></li><li><a href="/guestbook" class="nav-link">guestbook</a></li>
             </ul>
             <div class="nav-right">
+                <button class="auth-btn" id="authBtn" onclick="openAuthModal()">
+                    <i class="fas fa-user"></i> sign in
+                </button>
                 <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
                 <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
                     <span></span><span></span><span></span>
@@ -221,7 +377,7 @@
         <div class="container">
             <p class="page-hero-prompt"><span class="prompt">ben@thomson.cx:~$</span> ls /vm/challenges/</p>
             <h1 class="page-hero-title">CTF Lab</h1>
-            <p class="page-hero-sub">Browser-based Linux VMs &mdash; no installation, no account. Powered by WebAssembly.</p>
+            <p class="page-hero-sub">Browser-based Linux VMs &mdash; no installation required. Solve challenges, earn points, climb the leaderboard.</p>
         </div>
         <div class="grid-overlay"></div>
     </section>
@@ -233,21 +389,21 @@
             <div class="how-grid">
                 <div class="how-step">
                     <div class="how-num">01</div>
-                    <div class="how-icon"><i class="fas fa-crosshairs"></i></div>
-                    <h3>Pick a Challenge</h3>
-                    <p>Choose a machine below. Each one has a difficulty rating, category, and clear objectives to guide your investigation.</p>
+                    <div class="how-icon"><i class="fas fa-user-plus"></i></div>
+                    <h3>Create an Account</h3>
+                    <p>Sign up with an email and username to track your points and appear on the leaderboard. No verification required.</p>
                 </div>
                 <div class="how-step">
                     <div class="how-num">02</div>
                     <div class="how-icon"><i class="fas fa-terminal"></i></div>
-                    <h3>Launch Terminal</h3>
-                    <p>Click <strong style="color:var(--accent)">Launch VM</strong> to open a full Debian Linux environment in your browser — powered by WebAssembly, zero install required.</p>
+                    <h3>Launch a VM</h3>
+                    <p>Click <strong style="color:var(--accent)">Launch VM</strong> to open a full Debian Linux environment in your browser &mdash; powered by WebAssembly.</p>
                 </div>
                 <div class="how-step">
                     <div class="how-num">03</div>
                     <div class="how-icon"><i class="fas fa-flag"></i></div>
-                    <h3>Find the Flag</h3>
-                    <p>Use standard Linux tools to solve the challenge. Download the challenge files directly in the terminal and submit flags in the format <code>flag{...}</code>.</p>
+                    <h3>Submit the Flag</h3>
+                    <p>Find a <code>flag{...}</code> in the VM and paste it into the submit box below. Points are awarded instantly.</p>
                 </div>
             </div>
 
@@ -263,15 +419,37 @@
         </div>
     </section>
 
+    <!-- FLAG SUBMIT -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title"><span class="title-prefix">//</span> Submit Flag</h2>
+            <div class="flag-submit-wrap">
+                <div id="flagSubmitLoggedIn" style="display:none">
+                    <div class="flag-bar">
+                        <input type="text" id="flagInput" class="flag-input" placeholder="flag{...}" autocomplete="off" spellcheck="false">
+                        <button class="flag-submit-btn" id="flagSubmitBtn" onclick="submitFlag()">
+                            <i class="fas fa-flag"></i> Submit
+                        </button>
+                    </div>
+                    <p class="flag-status" id="flagStatus"></p>
+                </div>
+                <div id="flagSubmitAnon" class="flag-auth-prompt">
+                    <i class="fas fa-lock" style="color:var(--accent);margin-right:0.5rem;"></i>
+                    <a onclick="openAuthModal()">Sign in</a> to submit flags and track your score on the leaderboard.
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- CHALLENGES -->
-    <section class="section labs-body">
+    <section class="section section-alt labs-body">
         <div class="container">
             <h2 class="section-title"><span class="title-prefix">//</span> Available Machines</h2>
 
             <div class="ctf-grid labs-grid">
 
                 <!-- init.flag — Easy 25pts -->
-                <div class="ctf-card">
+                <div class="ctf-card" data-challenge="init-flag">
                     <div class="machine-status">
                         <span class="status-dot"></span>online
                     </div>
@@ -279,6 +457,7 @@
                         <span class="vm-platform">Custom</span>
                         <span class="ctf-difficulty easy">Easy</span>
                         <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>25 pts</span>
+                        <span class="solved-badge"><i class="fas fa-check" style="font-size:0.55rem;margin-right:0.25rem;"></i>solved</span>
                     </div>
                     <h3 class="ctf-title">init.flag</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Linux Basics / File System</p>
@@ -290,7 +469,7 @@
                 </div>
 
                 <!-- file_magic — Easy 50pts -->
-                <div class="ctf-card">
+                <div class="ctf-card" data-challenge="file-magic">
                     <div class="machine-status">
                         <span class="status-dot"></span>online
                     </div>
@@ -298,6 +477,7 @@
                         <span class="vm-platform">Custom</span>
                         <span class="ctf-difficulty easy">Easy</span>
                         <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>50 pts</span>
+                        <span class="solved-badge"><i class="fas fa-check" style="font-size:0.55rem;margin-right:0.25rem;"></i>solved</span>
                     </div>
                     <h3 class="ctf-title">file_magic</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Forensics / File Analysis</p>
@@ -309,7 +489,7 @@
                 </div>
 
                 <!-- strings_attached — Easy 60pts -->
-                <div class="ctf-card">
+                <div class="ctf-card" data-challenge="strings-attached">
                     <div class="machine-status">
                         <span class="status-dot"></span>online
                     </div>
@@ -317,6 +497,7 @@
                         <span class="vm-platform">Custom</span>
                         <span class="ctf-difficulty easy">Easy</span>
                         <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>60 pts</span>
+                        <span class="solved-badge"><i class="fas fa-check" style="font-size:0.55rem;margin-right:0.25rem;"></i>solved</span>
                     </div>
                     <h3 class="ctf-title">strings_attached</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Forensics / Binary Analysis</p>
@@ -328,7 +509,7 @@
                 </div>
 
                 <!-- log_trace — Medium 75pts -->
-                <div class="ctf-card">
+                <div class="ctf-card" data-challenge="log-trace">
                     <div class="machine-status">
                         <span class="status-dot"></span>online
                     </div>
@@ -336,6 +517,7 @@
                         <span class="vm-platform">Custom</span>
                         <span class="ctf-difficulty medium">Medium</span>
                         <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>75 pts</span>
+                        <span class="solved-badge"><i class="fas fa-check" style="font-size:0.55rem;margin-right:0.25rem;"></i>solved</span>
                     </div>
                     <h3 class="ctf-title">log_trace</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Log Analysis / DFIR</p>
@@ -347,7 +529,7 @@
                 </div>
 
                 <!-- hash_hunt — Medium 100pts -->
-                <div class="ctf-card">
+                <div class="ctf-card" data-challenge="hash-hunt">
                     <div class="machine-status">
                         <span class="status-dot"></span>online
                     </div>
@@ -355,6 +537,7 @@
                         <span class="vm-platform">Custom</span>
                         <span class="ctf-difficulty medium">Medium</span>
                         <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>100 pts</span>
+                        <span class="solved-badge"><i class="fas fa-check" style="font-size:0.55rem;margin-right:0.25rem;"></i>solved</span>
                     </div>
                     <h3 class="ctf-title">hash_hunt</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Cryptography / Password Cracking</p>
@@ -366,7 +549,7 @@
                 </div>
 
                 <!-- time_line — Medium 125pts -->
-                <div class="ctf-card">
+                <div class="ctf-card" data-challenge="time-line">
                     <div class="machine-status">
                         <span class="status-dot"></span>online
                     </div>
@@ -374,6 +557,7 @@
                         <span class="vm-platform">Custom</span>
                         <span class="ctf-difficulty medium">Medium</span>
                         <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>125 pts</span>
+                        <span class="solved-badge"><i class="fas fa-check" style="font-size:0.55rem;margin-right:0.25rem;"></i>solved</span>
                     </div>
                     <h3 class="ctf-title">time_line</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Forensics / Incident Response</p>
@@ -442,6 +626,16 @@
         </div>
     </section>
 
+    <!-- LEADERBOARD -->
+    <section class="section" id="leaderboardSection">
+        <div class="container">
+            <h2 class="section-title"><span class="title-prefix">//</span> Leaderboard</h2>
+            <div id="lbContent">
+                <div class="lb-empty">Loading...</div>
+            </div>
+        </div>
+    </section>
+
     <footer class="footer">
         <div class="container">
             <p class="footer-text">
@@ -450,7 +644,42 @@
         </div>
     </footer>
 
-    <!-- MODALS -->
+    <!-- AUTH MODAL -->
+    <div class="auth-modal-overlay" id="authModal">
+        <div class="auth-modal">
+            <button class="modal-close" onclick="closeAuthModal()"><i class="fas fa-times"></i></button>
+            <!-- Signed-out view -->
+            <div id="authSignedOut">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" id="tabSignIn" onclick="switchTab('signin')">Sign In</button>
+                    <button class="auth-tab" id="tabSignUp" onclick="switchTab('signup')">Sign Up</button>
+                </div>
+                <div id="formSignIn">
+                    <input type="email" id="siEmail" class="auth-input" placeholder="email" autocomplete="email">
+                    <input type="password" id="siPassword" class="auth-input" placeholder="password" autocomplete="current-password">
+                    <button class="auth-submit" onclick="doSignIn()">Sign In</button>
+                    <p class="auth-status" id="siStatus"></p>
+                </div>
+                <div id="formSignUp" style="display:none">
+                    <input type="text" id="suUsername" class="auth-input" placeholder="username (3–20 chars, letters/numbers/_-)" autocomplete="off">
+                    <input type="email" id="suEmail" class="auth-input" placeholder="email" autocomplete="email">
+                    <input type="password" id="suPassword" class="auth-input" placeholder="password (min 6 chars)" autocomplete="new-password">
+                    <button class="auth-submit" onclick="doSignUp()">Create Account</button>
+                    <p class="auth-status" id="suStatus"></p>
+                </div>
+            </div>
+            <!-- Signed-in view -->
+            <div id="authSignedIn" style="display:none">
+                <p style="font-family:var(--font-mono);font-size:0.9rem;color:var(--text-primary);margin-bottom:0.5rem;">
+                    Signed in as <span id="authUsername" style="color:var(--accent)"></span>
+                </p>
+                <p style="font-family:var(--font-mono);font-size:0.8rem;color:var(--text-secondary);margin-bottom:1.5rem;" id="authPoints"></p>
+                <button class="auth-signout" onclick="doSignOut()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- OBJECTIVES MODALS -->
     <div class="vm-modal-overlay" id="modal-file-magic">
         <div class="vm-modal">
             <button class="modal-close" onclick="closeModal('file-magic')"><i class="fas fa-times"></i></button>
@@ -571,8 +800,8 @@
             </ul>
             <p class="modal-section-title"><i class="fas fa-download" style="margin-right:0.4rem;"></i>Get the Challenge Files</p>
             <div class="modal-code">
-                <span class="t-prompt">$ </span>wget https://thomson.cx/challenges/init-flag.tar.gz<br>
-                <span class="t-prompt">$ </span>tar -xzf init-flag.tar.gz &amp;&amp; cd init-flag/
+                <span class="t-prompt">$ </span>cd ~/challenges/init-flag/<br>
+                <span class="t-prompt">$ </span>cat README.txt
             </div>
             <p class="modal-section-title"><i class="fas fa-wrench" style="margin-right:0.4rem;"></i>Tools You'll Need</p>
             <ul class="objectives-list">
@@ -606,8 +835,8 @@
             </ul>
             <p class="modal-section-title"><i class="fas fa-download" style="margin-right:0.4rem;"></i>Get the Challenge Files</p>
             <div class="modal-code">
-                <span class="t-prompt">$ </span>wget https://thomson.cx/challenges/log-trace.tar.gz<br>
-                <span class="t-prompt">$ </span>tar -xzf log-trace.tar.gz &amp;&amp; cd log-trace/
+                <span class="t-prompt">$ </span>cd ~/challenges/log-trace/<br>
+                <span class="t-prompt">$ </span>cat README.txt
             </div>
             <p class="modal-section-title"><i class="fas fa-wrench" style="margin-right:0.4rem;"></i>Tools You'll Need</p>
             <ul class="objectives-list">
@@ -640,13 +869,13 @@
             </ul>
             <p class="modal-section-title"><i class="fas fa-download" style="margin-right:0.4rem;"></i>Get the Challenge Files</p>
             <div class="modal-code">
-                <span class="t-prompt">$ </span>wget https://thomson.cx/challenges/hash-hunt.tar.gz<br>
-                <span class="t-prompt">$ </span>tar -xzf hash-hunt.tar.gz &amp;&amp; cd hash-hunt/
+                <span class="t-prompt">$ </span>cd ~/challenges/hash-hunt/<br>
+                <span class="t-prompt">$ </span>cat README.txt
             </div>
             <p class="modal-section-title"><i class="fas fa-wrench" style="margin-right:0.4rem;"></i>Tools You'll Need</p>
             <ul class="objectives-list">
                 <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>hashid</code> or <code>hash-identifier</code></li>
-                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>john --wordlist=/usr/share/wordlists/rockyou.txt</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>john --format=raw-md5 --wordlist=wordlist.txt passwd.db</code></li>
                 <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>grep</code> for cross-referencing entries</li>
             </ul>
             <div class="modal-actions">
@@ -657,32 +886,244 @@
     </div>
 
     <script>
-        // Theme
-        const themeToggle = document.getElementById('themeToggle');
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-        themeToggle.addEventListener('click', () => {
-            const cur = document.documentElement.getAttribute('data-theme');
-            const next = cur === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
-            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-        });
+        // ── Supabase ──────────────────────────────────────────────────
+        const SB_URL = 'https://nqrdljwhvjjoahpjfrlh.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xcmRsandodmpqb2FocGpmcmxoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MzYzMzAsImV4cCI6MjA5MzQxMjMzMH0.YO_3Ul7BzuzG7zJahTf5aOQNslOItPqCRRGXwyRCdyI';
+        const sb = window.supabase.createClient(SB_URL, SB_KEY);
 
-        // Navbar scroll
-        const navbar = document.getElementById('navbar');
-        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+        let currentUser = null;
+        let userSolves  = new Set();
 
-        // Mobile nav
-        const navToggle = document.getElementById('navToggle');
-        const navLinks = document.getElementById('navLinks');
-        navToggle.addEventListener('click', () => {
-            navToggle.classList.toggle('active');
-            navLinks.classList.toggle('active');
-        });
+        // Maps challenge DB ids → card data-challenge slug
+        const SOLVE_TO_CARD = {
+            'init-flag-1':      'init-flag',
+            'init-flag-2':      'init-flag',
+            'file-magic':       'file-magic',
+            'strings-attached': 'strings-attached',
+            'log-trace':        'log-trace',
+            'hash-hunt':        'hash-hunt',
+            'time-line':        'time-line',
+        };
 
-        // Modals
+        // ── Auth state ────────────────────────────────────────────────
+        async function initAuth() {
+            const { data: { session } } = await sb.auth.getSession();
+            if (session) await onSignedIn(session.user);
+            sb.auth.onAuthStateChange(async (_event, session) => {
+                if (session) await onSignedIn(session.user);
+                else onSignedOut();
+            });
+            loadLeaderboard();
+        }
+
+        async function onSignedIn(user) {
+            currentUser = user;
+
+            // Fetch or auto-create profile
+            let { data: profile } = await sb.from('profiles').select('username').eq('id', user.id).single();
+            if (!profile) {
+                const fallback = (user.user_metadata?.username || user.email.split('@')[0])
+                                   .replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 20);
+                await sb.from('profiles').insert({ id: user.id, username: fallback });
+                profile = { username: fallback };
+            }
+
+            const uname = profile.username;
+            document.getElementById('authBtn').innerHTML = '<i class="fas fa-user"></i> ' + escHtml(uname);
+            document.getElementById('authBtn').classList.add('logged-in');
+            document.getElementById('authUsername').textContent = uname;
+
+            // Load solves + update points display
+            await refreshSolves(user.id);
+
+            // Show submit box
+            document.getElementById('flagSubmitLoggedIn').style.display = '';
+            document.getElementById('flagSubmitAnon').style.display = 'none';
+
+            // If auth modal is open, switch to signed-in view
+            document.getElementById('authSignedOut').style.display = 'none';
+            document.getElementById('authSignedIn').style.display = '';
+        }
+
+        function onSignedOut() {
+            currentUser = null;
+            userSolves.clear();
+            document.getElementById('authBtn').innerHTML = '<i class="fas fa-user"></i> sign in';
+            document.getElementById('authBtn').classList.remove('logged-in');
+            document.getElementById('flagSubmitLoggedIn').style.display = 'none';
+            document.getElementById('flagSubmitAnon').style.display = '';
+            document.getElementById('authSignedOut').style.display = '';
+            document.getElementById('authSignedIn').style.display = 'none';
+            updateCardSolvedState();
+        }
+
+        async function refreshSolves(userId) {
+            const { data } = await sb.from('solves').select('challenge_id, challenges(points)').eq('user_id', userId);
+            userSolves.clear();
+            let total = 0;
+            (data || []).forEach(s => {
+                userSolves.add(s.challenge_id);
+                total += s.challenges?.points || 0;
+            });
+            document.getElementById('authPoints').textContent = total + ' pts — ' + userSolves.size + ' solve' + (userSolves.size !== 1 ? 's' : '');
+            updateCardSolvedState();
+        }
+
+        function updateCardSolvedState() {
+            document.querySelectorAll('.ctf-card[data-challenge]').forEach(card => {
+                const slug = card.dataset.challenge;
+                const isSolved = [...userSolves].some(id => SOLVE_TO_CARD[id] === slug);
+                card.classList.toggle('solved', isSolved);
+            });
+        }
+
+        // ── Flag submission ───────────────────────────────────────────
+        async function submitFlag() {
+            const input  = document.getElementById('flagInput');
+            const status = document.getElementById('flagStatus');
+            const flag   = input.value.trim();
+
+            if (!flag) return;
+            if (!currentUser) {
+                status.textContent = 'Not signed in.';
+                status.className = 'flag-status err';
+                return;
+            }
+
+            status.textContent = 'Checking…';
+            status.className = 'flag-status';
+            document.getElementById('flagSubmitBtn').disabled = true;
+
+            const { data, error } = await sb.rpc('submit_flag', { p_flag: flag });
+            document.getElementById('flagSubmitBtn').disabled = false;
+
+            if (error) {
+                status.textContent = 'Error: ' + error.message;
+                status.className = 'flag-status err';
+                return;
+            }
+
+            status.textContent = data.message;
+            status.className = 'flag-status ' + (data.success ? 'ok' : 'err');
+
+            if (data.success) {
+                input.value = '';
+                await refreshSolves(currentUser.id);
+                loadLeaderboard();
+            }
+        }
+
+        // ── Leaderboard ───────────────────────────────────────────────
+        async function loadLeaderboard() {
+            const el = document.getElementById('lbContent');
+            const { data, error } = await sb.from('leaderboard').select('*').limit(50);
+
+            if (error || !data || data.length === 0) {
+                el.innerHTML = '<div class="lb-empty">No scores yet — be the first to solve a challenge!</div>';
+                return;
+            }
+
+            const rows = data.map((row, i) => {
+                const rank    = i + 1;
+                const tier    = rank === 1 ? 'lb-gold' : rank === 2 ? 'lb-silver' : rank === 3 ? 'lb-bronze' : '';
+                const isYou   = currentUser && row.user_id === currentUser.id ? ' lb-you' : '';
+                const medal   = rank === 1 ? '&#127881;' : rank === 2 ? '&#129352;' : rank === 3 ? '&#129353;' : '#' + rank;
+                return `<tr class="${tier}${isYou}">
+                    <td class="lb-rank">${medal}</td>
+                    <td class="lb-name">${escHtml(row.username)}${isYou ? ' <span style="color:var(--text-secondary);font-size:0.7rem;">(you)</span>' : ''}</td>
+                    <td class="lb-pts">${row.total_points} pts</td>
+                    <td>${row.solves_count} solve${row.solves_count !== 1 ? 's' : ''}</td>
+                </tr>`;
+            }).join('');
+
+            el.innerHTML = `<div class="lb-wrap"><table class="lb-table">
+                <thead><tr><th>Rank</th><th>Player</th><th>Points</th><th>Solves</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table></div>`;
+        }
+
+        // ── Auth modal ────────────────────────────────────────────────
+        function openAuthModal() {
+            if (currentUser) {
+                document.getElementById('authSignedOut').style.display = 'none';
+                document.getElementById('authSignedIn').style.display = '';
+            } else {
+                document.getElementById('authSignedOut').style.display = '';
+                document.getElementById('authSignedIn').style.display = 'none';
+            }
+            document.getElementById('authModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        function switchTab(tab) {
+            document.getElementById('formSignIn').style.display  = tab === 'signin' ? '' : 'none';
+            document.getElementById('formSignUp').style.display  = tab === 'signup' ? '' : 'none';
+            document.getElementById('tabSignIn').classList.toggle('active', tab === 'signin');
+            document.getElementById('tabSignUp').classList.toggle('active', tab === 'signup');
+        }
+
+        async function doSignIn() {
+            const email  = document.getElementById('siEmail').value.trim();
+            const pass   = document.getElementById('siPassword').value;
+            const status = document.getElementById('siStatus');
+            status.textContent = 'Signing in…';
+            status.className = 'auth-status';
+            const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+            if (error) { status.textContent = error.message; status.className = 'auth-status err'; }
+            else closeAuthModal();
+        }
+
+        async function doSignUp() {
+            const username = document.getElementById('suUsername').value.trim();
+            const email    = document.getElementById('suEmail').value.trim();
+            const pass     = document.getElementById('suPassword').value;
+            const status   = document.getElementById('suStatus');
+
+            if (!username || username.length < 3 || username.length > 20) {
+                status.textContent = 'Username must be 3–20 characters.';
+                status.className = 'auth-status err'; return;
+            }
+            if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+                status.textContent = 'Username: letters, numbers, _ and - only.';
+                status.className = 'auth-status err'; return;
+            }
+
+            status.textContent = 'Creating account…';
+            status.className = 'auth-status';
+
+            const { data, error } = await sb.auth.signUp({
+                email, password: pass,
+                options: { data: { username } }
+            });
+
+            if (error) { status.textContent = error.message; status.className = 'auth-status err'; return; }
+
+            if (data.session) {
+                // Email confirmation disabled — create profile now
+                const { error: pe } = await sb.from('profiles').insert({ id: data.user.id, username });
+                if (pe) {
+                    status.textContent = pe.message.includes('unique') ? 'Username already taken.' : pe.message;
+                    status.className = 'auth-status err';
+                    await sb.auth.signOut();
+                    return;
+                }
+                closeAuthModal();
+            } else {
+                // Email confirmation required
+                status.textContent = 'Account created! Check your email to confirm, then sign in.';
+                status.className = 'auth-status ok';
+            }
+        }
+
+        async function doSignOut() {
+            await sb.auth.signOut();
+            closeAuthModal();
+        }
+
+        // ── Objectives modals ─────────────────────────────────────────
         function openModal(id) {
             document.getElementById('modal-' + id).classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -694,14 +1135,47 @@
         document.querySelectorAll('.vm-modal-overlay').forEach(o => {
             o.addEventListener('click', e => { if (e.target === o) { o.classList.remove('active'); document.body.style.overflow = ''; } });
         });
+        document.getElementById('authModal').addEventListener('click', e => {
+            if (e.target === document.getElementById('authModal')) closeAuthModal();
+        });
 
-        // Terminal animation
+        // ── Theme ─────────────────────────────────────────────────────
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const cur  = document.documentElement.getAttribute('data-theme');
+            const next = cur === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+
+        // ── Navbar scroll ─────────────────────────────────────────────
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+
+        // ── Mobile nav ────────────────────────────────────────────────
+        const navToggle = document.getElementById('navToggle');
+        const navLinks  = document.getElementById('navLinks');
+        navToggle.addEventListener('click', () => {
+            navToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        // ── Flag input — Enter key ────────────────────────────────────
+        document.getElementById('flagInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter') submitFlag();
+        });
+
+        // ── Terminal animation ────────────────────────────────────────
         const SEQUENCES = [
             { cmd: 'ls -la /home/ctf/', lines: [
-                { t: 'out', h: 'total 28' },
-                { t: 'out', h: 'drwxr-xr-x 2 ctf  ctf  4096 May  6 09:14 .' },
-                { t: 'out', h: 'drwxr-xr-x 3 root root 4096 May  6 09:12 ..' },
-                { t: 'out', h: '-rw-r--r-- 1 ctf  ctf   220 May  6 09:12 .bash_logout' },
+                { t: 'out',  h: 'total 28' },
+                { t: 'out',  h: 'drwxr-xr-x 2 ctf  ctf  4096 May  6 09:14 .' },
+                { t: 'out',  h: 'drwxr-xr-x 3 root root 4096 May  6 09:12 ..' },
+                { t: 'out',  h: '-rw-r--r-- 1 ctf  ctf   220 May  6 09:12 .bash_logout' },
                 { t: 'flag', h: '-rw------- 1 ctf  ctf    47 May  6 09:14 .secret' },
             ]},
             { cmd: 'cat /home/ctf/.secret', lines: [
@@ -713,30 +1187,21 @@
         ];
 
         const termBody = document.getElementById('termBody');
-        let seqIdx = 0, lineIdx = 0, phase = 'cmd', charIdx = 0;
-        let currentEl = null;
-
-        function addLine(html, cls) {
-            const d = document.createElement('div');
-            d.innerHTML = html;
-            if (cls) d.querySelector('span') && (d.querySelector('span').className = cls);
-            termBody.appendChild(d);
-            termBody.scrollTop = termBody.scrollHeight;
-            return d;
-        }
+        let seqIdx = 0, lineIdx = 0, phase = 'cmd', charIdx = 0, currentEl = null;
 
         function tick() {
             if (seqIdx >= SEQUENCES.length) {
-                // Idle cursor then restart
                 const d = document.createElement('div');
                 d.innerHTML = '<span class="t-prompt">user@localhost:~$ </span><span class="t-cursor-blink"></span>';
                 termBody.appendChild(d);
-                setTimeout(() => { termBody.innerHTML = ''; seqIdx = 0; lineIdx = 0; phase = 'cmd'; charIdx = 0; currentEl = null; setTimeout(tick, 300); }, 3500);
+                setTimeout(() => {
+                    termBody.innerHTML = '';
+                    seqIdx = 0; lineIdx = 0; phase = 'cmd'; charIdx = 0; currentEl = null;
+                    setTimeout(tick, 300);
+                }, 3500);
                 return;
             }
-
             const seq = SEQUENCES[seqIdx];
-
             if (phase === 'cmd') {
                 if (charIdx === 0) {
                     const d = document.createElement('div');
@@ -757,11 +1222,10 @@
             } else {
                 if (lineIdx >= seq.lines.length) {
                     seqIdx++; lineIdx = 0; phase = 'cmd'; charIdx = 0; currentEl = null;
-                    setTimeout(tick, 280);
-                    return;
+                    setTimeout(tick, 280); return;
                 }
                 const ln = seq.lines[lineIdx++];
-                const d = document.createElement('div');
+                const d  = document.createElement('div');
                 const color = ln.t === 'flag' ? 'var(--accent-yellow)' : '#5a6575';
                 d.innerHTML = '<span style="color:' + color + (ln.t === 'flag' ? ';font-weight:600' : '') + '">' + ln.h + '</span>';
                 termBody.appendChild(d);
@@ -769,8 +1233,15 @@
                 setTimeout(tick, 60);
             }
         }
-
         setTimeout(tick, 900);
+
+        // ── Helpers ───────────────────────────────────────────────────
+        function escHtml(s) {
+            return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
+
+        // ── Boot ──────────────────────────────────────────────────────
+        initAuth();
     </script>
 </body>
 </html>
