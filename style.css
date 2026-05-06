@@ -1,4 +1,4 @@
-﻿*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
     --bg-primary: #0a0e13;
@@ -1093,7 +1093,7 @@ body {
 [data-theme="light"] .egg-overlay { background: rgba(0,0,0,0.88); }
 [data-theme="light"] .egg-terminal { box-shadow: 0 0 40px rgba(9,105,218,0.3), 0 0 80px rgba(9,105,218,0.1); border-color: var(--accent); }
 
-/* ── THREAT MAP PAGE ─────────────────────────────────── */
+/* -- THREAT MAP PAGE ----------------------------------- */
 .tm-body { overflow: hidden; height: 100vh; background: #080c10; }
 .tm-body [data-theme="light"] { background: #0d1117; }
 
@@ -1146,7 +1146,7 @@ body {
     color: rgba(0,255,136,0.6); margin: 0;
 }
 
-/* Globe — fills remaining vertical space, capped so other elements always show */
+/* Globe � fills remaining vertical space, capped so other elements always show */
 .tm-globe-wrap {
     position: relative;
     /* height drives the square: available height minus header (~90px) legend (~22px) intel (~85px) gaps (~30px) padding (~20px) */
@@ -1262,7 +1262,7 @@ body {
     .reveal { opacity: 1; transform: none; transition: none; }
 }
 
-/* ── IP Lookup ─────────────────────────────────────────────────────────── */
+/* -- IP Lookup ----------------------------------------------------------- */
 .ip-search-wrap {
     display: flex;
     gap: 0.75rem;
@@ -1525,7 +1525,7 @@ body {
 }
 .breach-thumbs-down { font-size: 3rem; color: #ff4d4d; flex-shrink: 0; }
 
-/* ── Subnet results ───────────────────────────────────────────────────── */
+/* -- Subnet results ----------------------------------------------------- */
 .subnet-results {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
@@ -1537,7 +1537,7 @@ body {
     margin-top: 1.5rem;
 }
 
-/* ── CVSS calculator ──────────────────────────────────────────────────── */
+/* -- CVSS calculator ---------------------------------------------------- */
 .cvss-grid { display: flex; flex-direction: column; gap: 1.25rem; margin-top: 1.5rem; }
 .cvss-metric { display: flex; flex-direction: column; gap: 0.5rem; }
 .cvss-metric > label {
@@ -1562,7 +1562,7 @@ body {
 .cvss-btns button:hover { border-color: var(--border-accent); color: var(--text-primary); }
 .cvss-btns button.active { background: rgba(0,255,136,0.1); border-color: var(--accent); color: var(--accent); }
 
-/* ── Codec (Base64 / Hex / URL) ───────────────────────────────────────── */
+/* -- Codec (Base64 / Hex / URL) ----------------------------------------- */
 .codec-textarea {
     width: 100%;
     min-height: 110px;
@@ -1581,7 +1581,7 @@ body {
 .codec-textarea:focus { outline: none; border-color: var(--border-accent); }
 .codec-btns { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
 
-/* ── JWT decoder ──────────────────────────────────────────────────────── */
+/* -- JWT decoder -------------------------------------------------------- */
 .jwt-exp {
     margin-top: 1.5rem;
     padding: 0.7rem 1rem;
@@ -1619,7 +1619,7 @@ body {
 }
 @media (max-width: 640px) { .jwt-parts { grid-template-columns: 1fr; } }
 
-/* ── Regex tester ─────────────────────────────────────────────────────── */
+/* -- Regex tester ------------------------------------------------------- */
 .regex-pattern-wrap {
     display: flex;
     align-items: center;
@@ -1716,15 +1716,15 @@ mark.regex-match {
 }
 
 
-/* ── Global CTF auth nav button ── */
+/* -- Global CTF auth nav button -- */
 .auth-nav-btn {
     font-family: var(--font-mono); font-size: 0.78rem;
-    color: var(--accent); background: transparent;
-    border: 1px solid rgba(0,255,136,0.35);
+    color: #fff; background: transparent;
+    border: 1px solid rgba(255,255,255,0.35);
     padding: 0.35rem 0.85rem; border-radius: 6px;
     cursor: pointer; transition: var(--transition);
     display: inline-flex; align-items: center; gap: 0.4rem;
     white-space: nowrap;
 }
-.auth-nav-btn:hover { background: rgba(0,255,136,0.08); }
-.auth-nav-btn.active { border-color: var(--accent); }
+.auth-nav-btn:hover { background: rgba(255,255,255,0.08); }
+.auth-nav-btn.active { border-color: rgba(255,255,255,0.7); }
