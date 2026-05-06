@@ -271,12 +271,15 @@
         let currentUser = null;
 
         async function init() {
-            const { data: { session } } = await sb.auth.getSession();
-            if (!session) { window.location.href = '/vm'; return; }
-            currentUser = session.user;
-            await loadProfile();
-
-            sb.auth.onAuthStateChange((_e, s) => { if (!s) window.location.href = '/vm'; });
+            sb.auth.onAuthStateChange(async (event, session) => {
+                if (event === 'INITIAL_SESSION') {
+                    if (!session) { window.location.href = '/vm'; return; }
+                    currentUser = session.user;
+                    await loadProfile();
+                } else if (event === 'SIGNED_OUT') {
+                    window.location.href = '/vm';
+                }
+            });
         }
 
         async function loadProfile() {
