@@ -384,27 +384,27 @@
     </nav>
 
     <section class="page-hero" style="position:relative;">
-        <div class="container">
-            <p class="page-hero-prompt"><span class="prompt">ben@thomson.cx:~$</span> ls /vm/challenges/</p>
-            <h1 class="page-hero-title">CTF Lab</h1>
-            <p class="page-hero-sub">Browser-based Linux VMs &mdash; no installation required. Solve challenges, earn points, climb the leaderboard.</p>
+        <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;">
+            <div>
+                <p class="page-hero-prompt"><span class="prompt">ben@thomson.cx:~$</span> ls /vm/challenges/</p>
+                <h1 class="page-hero-title">CTF Lab</h1>
+                <p class="page-hero-sub">Browser-based Linux VMs &mdash; no installation required. Solve challenges, earn points, climb the leaderboard.</p>
+            </div>
+            <a href="/leaderboard" class="hero-lb-btn">
+                <span class="lb-podium-icon">
+                    <span class="lb-pod lb-pod-2">2</span>
+                    <span class="lb-pod lb-pod-1">1</span>
+                    <span class="lb-pod lb-pod-3">3</span>
+                </span>
+                <span class="lb-btn-text">Leaderboard</span>
+            </a>
         </div>
-        <a href="/leaderboard" class="hero-lb-btn">
-            <span class="lb-podium-icon">
-                <span class="lb-pod lb-pod-2">2</span>
-                <span class="lb-pod lb-pod-1">1</span>
-                <span class="lb-pod lb-pod-3">3</span>
-            </span>
-            <span class="lb-btn-text">Leaderboard</span>
-        </a>
         <div class="grid-overlay"></div>
     </section>
     <style>
         .hero-lb-btn {
-            position: absolute;
-            top: 50%; right: 3rem;
-            transform: translateY(-50%);
             display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
+            flex-shrink: 0;
             background: linear-gradient(135deg, rgba(255,215,0,0.1) 0%, rgba(255,180,0,0.05) 100%);
             border: 1px solid rgba(255,215,0,0.4);
             border-radius: 14px; padding: 1.25rem 1.75rem;
