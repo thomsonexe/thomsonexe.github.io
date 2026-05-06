@@ -45,7 +45,7 @@
         <div class="tm-main">
             <div class="tm-header">
                 <div class="tm-live-badge"><span class="tm-pulse"></span>LIVE</div>
-                <h1 class="tm-title">Global Threat Intelligence</h1>
+                <h1 class="tm-title">APT Activity Monitor</h1>
                 <p class="tm-data-label" id="tmDataLabel">Connecting to feed…</p>
             </div>
 
@@ -54,7 +54,7 @@
             </div>
 
             <div class="tm-legend">
-                <div class="tm-legend-item"><span class="tm-legend-dot" style="background:#ff9f43"></span>Source</div>
+                <div class="tm-legend-item"><span class="tm-legend-dot" style="background:#00ff88"></span>Threat Actor</div>
                 <div class="tm-legend-item"><span class="tm-legend-dot" style="background:#ff3333"></span>Target</div>
                 <div class="tm-legend-item"><span class="tm-legend-line"></span>Attack arc</div>
                 <div class="tm-legend-item tm-drag-hint"><i class="fas fa-arrows-left-right"></i> drag to rotate</div>
@@ -64,30 +64,30 @@
                 <div class="tm-intel-card">
                     <div class="tm-intel-top">
                         <span class="tm-intel-val" id="statTotal">0</span>
-                        <span class="tm-intel-tag">SIMULATED ATTACKS</span>
+                        <span class="tm-intel-tag">ATTACK EVENTS</span>
                     </div>
-                    <p class="tm-intel-desc">Attack arcs are generated from real source country data and plotted against common high-value targets.</p>
+                    <p class="tm-intel-desc">Attack arcs procedurally generated from APT group TTPs mapped to MITRE ATT&CK, visualised against high-value targets.</p>
                 </div>
                 <div class="tm-intel-card">
                     <div class="tm-intel-top">
                         <span class="tm-intel-val" id="tmStatSources">—</span>
-                        <span class="tm-intel-tag">SOURCE NATIONS</span>
+                        <span class="tm-intel-tag">THREAT ACTORS</span>
                     </div>
-                    <p class="tm-intel-desc">Countries hosting active C2 infrastructure or malware delivery servers, sourced from live abuse.ch feeds.</p>
+                    <p class="tm-intel-desc">Named APT groups and state-sponsored threat actors tracked by public cyber intelligence sources.</p>
                 </div>
                 <div class="tm-intel-card">
                     <div class="tm-intel-top">
                         <span class="tm-intel-val">10</span>
-                        <span class="tm-intel-tag">TARGET CITIES</span>
+                        <span class="tm-intel-tag">TARGET SECTORS</span>
                     </div>
-                    <p class="tm-intel-desc">Major financial, government, and tech hubs frequently profiled in threat actor playbooks as high-value targets.</p>
+                    <p class="tm-intel-desc">Critical infrastructure, government, finance, and technology sectors most frequently targeted in APT campaigns.</p>
                 </div>
                 <div class="tm-intel-card">
                     <div class="tm-intel-top">
                         <span class="tm-intel-val" id="tmStatMalware">—</span>
-                        <span class="tm-intel-tag">MALWARE FAMILIES</span>
+                        <span class="tm-intel-tag">ATT&amp;CK TECHNIQUES</span>
                     </div>
-                    <p class="tm-intel-desc">Distinct malware strains or threat categories identified in the current live feed used to drive the simulation.</p>
+                    <p class="tm-intel-desc">MITRE ATT&CK technique IDs observed across active intrusion campaigns from tracked threat actor groups.</p>
                 </div>
             </div>
         </div>

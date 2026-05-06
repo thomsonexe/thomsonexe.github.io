@@ -891,39 +891,39 @@ function getLandDots() {
 
 // Shared globe sphere renderer
 function drawSphere(ctx, cx, cy, R) {
-    // Deep space blue fill
+    // Dark green fill
     const grad = ctx.createRadialGradient(cx - R*0.28, cy - R*0.28, R*0.04, cx + R*0.1, cy + R*0.1, R);
-    grad.addColorStop(0,   '#1c3a5e');
-    grad.addColorStop(0.4, '#0d1f38');
-    grad.addColorStop(0.8, '#080f1e');
-    grad.addColorStop(1,   '#040810');
+    grad.addColorStop(0,   '#1a3a1e');
+    grad.addColorStop(0.4, '#0a1a0d');
+    grad.addColorStop(0.8, '#050e07');
+    grad.addColorStop(1,   '#020503');
     ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2);
     ctx.fillStyle = grad; ctx.fill();
 
-    // Cyan grid lines
+    // Green grid lines
     ctx.save();
     ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2); ctx.clip();
-    ctx.strokeStyle = 'rgba(0,180,255,0.07)'; ctx.lineWidth = 0.5;
+    ctx.strokeStyle = 'rgba(0,255,136,0.07)'; ctx.lineWidth = 0.5;
     for (let i = 1; i < 7; i++) {
         const phi = (i/7)*Math.PI, gy = cy - R*Math.cos(phi), rx = R*Math.sin(phi);
         ctx.beginPath(); ctx.ellipse(cx, gy, rx, rx*0.27, 0, 0, Math.PI*2); ctx.stroke();
     }
-    ctx.strokeStyle = 'rgba(0,180,255,0.14)'; ctx.lineWidth = 0.8;
+    ctx.strokeStyle = 'rgba(0,255,136,0.14)'; ctx.lineWidth = 0.8;
     ctx.beginPath(); ctx.ellipse(cx, cy, R, R*0.27, 0, 0, Math.PI*2); ctx.stroke();
     ctx.restore();
 
     // Specular highlight
     const spec = ctx.createRadialGradient(cx - R*0.38, cy - R*0.38, 0, cx - R*0.38, cy - R*0.38, R*0.65);
-    spec.addColorStop(0, 'rgba(100,200,255,0.07)');
-    spec.addColorStop(1, 'rgba(100,200,255,0)');
+    spec.addColorStop(0, 'rgba(0,255,136,0.07)');
+    spec.addColorStop(1, 'rgba(0,255,136,0)');
     ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2);
     ctx.fillStyle = spec; ctx.fill();
 
-    // Blue rim glow
+    // Green rim glow
     const rim = ctx.createRadialGradient(cx, cy, R*0.72, cx, cy, R);
-    rim.addColorStop(0,   'rgba(0,140,255,0)');
-    rim.addColorStop(0.6, 'rgba(0,140,255,0)');
-    rim.addColorStop(1,   'rgba(0,140,255,0.22)');
+    rim.addColorStop(0,   'rgba(0,255,100,0)');
+    rim.addColorStop(0.6, 'rgba(0,255,100,0)');
+    rim.addColorStop(1,   'rgba(0,255,100,0.22)');
     ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2);
     ctx.fillStyle = rim; ctx.fill();
 }
@@ -960,13 +960,13 @@ function initThreatMap(injectedSources, injectedAttackTypes) {
     window.addEventListener('touchend',  () => { dragActive = false; });
 
     const SOURCES = (injectedSources || [
-        { name:'Russia',    code:'RU', lat: 55.7, lon:  37.6 },
-        { name:'China',     code:'CN', lat: 39.9, lon: 116.4 },
-        { name:'N. Korea',  code:'KP', lat: 39.0, lon: 125.8 },
-        { name:'Iran',      code:'IR', lat: 35.7, lon:  51.4 },
-        { name:'Vietnam',   code:'VN', lat: 21.0, lon: 105.8 },
-        { name:'Romania',   code:'RO', lat: 44.4, lon:  26.1 },
-        { name:'Brazil',    code:'BR', lat:-15.8, lon: -47.9 },
+        { name:'APT29',         code:'RU', lat: 55.7, lon:  37.6 },
+        { name:'APT41',         code:'CN', lat: 39.9, lon: 116.4 },
+        { name:'Lazarus Group', code:'KP', lat: 39.0, lon: 125.8 },
+        { name:'APT35',         code:'IR', lat: 35.7, lon:  51.4 },
+        { name:'APT32',         code:'VN', lat: 21.0, lon: 105.8 },
+        { name:'APT28',         code:'RU', lat: 59.9, lon:  30.3 },
+        { name:'Blind Eagle',   code:'BR', lat:-15.8, lon: -47.9 },
     ]).map(s => ({ ...s, lat: s.lat*Math.PI/180, lon: s.lon*Math.PI/180 }));
 
     const TARGETS = [
@@ -983,10 +983,18 @@ function initThreatMap(injectedSources, injectedAttackTypes) {
     ].map(t => ({ ...t, lat: t.lat*Math.PI/180, lon: t.lon*Math.PI/180 }));
 
     const ATTACK_TYPES = injectedAttackTypes || [
-        'SSH Brute Force','SQL Injection','Log4Shell (CVE-2021-44228)',
-        'RDP Exploit','Ransomware Deployment','Zero-Day Exploit',
-        'DDoS Flood','Credential Stuffing','CVE-2024-3400 (PAN-OS)',
-        'CVE-2024-21762 (FortiOS)','Phishing Campaign','Supply Chain Attack',
+        'T1190 · Exploit Public-Facing App',
+        'T1110.001 · Password Spraying',
+        'T1059.001 · PowerShell Execution',
+        'T1566.001 · Spearphishing Attachment',
+        'T1486 · Data Encrypted for Impact',
+        'T1071.001 · Web Protocol C2',
+        'T1003.001 · LSASS Memory Dump',
+        'T1078 · Valid Account Abuse',
+        'T1021.002 · SMB Lateral Movement',
+        'T1505.003 · Web Shell Deployment',
+        'T1595 · Active Reconnaissance',
+        'T1588.002 · Offensive Tool Staging',
     ];
 
     function flag(code) {
@@ -1030,7 +1038,7 @@ function initThreatMap(injectedSources, injectedAttackTypes) {
             const t = new Date().toLocaleTimeString('en-GB', { hour12: false });
             const el = document.createElement('div');
             el.className = 'threat-entry';
-            el.innerHTML = `<span class="t-time">${t}</span><span class="t-route"><span class="t-src">${flag(src.code)} ${src.code}</span><span class="t-arrow">→</span><span class="t-dst">${flag(dst.code)} ${dst.code}</span></span><span class="t-type">${type}</span>`;
+            el.innerHTML = `<span class="t-time">${t}</span><span class="t-route"><span class="t-src">${flag(src.code)} ${src.name}</span><span class="t-arrow">→</span><span class="t-dst">${flag(dst.code)} ${dst.name}</span></span><span class="t-type">${type}</span>`;
             if (logEl.firstChild?.classList?.contains('threat-placeholder')) logEl.innerHTML = '';
             logEl.prepend(el);
             while (logEl.children.length > 30) logEl.removeChild(logEl.lastChild);
@@ -1046,7 +1054,7 @@ function initThreatMap(injectedSources, injectedAttackTypes) {
         ox.scale(dpr, dpr);
         drawSphere(ox, cx, cy, R);
         ox.beginPath(); ox.arc(cx, cy, R, 0, Math.PI*2);
-        ox.strokeStyle = 'rgba(0,140,255,0.25)'; ox.lineWidth = 1; ox.stroke();
+        ox.strokeStyle = 'rgba(0,255,136,0.25)'; ox.lineWidth = 1; ox.stroke();
         sphereCache = oc;
     }
 
@@ -1073,7 +1081,7 @@ function initThreatMap(injectedSources, injectedAttackTypes) {
             dotCtx.moveTo(sx + r, sy);
             dotCtx.arc(sx, sy, r, 0, Math.PI*2);
         }
-        dotCtx.fillStyle = 'rgba(0,220,255,0.72)';
+        dotCtx.fillStyle = 'rgba(0,255,136,0.65)';
         dotCtx.fill();
         dotCtx.restore();
     }
@@ -1081,9 +1089,9 @@ function initThreatMap(injectedSources, injectedAttackTypes) {
     function drawAtmosphere() {
         const outer = Math.min(R * 1.14, SIZE * 0.49);
         const atmo = ctx.createRadialGradient(cx, cy, R * 0.9, cx, cy, outer);
-        atmo.addColorStop(0,   'rgba(0,160,255,0.2)');
-        atmo.addColorStop(0.5, 'rgba(0,100,255,0.08)');
-        atmo.addColorStop(1,   'rgba(0,60,255,0)');
+        atmo.addColorStop(0,   'rgba(0,255,136,0.15)');
+        atmo.addColorStop(0.5, 'rgba(0,200,100,0.06)');
+        atmo.addColorStop(1,   'rgba(0,100,50,0)');
         ctx.save();
         ctx.beginPath(); ctx.arc(cx, cy, outer, 0, Math.PI * 2);
         ctx.fillStyle = atmo; ctx.fill();
@@ -1098,9 +1106,9 @@ function initThreatMap(injectedSources, injectedAttackTypes) {
             if (p.z < 0.05) return;
             const phase = ((pf * 0.035 + i * 0.3) % 1);
             ctx.beginPath(); ctx.arc(p.x, p.y, 4 + phase * 12, 0, Math.PI*2);
-            ctx.strokeStyle = `rgba(255,159,67,${0.6 * (1 - phase)})`; ctx.lineWidth = 1.2; ctx.stroke();
+            ctx.strokeStyle = `rgba(0,255,136,${0.6 * (1 - phase)})`; ctx.lineWidth = 1.2; ctx.stroke();
             ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2);
-            ctx.fillStyle = '#ff9f43'; ctx.fill();
+            ctx.fillStyle = '#00ff88'; ctx.fill();
             ctx.beginPath(); ctx.arc(p.x, p.y, 1.8, 0, Math.PI*2);
             ctx.fillStyle = '#fff'; ctx.fill();
         });
@@ -1146,18 +1154,18 @@ function initThreatMap(injectedSources, injectedAttackTypes) {
             });
         };
 
-        strokeSegs(7,   `rgba(255,80,30,${fade * 0.12})`);  // outer glow
-        strokeSegs(3,   `rgba(255,120,50,${fade * 0.35})`); // mid glow
-        strokeSegs(1.4, `rgba(255,210,110,${fade * 0.95})`);// core
+        strokeSegs(7,   `rgba(0,255,136,${fade * 0.12})`);   // outer glow
+        strokeSegs(3,   `rgba(0,255,136,${fade * 0.35})`);   // mid glow
+        strokeSegs(1.4, `rgba(180,255,210,${fade * 0.95})`); // core
 
         // Animated tip
         if (arc.progress < 1) {
             const tp = proj(arc.pts[maxIdx][0], arc.pts[maxIdx][1]);
             if (tp.z > 0.02) {
                 ctx.beginPath(); ctx.arc(tp.x, tp.y, 8, 0, Math.PI*2);
-                ctx.fillStyle = `rgba(255,180,80,${fade * 0.2})`; ctx.fill();
+                ctx.fillStyle = `rgba(0,255,136,${fade * 0.2})`; ctx.fill();
                 ctx.beginPath(); ctx.arc(tp.x, tp.y, 3.5, 0, Math.PI*2);
-                ctx.fillStyle = `rgba(255,210,130,${fade * 0.9})`; ctx.fill();
+                ctx.fillStyle = `rgba(100,255,180,${fade * 0.9})`; ctx.fill();
                 ctx.beginPath(); ctx.arc(tp.x, tp.y, 1.5, 0, Math.PI*2);
                 ctx.fillStyle = '#ffffff'; ctx.fill();
             }

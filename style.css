@@ -1170,9 +1170,9 @@ body {
     flex-shrink: 0;
 }
 .tm-legend-item { display: flex; align-items: center; gap: 0.35rem; }
-.tm-drag-hint { color: rgba(0,220,255,0.4); }
+.tm-drag-hint { color: rgba(0,255,136,0.4); }
 .tm-legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.tm-legend-line { width: 18px; height: 2px; background: rgba(255,60,60,0.7); flex-shrink: 0; }
+.tm-legend-line { width: 18px; height: 2px; background: linear-gradient(to right, rgba(0,255,136,0.7), rgba(255,50,50,0.7)); flex-shrink: 0; }
 
 /* Intel bar */
 .tm-intel-bar {
