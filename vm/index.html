@@ -363,6 +363,63 @@
                     </div>
                 </div>
 
+                <!-- file_magic -->
+                <div class="ctf-card">
+                    <div class="machine-status">
+                        <span class="status-dot"></span>online
+                    </div>
+                    <div class="ctf-meta">
+                        <span class="vm-platform">Custom</span>
+                        <span class="ctf-difficulty easy">Easy</span>
+                        <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>50 pts</span>
+                    </div>
+                    <h3 class="ctf-title">file_magic</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Forensics / File Analysis</p>
+                    <p class="ctf-excerpt">A suspicious file was uploaded to the server with the wrong extension. Use magic bytes and Linux file tools to uncover what it really is &mdash; and what it contains.</p>
+                    <div class="vm-actions">
+                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Launch VM</a>
+                        <button class="btn-objectives" onclick="openModal('file-magic')"><i class="fas fa-scroll"></i> Objectives</button>
+                    </div>
+                </div>
+
+                <!-- strings_attached -->
+                <div class="ctf-card">
+                    <div class="machine-status">
+                        <span class="status-dot"></span>online
+                    </div>
+                    <div class="ctf-meta">
+                        <span class="vm-platform">Custom</span>
+                        <span class="ctf-difficulty easy">Easy</span>
+                        <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>60 pts</span>
+                    </div>
+                    <h3 class="ctf-title">strings_attached</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Forensics / Binary Analysis</p>
+                    <p class="ctf-excerpt">A firmware image was recovered from a compromised device. A developer accidentally compiled a secret into the binary. Extract it, decode it, claim the flag.</p>
+                    <div class="vm-actions">
+                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Launch VM</a>
+                        <button class="btn-objectives" onclick="openModal('strings-attached')"><i class="fas fa-scroll"></i> Objectives</button>
+                    </div>
+                </div>
+
+                <!-- time_line -->
+                <div class="ctf-card">
+                    <div class="machine-status">
+                        <span class="status-dot"></span>online
+                    </div>
+                    <div class="ctf-meta">
+                        <span class="vm-platform">Custom</span>
+                        <span class="ctf-difficulty medium">Medium</span>
+                        <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>125 pts</span>
+                    </div>
+                    <h3 class="ctf-title">time_line</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Forensics / Incident Response</p>
+                    <p class="ctf-excerpt">An attacker accessed a Linux server at 3:47 AM. Analyse the log directory timestamps to identify which file was tampered with and recover the evidence inside.</p>
+                    <div class="vm-actions">
+                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Launch VM</a>
+                        <button class="btn-objectives" onclick="openModal('time-line')"><i class="fas fa-scroll"></i> Objectives</button>
+                    </div>
+                </div>
+
                 <!-- web_break (coming soon) -->
                 <div class="ctf-card dim">
                     <div class="machine-status offline-status">
@@ -394,6 +451,107 @@
     </footer>
 
     <!-- MODALS -->
+    <div class="vm-modal-overlay" id="modal-file-magic">
+        <div class="vm-modal">
+            <button class="modal-close" onclick="closeModal('file-magic')"><i class="fas fa-times"></i></button>
+            <div class="modal-meta">
+                <span class="vm-platform">Custom</span>
+                <span class="ctf-difficulty easy">Easy</span>
+                <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--accent-cyan);margin-left:auto;">50 pts</span>
+            </div>
+            <h2 class="modal-title">file_magic</h2>
+            <p class="modal-desc">A file was uploaded to the server with the wrong extension. The analyst flagged it as suspicious but couldn't identify it. Use magic bytes and Linux file tools to find out what it really is and extract its contents.</p>
+            <p class="modal-section-title"><i class="fas fa-list-check" style="margin-right:0.4rem;"></i>Objectives</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-chevron-right"></i>Identify the real file type of <code>suspicious.doc</code></li>
+                <li><i class="fas fa-chevron-right"></i>Rename or handle it appropriately to access its contents</li>
+                <li><i class="fas fa-chevron-right"></i>Find the hidden flag inside</li>
+            </ul>
+            <p class="modal-section-title"><i class="fas fa-download" style="margin-right:0.4rem;"></i>Get the Challenge Files</p>
+            <div class="modal-code">
+                <span class="t-prompt">$ </span>cd ~/challenges/file-magic/<br>
+                <span class="t-prompt">$ </span>cat README.txt
+            </div>
+            <p class="modal-section-title"><i class="fas fa-wrench" style="margin-right:0.4rem;"></i>Tools You'll Need</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>file suspicious.doc</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>xxd suspicious.doc | head</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>unzip</code></li>
+            </ul>
+            <div class="modal-actions">
+                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Open Terminal</a>
+                <button class="btn-objectives" onclick="closeModal('file-magic')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="vm-modal-overlay" id="modal-strings-attached">
+        <div class="vm-modal">
+            <button class="modal-close" onclick="closeModal('strings-attached')"><i class="fas fa-times"></i></button>
+            <div class="modal-meta">
+                <span class="vm-platform">Custom</span>
+                <span class="ctf-difficulty easy">Easy</span>
+                <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--accent-cyan);margin-left:auto;">60 pts</span>
+            </div>
+            <h2 class="modal-title">strings_attached</h2>
+            <p class="modal-desc">A firmware image was recovered from a compromised IoT device. The development team believes a secret was accidentally compiled into the binary during a debug build. Find it and decode it.</p>
+            <p class="modal-section-title"><i class="fas fa-list-check" style="margin-right:0.4rem;"></i>Objectives</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-chevron-right"></i>Extract all readable strings from <code>firmware.bin</code></li>
+                <li><i class="fas fa-chevron-right"></i>Identify the suspicious encoded string</li>
+                <li><i class="fas fa-chevron-right"></i>Decode it to recover the flag</li>
+            </ul>
+            <p class="modal-section-title"><i class="fas fa-download" style="margin-right:0.4rem;"></i>Get the Challenge Files</p>
+            <div class="modal-code">
+                <span class="t-prompt">$ </span>cd ~/challenges/strings-attached/<br>
+                <span class="t-prompt">$ </span>cat README.txt
+            </div>
+            <p class="modal-section-title"><i class="fas fa-wrench" style="margin-right:0.4rem;"></i>Tools You'll Need</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>strings firmware.bin</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>strings firmware.bin | grep =</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>echo "..." | base64 -d</code></li>
+            </ul>
+            <div class="modal-actions">
+                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Open Terminal</a>
+                <button class="btn-objectives" onclick="closeModal('strings-attached')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="vm-modal-overlay" id="modal-time-line">
+        <div class="vm-modal">
+            <button class="modal-close" onclick="closeModal('time-line')"><i class="fas fa-times"></i></button>
+            <div class="modal-meta">
+                <span class="vm-platform">Custom</span>
+                <span class="ctf-difficulty medium">Medium</span>
+                <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--accent-cyan);margin-left:auto;">125 pts</span>
+            </div>
+            <h2 class="modal-title">time_line</h2>
+            <p class="modal-desc">An attacker accessed a Linux server overnight. The logs directory contains files from that evening. One file was modified at 3:47 AM — a time when no legitimate activity should have occurred. Find it.</p>
+            <p class="modal-section-title"><i class="fas fa-list-check" style="margin-right:0.4rem;"></i>Objectives</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-chevron-right"></i>Identify the file modified at 03:47 AM</li>
+                <li><i class="fas fa-chevron-right"></i>Read its contents to find the flag</li>
+            </ul>
+            <p class="modal-section-title"><i class="fas fa-download" style="margin-right:0.4rem;"></i>Get the Challenge Files</p>
+            <div class="modal-code">
+                <span class="t-prompt">$ </span>cd ~/challenges/time-line/<br>
+                <span class="t-prompt">$ </span>cat README.txt
+            </div>
+            <p class="modal-section-title"><i class="fas fa-wrench" style="margin-right:0.4rem;"></i>Tools You'll Need</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>ls -la --time-style=full-iso logs/</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>stat logs/&lt;filename&gt;</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>cat logs/&lt;filename&gt;</code></li>
+            </ul>
+            <div class="modal-actions">
+                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Open Terminal</a>
+                <button class="btn-objectives" onclick="closeModal('time-line')">Close</button>
+            </div>
+        </div>
+    </div>
+
     <div class="vm-modal-overlay" id="modal-init-flag">
         <div class="vm-modal">
             <button class="modal-close" onclick="closeModal('init-flag')"><i class="fas fa-times"></i></button>
