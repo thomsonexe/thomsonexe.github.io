@@ -43,7 +43,7 @@
         <div class="container">
             <p class="page-hero-prompt"><span class="prompt">ben@thomson.cx:~$</span> ls -la /labs/writeups/</p>
             <h1 class="page-hero-title">All Writeups</h1>
-            <p class="page-hero-sub">CTF walkthroughs, blue team lab writeups, and tool reference guides &mdash; 26 writeups.</p>
+            <p class="page-hero-sub">CTF walkthroughs, blue team lab writeups, and tool reference guides &mdash; 32 writeups.</p>
         </div>
         <div class="grid-overlay"></div>
     </section>
@@ -351,6 +351,83 @@
                     <p class="ctf-category"><i class="fas fa-tag"></i> Network Scanning / Reconnaissance / Enumeration</p>
                     <p class="ctf-excerpt">A practical Nmap reference — host discovery, port scanning techniques, service and OS detection, NSE scripts, output formats, and common ports reference for asset discovery and vulnerability assessment.</p>
                     <a href="/writeup-nmap" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="ctf-card" data-platform="detection">
+                    <div class="ctf-meta">
+                        <span class="ctf-platform detection">Detection</span>
+                        <span class="ctf-difficulty medium">Intermediate</span>
+                    </div>
+                    <h3 class="ctf-title">Sysmon — Windows Event Telemetry</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Windows / Sysmon / Threat Hunting</p>
+                    <p class="ctf-excerpt">A practical guide to deploying and using Sysmon — key event IDs, configuration, hunting queries for credential dumping, process injection, named pipe C2, and lateral movement detection.</p>
+                    <a href="/writeup-sysmon" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="ctf-card" data-platform="detection">
+                    <div class="ctf-meta">
+                        <span class="ctf-platform detection">Detection</span>
+                        <span class="ctf-difficulty medium">Intermediate</span>
+                    </div>
+                    <h3 class="ctf-title">YARA Rule Writing</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Malware Analysis / YARA / Detection Engineering</p>
+                    <p class="ctf-excerpt">A practical guide to writing YARA rules — rule structure, string types, modifiers, conditions, and real examples for detecting Mimikatz, XOR-obfuscated shellcode, and PowerShell download cradles.</p>
+                    <a href="/writeup-yara" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="ctf-card" data-platform="detection">
+                    <div class="ctf-meta">
+                        <span class="ctf-platform detection">Detection</span>
+                        <span class="ctf-difficulty easy">Beginner</span>
+                    </div>
+                    <h3 class="ctf-title">Threat Intelligence &amp; IOC Analysis</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Threat Intelligence / OSINT / IOC Analysis</p>
+                    <p class="ctf-excerpt">A practical guide to threat intelligence — IOC types, enrichment tools (VirusTotal, Shodan, MISP), threat feeds, investigation workflow, the Pyramid of Pain, and the Diamond Model.</p>
+                    <a href="/writeup-threat-intel" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="ctf-card" data-platform="forensics">
+                    <div class="ctf-meta">
+                        <span class="ctf-platform forensics">Forensics</span>
+                        <span class="ctf-difficulty medium">Intermediate</span>
+                    </div>
+                    <h3 class="ctf-title">Windows Registry Forensics</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Windows / Registry / Persistence / DFIR</p>
+                    <p class="ctf-excerpt">A practical reference for registry forensics — hive file locations, persistence run keys, forensic artefacts (shellbags, UserAssist, USB history), and PowerShell investigation commands.</p>
+                    <a href="/writeup-registry" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="ctf-card" data-platform="network">
+                    <div class="ctf-meta">
+                        <span class="ctf-platform network">Network</span>
+                        <span class="ctf-difficulty medium">Intermediate</span>
+                    </div>
+                    <h3 class="ctf-title">DNS Threat Hunting</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Network / DNS / Threat Hunting</p>
+                    <p class="ctf-excerpt">A practical guide to hunting threats through DNS — record types, suspicious patterns, DGA detection, DNS tunneling, C2 over DNS beaconing, and hunting queries using Sysmon and DnsEvents.</p>
+                    <a href="/writeup-dns" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="ctf-card" data-platform="network">
+                    <div class="ctf-meta">
+                        <span class="ctf-platform network">Network</span>
+                        <span class="ctf-difficulty medium">Intermediate</span>
+                    </div>
+                    <h3 class="ctf-title">Suricata IDS — Rules &amp; Analysis</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> IDS / Network Detection / Rule Writing</p>
+                    <p class="ctf-excerpt">A practical guide to Suricata — rule anatomy, actions, protocol headers, key rule options, example detections for C2 and tunneling, EVE JSON log analysis, and tuning for production environments.</p>
+                    <a href="/writeup-suricata" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="ctf-card" data-platform="detection">
+                    <div class="ctf-meta">
+                        <span class="ctf-platform detection">Detection</span>
+                        <span class="ctf-difficulty medium">Intermediate</span>
+                    </div>
+                    <h3 class="ctf-title">AWS CloudTrail Threat Hunting</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Cloud / AWS / Threat Hunting</p>
+                    <p class="ctf-excerpt">A practical guide to hunting threats in AWS — key CloudTrail API events, GuardDuty findings, IAM enumeration detection, persistence mechanisms, and Athena SQL queries for cloud investigations.</p>
+                    <a href="/writeup-aws" class="read-more">Read Writeup <i class="fas fa-arrow-right"></i></a>
                 </div>
 
             </div>

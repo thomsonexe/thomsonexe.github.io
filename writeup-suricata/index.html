@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suricata IDS — Rules & Analysis | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/home" class="nav-logo writeup-logo">
+                <img src="/mouse_t.png" class="nav-mouse" alt="">
+            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="/labs" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Labs
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="writeup-hero">
+        <div class="container">
+            <div class="writeup-meta">
+                <span class="ctf-platform network">Network</span>
+                <span class="ctf-difficulty medium">Intermediate</span>
+                <span class="writeup-category"><i class="fas fa-tag"></i> IDS / Network Detection / Rule Writing</span>
+            </div>
+            <h1 class="writeup-title">Suricata IDS — Rules &amp; Analysis</h1>
+            <p class="writeup-subtitle">A practical guide to Suricata — rule anatomy, actions, protocol keywords, writing custom detection rules, analysing EVE JSON alerts, and tuning for low-noise detection.</p>
+            <div class="writeup-stats">
+                <span><i class="fas fa-clock"></i> 20 min read</span>
+                <span><i class="fas fa-code"></i> 20+ example rules</span>
+                <span><i class="fas fa-shield-alt"></i> Blue Team</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="writeup-body">
+        <div class="container writeup-container">
+
+            <aside class="writeup-toc">
+                <div class="toc-card">
+                    <h3 class="toc-title"><i class="fas fa-list"></i> Contents</h3>
+                    <ul class="toc-links">
+                        <li><a href="#intro">What is Suricata?</a></li>
+                        <li><a href="#anatomy">Rule Anatomy</a></li>
+                        <li><a href="#actions">Actions</a></li>
+                        <li><a href="#headers">Protocol Headers</a></li>
+                        <li><a href="#options">Rule Options</a></li>
+                        <li><a href="#examples">Example Rules</a></li>
+                        <li><a href="#eve">EVE JSON Logs</a></li>
+                        <li><a href="#tuning">Tuning</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <article class="writeup-content">
+
+                <section id="intro" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>What is Suricata?</h2>
+                    <p>Suricata is a free, open-source network threat detection engine developed by the Open Information Security Foundation (OISF). It functions as an Intrusion Detection System (IDS), Intrusion Prevention System (IPS), and Network Security Monitor (NSM). Suricata inspects network traffic in real time and matches packets against a rule set to generate alerts, drop traffic, or log network metadata.</p>
+                    <p>Suricata supports the same rule syntax as Snort, making existing Snort rule sets directly compatible. It also extends beyond Snort with multi-threading, file extraction, TLS fingerprinting (JA3), and native EVE JSON output for SIEM ingestion.</p>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>EmergingThreats (ET) Open and ET Pro rule sets are the most widely used free and commercial rule sets for Suricata. Install them with <code>suricata-update</code> to get thousands of community-maintained detections.</p>
+                    </div>
+                </section>
+
+                <section id="anatomy" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Rule Anatomy</h2>
+                    <p>Every Suricata rule follows the same structure: <code>action protocol src_ip src_port direction dst_ip dst_port (options)</code></p>
+
+                    <div class="code-block">
+                        <span class="code-comment"># Full rule example — detect Mimikatz LSASS dump over the network</span><br>
+                        alert tcp $HOME_NET any -&gt; $HOME_NET any (<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;msg:<span class="code-val">"ET LATERAL MOVEMENT Mimikatz LSASS Dump"</span>;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;content:<span class="code-val">"|4c 4d 41 53 53|"</span>; <span class="code-comment">/* LMASS */</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;depth:8;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;sid:9001001;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;rev:1;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;classtype:credential-theft;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;metadata:affected_product Windows, attack_target Client_Endpoint;<br>
+                        )
+                    </div>
+                </section>
+
+                <section id="actions" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Actions</h2>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Action</th><th>Mode</th><th>Effect</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>alert</code></td><td>IDS / IPS</td><td>Generate an alert and log the packet. Does not block traffic.</td></tr>
+                                <tr><td><code>drop</code></td><td>IPS only</td><td>Drop the packet and generate an alert. Requires inline/IPS mode.</td></tr>
+                                <tr><td><code>reject</code></td><td>IPS only</td><td>Drop packet and send TCP RST (or ICMP unreachable for UDP) to both sides.</td></tr>
+                                <tr><td><code>pass</code></td><td>IDS / IPS</td><td>Allow the packet through and skip further rule matching — used for whitelisting.</td></tr>
+                                <tr><td><code>log</code></td><td>IDS</td><td>Log the packet without alerting — useful for capturing specific traffic silently.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="headers" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Protocol Headers</h2>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Field</th><th>Options</th><th>Notes</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Protocol</td><td><code>tcp</code>, <code>udp</code>, <code>icmp</code>, <code>http</code>, <code>dns</code>, <code>tls</code>, <code>smtp</code>, <code>ssh</code></td><td>Layer 7 protocols enable keyword matching specific to that protocol</td></tr>
+                                <tr><td>Source/Dest IP</td><td><code>any</code>, <code>$HOME_NET</code>, <code>$EXTERNAL_NET</code>, <code>192.168.1.0/24</code>, <code>!10.0.0.0/8</code></td><td>Variables defined in suricata.yaml</td></tr>
+                                <tr><td>Source/Dest Port</td><td><code>any</code>, <code>80</code>, <code>!443</code>, <code>[80,8080]</code>, <code>[1024:65535]</code></td><td>Port ranges use colon notation</td></tr>
+                                <tr><td>Direction</td><td><code>-&gt;</code> (one-way), <code>&lt;&gt;</code> (bidirectional)</td><td>Use <code>&lt;&gt;</code> to match traffic in either direction</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="options" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Key Rule Options</h2>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Option</th><th>Purpose</th><th>Example</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>msg</code></td><td>Alert message shown in logs</td><td><code>msg:"ET MALWARE Beacon";</code></td></tr>
+                                <tr><td><code>content</code></td><td>Match a specific string or byte pattern</td><td><code>content:"User-Agent|3a|";</code></td></tr>
+                                <tr><td><code>nocase</code></td><td>Case-insensitive content match</td><td><code>content:"powershell"; nocase;</code></td></tr>
+                                <tr><td><code>pcre</code></td><td>Perl-compatible regex match</td><td><code>pcre:"/[a-z]{15,}\.ru/i";</code></td></tr>
+                                <tr><td><code>depth</code></td><td>Only search first N bytes</td><td><code>depth:100;</code></td></tr>
+                                <tr><td><code>offset</code></td><td>Start searching from byte N</td><td><code>offset:4;</code></td></tr>
+                                <tr><td><code>distance</code></td><td>N bytes after last match</td><td><code>distance:0;</code></td></tr>
+                                <tr><td><code>within</code></td><td>Match within N bytes of previous</td><td><code>within:50;</code></td></tr>
+                                <tr><td><code>threshold</code></td><td>Limit alert frequency (rate limiting)</td><td><code>threshold:type limit, track by_src, count 5, seconds 60;</code></td></tr>
+                                <tr><td><code>flow</code></td><td>Specify traffic direction in session</td><td><code>flow:to_server,established;</code></td></tr>
+                                <tr><td><code>http.uri</code></td><td>Match on HTTP URI (normalised)</td><td><code>http.uri; content:"/admin/login";</code></td></tr>
+                                <tr><td><code>http.user_agent</code></td><td>Match on HTTP User-Agent header</td><td><code>http.user_agent; content:"curl/7";</code></td></tr>
+                                <tr><td><code>dns.query</code></td><td>Match on DNS query name</td><td><code>dns.query; content:".onion.ly";</code></td></tr>
+                                <tr><td><code>sid</code></td><td>Unique rule ID (required)</td><td><code>sid:1000001;</code> — use &gt;1000000 for custom rules</td></tr>
+                                <tr><td><code>rev</code></td><td>Rule revision number (required)</td><td><code>rev:1;</code></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="examples" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Example Rules</h2>
+
+                    <h3>Detect PowerShell download over HTTP</h3>
+                    <div class="code-block">
+                        alert http $HOME_NET any -&gt; $EXTERNAL_NET any (<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;msg:<span class="code-val">"ET MALWARE PowerShell DownloadString"</span>;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;flow:to_server,established;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;http.user_agent; content:<span class="code-val">"WindowsPowerShell"</span>; nocase;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;http.uri; content:<span class="code-val">"DownloadString"</span>; nocase;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;sid:1000001; rev:1;<br>
+                        )
+                    </div>
+
+                    <h3>Detect Cobalt Strike default HTTPS certificate</h3>
+                    <div class="code-block">
+                        alert tls $EXTERNAL_NET any -&gt; $HOME_NET any (<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;msg:<span class="code-val">"ET C2 Cobalt Strike Default TLS Certificate"</span>;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;tls.cert_subject; content:<span class="code-val">"CN=Major Cobalt Strike"</span>;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;sid:1000002; rev:1;<br>
+                        )
+                    </div>
+
+                    <h3>Detect DNS query to .onion relay domain</h3>
+                    <div class="code-block">
+                        alert dns $HOME_NET any -&gt; any 53 (<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;msg:<span class="code-val">"ET TOR DNS Query to .onion Relay Domain"</span>;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;dns.query; content:<span class="code-val">".onion"</span>; endswith;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;sid:1000003; rev:1;<br>
+                        )
+                    </div>
+
+                    <h3>Detect unusually long DNS query (tunneling)</h3>
+                    <div class="code-block">
+                        alert dns $HOME_NET any -&gt; any 53 (<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;msg:<span class="code-val">"ET DNS Unusually Long DNS Query - Possible Tunneling"</span>;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;dns.query; isdataat:60,relative;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;sid:1000004; rev:1;<br>
+                        )
+                    </div>
+                </section>
+
+                <section id="eve" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>EVE JSON Logs</h2>
+                    <p>Suricata outputs alerts, DNS, HTTP, TLS, and file transaction logs in EVE JSON format — a single structured log file that can be ingested into Elasticsearch (ELK Stack), Splunk, or Microsoft Sentinel.</p>
+
+                    <div class="code-block">
+                        <span class="code-comment"># Example EVE JSON alert event</span><br>
+                        {<br>
+                        &nbsp;&nbsp;"timestamp": "2025-01-15T10:22:31.001234+0000",<br>
+                        &nbsp;&nbsp;"event_type": "alert",<br>
+                        &nbsp;&nbsp;"src_ip": "10.1.1.50",<br>
+                        &nbsp;&nbsp;"src_port": 54321,<br>
+                        &nbsp;&nbsp;"dest_ip": "185.220.101.47",<br>
+                        &nbsp;&nbsp;"dest_port": 443,<br>
+                        &nbsp;&nbsp;"proto": "TCP",<br>
+                        &nbsp;&nbsp;"alert": {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;"action": "allowed",<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;"gid": 1,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;"signature_id": 2019401,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;"rev": 4,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;"signature": "ET C2 Known Bad SSL Cert",<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;"category": "Malware Command and Control Activity"<br>
+                        &nbsp;&nbsp;}<br>
+                        }
+                    </div>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p>Enable <code>eve-log</code> types beyond alerts — HTTP, DNS, and TLS logs provide context even when no alert fires. A malware connection to an unknown IP may not trigger an alert, but the TLS certificate in the TLS log may reveal the C2 infrastructure.</p>
+                    </div>
+                </section>
+
+                <section id="tuning" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Tuning</h2>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Suppress noisy rules.</strong> Use the suppress directive to silence known-good traffic without disabling the rule entirely. Example: <code>suppress gen_id 1, sig_id 2001219, track by_src, ip 10.1.1.100</code></p>
+                    </div>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Use <code>threshold</code> to rate-limit alerts.</strong> A single port scan can generate thousands of alerts. Use <code>threshold:type both, track by_src, count 10, seconds 60;</code> to get one alert per minute per source.</p>
+                    </div>
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Custom SIDs must be above 1,000,000.</strong> SIDs 1–999999 are reserved for the Snort/ET rule set. Using low SIDs in custom rules causes conflicts when updating the official rule set.</p>
+                    </div>
+                </section>
+
+            </article>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+    </script>
+</body>
+</html>

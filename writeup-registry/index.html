@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Registry Forensics | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/home" class="nav-logo writeup-logo">
+                <img src="/mouse_t.png" class="nav-mouse" alt="">
+            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="/labs" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Labs
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="writeup-hero">
+        <div class="container">
+            <div class="writeup-meta">
+                <span class="ctf-platform forensics">Forensics</span>
+                <span class="ctf-difficulty medium">Intermediate</span>
+                <span class="writeup-category"><i class="fas fa-tag"></i> Windows / Registry / Persistence / DFIR</span>
+            </div>
+            <h1 class="writeup-title">Windows Registry Forensics</h1>
+            <p class="writeup-subtitle">A practical reference for registry-based forensics — key hive locations, forensic artefacts, attacker persistence mechanisms, and how to investigate them.</p>
+            <div class="writeup-stats">
+                <span><i class="fas fa-clock"></i> 18 min read</span>
+                <span><i class="fas fa-key"></i> 30+ key paths</span>
+                <span><i class="fas fa-shield-alt"></i> Blue Team</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="writeup-body">
+        <div class="container writeup-container">
+
+            <aside class="writeup-toc">
+                <div class="toc-card">
+                    <h3 class="toc-title"><i class="fas fa-list"></i> Contents</h3>
+                    <ul class="toc-links">
+                        <li><a href="#intro">Registry Structure</a></li>
+                        <li><a href="#hives">Hive Files on Disk</a></li>
+                        <li><a href="#persistence">Persistence Locations</a></li>
+                        <li><a href="#artefacts">Forensic Artefacts</a></li>
+                        <li><a href="#useractivity">User Activity</a></li>
+                        <li><a href="#tools">Tools</a></li>
+                        <li><a href="#commands">Investigation Commands</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <article class="writeup-content">
+
+                <section id="intro" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Registry Structure</h2>
+                    <p>The Windows Registry is a hierarchical database storing system and user configuration. It is one of the most important forensic artefacts on a Windows system — attackers write persistence entries, malware stores configuration data, and Windows tracks user activity all in the registry.</p>
+                    <p>The registry is organised into five root keys (hives), each serving a distinct purpose:</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Root Key</th><th>Abbreviation</th><th>Purpose</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>HKEY_LOCAL_MACHINE</code></td><td>HKLM</td><td>System-wide settings — hardware, installed software, services, security policy</td></tr>
+                                <tr><td><code>HKEY_CURRENT_USER</code></td><td>HKCU</td><td>Settings for the currently logged-on user (mapped from HKU\SID)</td></tr>
+                                <tr><td><code>HKEY_USERS</code></td><td>HKU</td><td>All loaded user profiles — each user's SID has a subkey</td></tr>
+                                <tr><td><code>HKEY_CLASSES_ROOT</code></td><td>HKCR</td><td>File associations and COM registration (merged view of HKLM and HKCU)</td></tr>
+                                <tr><td><code>HKEY_CURRENT_CONFIG</code></td><td>HKCC</td><td>Hardware profile used at startup — volatile, not persistent on disk</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="hives" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Hive Files on Disk</h2>
+                    <p>Registry hives are stored as binary files on disk and can be parsed offline from a forensic image using tools like RegRipper, Registry Explorer, or Autopsy.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Hive</th><th>File Path</th><th>Maps To</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>SYSTEM</td><td><code>C:\Windows\System32\config\SYSTEM</code></td><td>HKLM\SYSTEM</td></tr>
+                                <tr><td>SOFTWARE</td><td><code>C:\Windows\System32\config\SOFTWARE</code></td><td>HKLM\SOFTWARE</td></tr>
+                                <tr><td>SECURITY</td><td><code>C:\Windows\System32\config\SECURITY</code></td><td>HKLM\SECURITY</td></tr>
+                                <tr><td>SAM</td><td><code>C:\Windows\System32\config\SAM</code></td><td>HKLM\SAM (local accounts)</td></tr>
+                                <tr><td>NTUSER.DAT</td><td><code>C:\Users\&lt;username&gt;\NTUSER.DAT</code></td><td>HKCU (per-user settings)</td></tr>
+                                <tr><td>UsrClass.dat</td><td><code>C:\Users\&lt;username&gt;\AppData\Local\Microsoft\Windows\UsrClass.dat</code></td><td>HKCU\Software\Classes</td></tr>
+                                <tr><td>Amcache.hve</td><td><code>C:\Windows\AppCompat\Programs\Amcache.hve</code></td><td>Program execution history</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Registry hives on a live system are locked by the OS. Use Volume Shadow Copies, a forensic image, or tools like <strong>reg save</strong> to export them for offline analysis without live system interference.</p>
+                    </div>
+                </section>
+
+                <section id="persistence" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Persistence Locations</h2>
+                    <p>These are the registry keys most commonly abused by attackers and malware to maintain persistence across reboots. Check all of them during an investigation.</p>
+
+                    <h3>Run Keys (execute on login)</h3>
+                    <div class="code-block">
+                        <span class="code-comment"># Execute for all users at login</span><br>
+                        HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run<br>
+                        HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce<br><br>
+                        <span class="code-comment"># Execute for current user at login</span><br>
+                        HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run<br>
+                        HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce<br><br>
+                        <span class="code-comment"># 32-bit apps on 64-bit systems</span><br>
+                        HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Run
+                    </div>
+
+                    <h3>Services</h3>
+                    <div class="code-block">
+                        <span class="code-comment"># All installed services — look for unusual ImagePath values</span><br>
+                        HKLM\SYSTEM\CurrentControlSet\Services\&lt;ServiceName&gt;<br><br>
+                        <span class="code-comment"># Start type: 0=Boot, 1=System, 2=Auto, 3=Manual, 4=Disabled</span><br>
+                        HKLM\SYSTEM\CurrentControlSet\Services\&lt;ServiceName&gt;\Start
+                    </div>
+
+                    <h3>Scheduled Tasks (registry-based)</h3>
+                    <div class="code-block">
+                        HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tasks<br>
+                        HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tree
+                    </div>
+
+                    <h3>Other persistence locations</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Technique</th><th>Registry Path</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Boot Execute</td><td><code>HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\BootExecute</code></td></tr>
+                                <tr><td>Winlogon</td><td><code>HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Userinit</code></td></tr>
+                                <tr><td>AppInit DLLs</td><td><code>HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows\AppInit_DLLs</code></td></tr>
+                                <tr><td>Image File Execution Options</td><td><code>HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\</code></td></tr>
+                                <tr><td>COM Hijacking</td><td><code>HKCU\Software\Classes\CLSID\&lt;GUID&gt;\InprocServer32</code></td></tr>
+                                <tr><td>Active Setup</td><td><code>HKLM\SOFTWARE\Microsoft\Active Setup\Installed Components\</code></td></tr>
+                                <tr><td>LSA Packages</td><td><code>HKLM\SYSTEM\CurrentControlSet\Control\Lsa\Authentication Packages</code></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="artefacts" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Forensic Artefacts</h2>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Artefact</th><th>Registry Path</th><th>What It Shows</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Installed Software</td><td><code>HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\</code></td><td>Applications installed on the system with timestamps</td></tr>
+                                <tr><td>USB Devices</td><td><code>HKLM\SYSTEM\CurrentControlSet\Enum\USBSTOR\</code></td><td>All USB storage devices ever connected — serial numbers, timestamps</td></tr>
+                                <tr><td>Network Interfaces</td><td><code>HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\</code></td><td>Historical IP addresses, DHCP info per NIC</td></tr>
+                                <tr><td>Timezone</td><td><code>HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation</code></td><td>System timezone — essential for log timestamp correlation</td></tr>
+                                <tr><td>Last Shutdown</td><td><code>HKLM\SYSTEM\CurrentControlSet\Control\Windows\ShutdownTime</code></td><td>Last shutdown time as a Windows FILETIME value</td></tr>
+                                <tr><td>Recent Documents</td><td><code>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs</code></td><td>Files recently opened by the user</td></tr>
+                                <tr><td>Shellbags</td><td><code>HKCU\SOFTWARE\Classes\Local Settings\Software\Microsoft\Windows\Shell\</code></td><td>Folders the user has browsed — persists even if folder is deleted</td></tr>
+                                <tr><td>UserAssist</td><td><code>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist\</code></td><td>GUI applications launched by the user (ROT13 encoded)</td></tr>
+                                <tr><td>Typed URLs</td><td><code>HKCU\SOFTWARE\Microsoft\Internet Explorer\TypedURLs</code></td><td>URLs typed directly into IE/Edge address bar</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="useractivity" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>User Activity</h2>
+                    <p>The registry tracks extensive user activity that can establish a timeline of actions on an endpoint.</p>
+
+                    <div class="code-block">
+                        <span class="code-comment"># Last logged-on user</span><br>
+                        HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\LastLoggedOnUser<br><br>
+                        <span class="code-comment"># All local accounts and last logon</span><br>
+                        HKLM\SAM\SAM\Domains\Account\Users\<br><br>
+                        <span class="code-comment"># MRU (Most Recently Used) lists — Office documents</span><br>
+                        HKCU\SOFTWARE\Microsoft\Office\16.0\Word\File MRU\<br><br>
+                        <span class="code-comment"># Run dialog history</span><br>
+                        HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\RunMRU<br><br>
+                        <span class="code-comment"># Wireless networks connected to</span><br>
+                        HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\NetworkList\Profiles\
+                    </div>
+                </section>
+
+                <section id="tools" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Tools</h2>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Tool</th><th>Use Case</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><strong>Registry Explorer</strong> (Eric Zimmermann)</td><td>GUI hive viewer with built-in bookmarks for forensic locations. Best for offline analysis.</td></tr>
+                                <tr><td><strong>RegRipper</strong></td><td>Plugin-based registry parser — produces a timeline of forensic artefacts from hive files.</td></tr>
+                                <tr><td><strong>Autopsy</strong></td><td>Includes registry plugins that extract Run keys, USB history, and user artefacts automatically.</td></tr>
+                                <tr><td><strong>regedit.exe</strong></td><td>Built-in live registry editor — use on a live system, not for forensic imaging.</td></tr>
+                                <tr><td><strong>reg.exe</strong></td><td>Command-line registry tool — useful for exporting hives (<code>reg save</code>) and querying values.</td></tr>
+                                <tr><td><strong>Shellbags Explorer</strong> (EZ Tools)</td><td>Dedicated parser for shellbag artefacts — shows folder browsing history with timestamps.</td></tr>
+                                <tr><td><strong>AmcacheParser</strong> (EZ Tools)</td><td>Parses Amcache.hve to extract program execution history and file metadata.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="commands" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Investigation Commands</h2>
+
+                    <h3>Query Run keys from a live system (PowerShell)</h3>
+                    <div class="code-block">
+                        <span class="code-comment"># List all HKLM Run entries</span><br>
+                        Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run"<br><br>
+                        <span class="code-comment"># List all HKCU Run entries</span><br>
+                        Get-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run"<br><br>
+                        <span class="code-comment"># List all services with Auto start and their executable paths</span><br>
+                        Get-CimInstance Win32_Service | Where-Object {$_.StartMode -eq "Auto"} | Select-Object Name, PathName, State
+                    </div>
+
+                    <h3>Export hive for offline analysis</h3>
+                    <div class="code-block">
+                        <span class="code-comment"># Export NTUSER.DAT from a live system (requires admin)</span><br>
+                        reg save HKCU C:\forensics\NTUSER.DAT<br><br>
+                        <span class="code-comment"># Export SYSTEM hive</span><br>
+                        reg save HKLM\SYSTEM C:\forensics\SYSTEM
+                    </div>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p>Always check Amcache.hve alongside persistence keys. Amcache records the hash and path of executables that have been run, even if the malware has since been deleted — invaluable for establishing execution history.</p>
+                    </div>
+                </section>
+
+            </article>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+    </script>
+</body>
+</html>

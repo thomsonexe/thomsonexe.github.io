@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sysmon — Windows Event Telemetry | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/home" class="nav-logo writeup-logo">
+                <img src="/mouse_t.png" class="nav-mouse" alt="">
+            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="/labs" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Labs
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="writeup-hero">
+        <div class="container">
+            <div class="writeup-meta">
+                <span class="ctf-platform detection">Detection</span>
+                <span class="ctf-difficulty medium">Intermediate</span>
+                <span class="writeup-category"><i class="fas fa-tag"></i> Windows / Sysmon / Threat Hunting</span>
+            </div>
+            <h1 class="writeup-title">Sysmon — Windows Event Telemetry</h1>
+            <p class="writeup-subtitle">A practical guide to deploying and using Sysmon — covering installation, configuration, key event IDs, and hunting queries for common attacker techniques.</p>
+            <div class="writeup-stats">
+                <span><i class="fas fa-clock"></i> 18 min read</span>
+                <span><i class="fas fa-list-ol"></i> 20+ event IDs</span>
+                <span><i class="fas fa-shield-alt"></i> Blue Team</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="writeup-body">
+        <div class="container writeup-container">
+
+            <aside class="writeup-toc">
+                <div class="toc-card">
+                    <h3 class="toc-title"><i class="fas fa-list"></i> Contents</h3>
+                    <ul class="toc-links">
+                        <li><a href="#intro">What is Sysmon?</a></li>
+                        <li><a href="#install">Installation</a></li>
+                        <li><a href="#config">Configuration File</a></li>
+                        <li><a href="#eventids">Key Event IDs</a></li>
+                        <li><a href="#hunting">Threat Hunting</a></li>
+                        <li><a href="#detections">Common Detections</a></li>
+                        <li><a href="#tips">Tips & Tuning</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <article class="writeup-content">
+
+                <section id="intro" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>What is Sysmon?</h2>
+                    <p>System Monitor (Sysmon) is a free Windows system service and driver from Microsoft Sysinternals that logs detailed process, network, file, and registry activity to the Windows Event Log. Unlike native Windows Security events, Sysmon provides significantly richer context — including full command-line arguments, parent process names, file hashes, and network connection details.</p>
+                    <p>Sysmon events land in <code>Applications and Services Logs\Microsoft\Windows\Sysmon\Operational</code> and can be forwarded to SIEM platforms like Splunk or Microsoft Sentinel for centralised analysis.</p>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Sysmon is not a detection tool on its own — it is a telemetry source. Detection logic lives in your SIEM or EDR. The value is the quality and consistency of the data Sysmon provides.</p>
+                    </div>
+                </section>
+
+                <section id="install" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Installation</h2>
+                    <p>Download Sysmon from the Microsoft Sysinternals page. Run the installer as administrator with a configuration file.</p>
+
+                    <h3>Install with a config file</h3>
+                    <div class="code-block">
+                        <span class="code-comment"># Install Sysmon with a configuration file</span><br>
+                        sysmon64.exe -accepteula -i sysmonconfig.xml<br><br>
+                        <span class="code-comment"># Update an existing configuration</span><br>
+                        sysmon64.exe -c sysmonconfig.xml<br><br>
+                        <span class="code-comment"># Uninstall</span><br>
+                        sysmon64.exe -u
+                    </div>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p>Use the <strong>SwiftOnSecurity</strong> or <strong>olafhartong/sysmon-modular</strong> config as a starting point. These are community-maintained configs covering the most important detection use cases without generating excessive noise.</p>
+                    </div>
+
+                    <h3>Verify it's running</h3>
+                    <div class="code-block">
+                        <span class="code-comment"># Check the Sysmon service is running</span><br>
+                        Get-Service Sysmon64<br><br>
+                        <span class="code-comment"># View recent Sysmon events in PowerShell</span><br>
+                        Get-WinEvent -LogName "Microsoft-Windows-Sysmon/Operational" -MaxEvents 20
+                    </div>
+                </section>
+
+                <section id="config" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Configuration File</h2>
+                    <p>Sysmon's XML configuration controls which events are captured and which are excluded. The basic structure uses include/exclude rules per event type.</p>
+
+                    <div class="code-block">
+                        <span class="code-comment">&lt;!-- Minimal config example: log process creation, exclude noisy system processes --&gt;</span><br>
+                        &lt;Sysmon schemaversion="4.90"&gt;<br>
+                        &nbsp;&nbsp;&lt;EventFiltering&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;RuleGroup name="" groupRelation="or"&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;ProcessCreate onmatch="exclude"&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Image condition="is"&gt;C:\Windows\System32\svchost.exe&lt;/Image&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/ProcessCreate&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;/RuleGroup&gt;<br>
+                        &nbsp;&nbsp;&lt;/EventFiltering&gt;<br>
+                        &lt;/Sysmon&gt;
+                    </div>
+
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>A misconfigured Sysmon config can generate millions of events per day on a busy endpoint. Always filter noisy, low-value events at the source rather than in the SIEM to control ingestion costs.</p>
+                    </div>
+                </section>
+
+                <section id="eventids" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Key Event IDs</h2>
+                    <p>Sysmon event IDs are distinct from native Windows event IDs and each maps to a specific category of activity. These are the most important for threat hunting.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Event ID</th><th>Name</th><th>Key Fields</th><th>Why It Matters</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>1</code></td><td>Process Create</td><td>Image, CommandLine, ParentImage, Hashes, User</td><td>Execution detection — command line, hashes, parent context</td></tr>
+                                <tr><td><code>2</code></td><td>File Creation Time Changed</td><td>Image, TargetFilename, CreationUtcTime</td><td>Timestomping — attackers modifying file timestamps</td></tr>
+                                <tr><td><code>3</code></td><td>Network Connection</td><td>Image, DestinationIp, DestinationPort, Protocol</td><td>C2 detection, unusual outbound connections</td></tr>
+                                <tr><td><code>5</code></td><td>Process Terminated</td><td>Image, ProcessId</td><td>Short-lived processes — malware that cleans up</td></tr>
+                                <tr><td><code>6</code></td><td>Driver Loaded</td><td>ImageLoaded, Signature, Hashes</td><td>Malicious driver / rootkit detection</td></tr>
+                                <tr><td><code>7</code></td><td>Image Loaded</td><td>Image, ImageLoaded, Hashes, Signed</td><td>DLL sideloading, unsigned DLL injection</td></tr>
+                                <tr><td><code>8</code></td><td>CreateRemoteThread</td><td>SourceImage, TargetImage, StartAddress</td><td>Process injection detection</td></tr>
+                                <tr><td><code>10</code></td><td>Process Access</td><td>SourceImage, TargetImage, GrantedAccess</td><td>LSASS access — credential dumping</td></tr>
+                                <tr><td><code>11</code></td><td>File Created</td><td>Image, TargetFilename, CreationUtcTime</td><td>Dropped payloads, suspicious file writes</td></tr>
+                                <tr><td><code>12</code></td><td>Registry Object Added/Deleted</td><td>EventType, TargetObject, Image</td><td>Persistence via Run keys, COM hijacking</td></tr>
+                                <tr><td><code>13</code></td><td>Registry Value Set</td><td>EventType, TargetObject, Details, Image</td><td>Persistence detection — value changes</td></tr>
+                                <tr><td><code>15</code></td><td>File Create Stream Hash</td><td>Image, TargetFilename, Hash</td><td>Alternate data streams — hidden payloads</td></tr>
+                                <tr><td><code>17</code></td><td>Pipe Created</td><td>PipeName, Image</td><td>Named pipes — Cobalt Strike, Metasploit C2</td></tr>
+                                <tr><td><code>22</code></td><td>DNS Query</td><td>QueryName, Image, QueryResults</td><td>C2 domains, DGA, DNS tunneling</td></tr>
+                                <tr><td><code>23</code></td><td>File Delete Archived</td><td>Image, TargetFilename, Hashes</td><td>Ransomware file deletion, evidence cleanup</td></tr>
+                                <tr><td><code>25</code></td><td>Process Tampering</td><td>Image, Type</td><td>Process hollowing, process herpaderping</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="hunting" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Threat Hunting with Sysmon</h2>
+                    <p>These queries use Sysmon data in Microsoft Sentinel (<code>SysmonEvent</code> or <code>Event</code> table) and Splunk. Adjust field names to your ingest pipeline.</p>
+
+                    <h3>LSASS access (credential dumping) — Event ID 10</h3>
+                    <div class="code-block">
+                        <span class="code-comment">// Processes opening LSASS with suspicious access rights</span><br>
+                        <span class="code-table">Event</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">where</span> Source <span class="code-op">==</span> <span class="code-val">"Microsoft-Windows-Sysmon"</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">where</span> EventID <span class="code-op">==</span> <span class="code-val">10</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">where</span> RenderedDescription <span class="code-op">contains</span> <span class="code-val">"lsass.exe"</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">where</span> RenderedDescription <span class="code-op">contains</span> <span class="code-val">"0x1010"</span> <span class="code-op">or</span> RenderedDescription <span class="code-op">contains</span> <span class="code-val">"0x1410"</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">project</span> TimeGenerated, Computer, RenderedDescription
+                    </div>
+
+                    <h3>Suspicious network connections from Office apps — Event ID 3</h3>
+                    <div class="code-block">
+                        <span class="code-comment">// Office apps initiating network connections — spearphishing macro execution</span><br>
+                        <span class="code-table">Event</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">where</span> Source <span class="code-op">==</span> <span class="code-val">"Microsoft-Windows-Sysmon"</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">where</span> EventID <span class="code-op">==</span> <span class="code-val">3</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">where</span> RenderedDescription <span class="code-op">has_any</span> (<span class="code-val">"WINWORD.EXE"</span>, <span class="code-val">"EXCEL.EXE"</span>, <span class="code-val">"POWERPNT.EXE"</span>)<br>
+                        <span class="code-pipe">| </span><span class="code-op">project</span> TimeGenerated, Computer, RenderedDescription
+                    </div>
+
+                    <h3>Named pipe creation matching known C2 — Event ID 17</h3>
+                    <div class="code-block">
+                        <span class="code-comment">// Common Cobalt Strike / Metasploit named pipe patterns</span><br>
+                        <span class="code-table">Event</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">where</span> Source <span class="code-op">==</span> <span class="code-val">"Microsoft-Windows-Sysmon"</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">where</span> EventID <span class="code-op">==</span> <span class="code-val">17</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">where</span> RenderedDescription <span class="code-op">has_any</span> (<span class="code-val">"mojo"</span>, <span class="code-val">"msagent"</span>, <span class="code-val">"postex"</span>, <span class="code-val">"status_"</span>, <span class="code-val">"MSSE-"</span>, <span class="code-val">"spoolss"</span>)<br>
+                        <span class="code-pipe">| </span><span class="code-op">project</span> TimeGenerated, Computer, RenderedDescription
+                    </div>
+
+                    <h3>CreateRemoteThread injection — Event ID 8</h3>
+                    <div class="code-block">
+                        <span class="code-comment">// Process injecting into other processes — exclude known-good system injectors</span><br>
+                        <span class="code-table">Event</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">where</span> Source <span class="code-op">==</span> <span class="code-val">"Microsoft-Windows-Sysmon"</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">where</span> EventID <span class="code-op">==</span> <span class="code-val">8</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">where</span> RenderedDescription <span class="code-op">!has_any</span> (<span class="code-val">"C:\\Windows\\System32\\csrss.exe"</span>, <span class="code-val">"C:\\Windows\\System32\\wininit.exe"</span>)<br>
+                        <span class="code-pipe">| </span><span class="code-op">project</span> TimeGenerated, Computer, RenderedDescription
+                    </div>
+                </section>
+
+                <section id="detections" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Common Detections</h2>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Technique</th><th>Event ID(s)</th><th>Key Indicator</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Credential Dumping (Mimikatz)</td><td>1, 10</td><td>sekurlsa in CommandLine; lsass.exe target with high GrantedAccess</td></tr>
+                                <tr><td>Process Injection</td><td>8, 10</td><td>CreateRemoteThread into unusual targets; OpenProcess on remote PID</td></tr>
+                                <tr><td>Process Hollowing</td><td>1, 25</td><td>Suspended child process; Process Tampering event type</td></tr>
+                                <tr><td>DLL Sideloading</td><td>7</td><td>Unsigned DLL loaded from user-writable path</td></tr>
+                                <tr><td>Persistence (Run Key)</td><td>12, 13</td><td>HKCU\Software\Microsoft\Windows\CurrentVersion\Run modified</td></tr>
+                                <tr><td>Lateral Movement (PsExec)</td><td>1, 17</td><td>psexesvc.exe spawned; ADMIN$ share pipe created</td></tr>
+                                <tr><td>C2 Beaconing</td><td>3, 22</td><td>Regular outbound connections to single IP; DGA-pattern DNS queries</td></tr>
+                                <tr><td>Timestomping</td><td>2</td><td>CreationUtcTime changed to historic date; Image is not a trusted system tool</td></tr>
+                                <tr><td>Script Execution</td><td>1</td><td>wscript.exe / cscript.exe with .js, .vbs, or .ps1 arguments</td></tr>
+                                <tr><td>Alternate Data Streams</td><td>15</td><td>File written with Zone.Identifier or custom stream name</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="tips" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Tips &amp; Tuning</h2>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Hash every process.</strong> Enable MD5, SHA256, and IMPHASH in your config. IMPHASH in particular is useful for grouping malware families — the import hash stays the same even if the binary is repacked.</p>
+                    </div>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Log network connections selectively.</strong> Event ID 3 can be extremely noisy on servers. Use the config to exclude common browser processes and focus on alerting on unusual initiating processes (e.g. Word, Excel, svchost with an unusual parent).</p>
+                    </div>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Baseline before hunting.</strong> Run <code>summarize count() by Image</code> over a week's worth of Event ID 1 data to understand your normal process landscape. Anomalies become much easier to spot once you know what's normal.</p>
+                    </div>
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Sysmon can be killed or tampered with.</strong> Attackers with admin rights can stop or uninstall the service. Monitor for <code>sysmon64.exe -u</code> or the Sysmon service stopping — this is a high-confidence detection.</p>
+                    </div>
+                </section>
+
+            </article>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+    </script>
+</body>
+</html>

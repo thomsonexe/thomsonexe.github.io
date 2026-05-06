@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YARA Rule Writing | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/home" class="nav-logo writeup-logo">
+                <img src="/mouse_t.png" class="nav-mouse" alt="">
+            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="/labs" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Labs
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="writeup-hero">
+        <div class="container">
+            <div class="writeup-meta">
+                <span class="ctf-platform detection">Detection</span>
+                <span class="ctf-difficulty medium">Intermediate</span>
+                <span class="writeup-category"><i class="fas fa-tag"></i> Malware Analysis / YARA / Detection Engineering</span>
+            </div>
+            <h1 class="writeup-title">YARA Rule Writing</h1>
+            <p class="writeup-subtitle">A practical guide to writing YARA rules — covering rule structure, string types, conditions, modifiers, and real examples for detecting malware and suspicious files.</p>
+            <div class="writeup-stats">
+                <span><i class="fas fa-clock"></i> 20 min read</span>
+                <span><i class="fas fa-code"></i> 15+ example rules</span>
+                <span><i class="fas fa-shield-alt"></i> Blue Team</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="writeup-body">
+        <div class="container writeup-container">
+
+            <aside class="writeup-toc">
+                <div class="toc-card">
+                    <h3 class="toc-title"><i class="fas fa-list"></i> Contents</h3>
+                    <ul class="toc-links">
+                        <li><a href="#intro">What is YARA?</a></li>
+                        <li><a href="#structure">Rule Structure</a></li>
+                        <li><a href="#strings">String Types</a></li>
+                        <li><a href="#modifiers">Modifiers</a></li>
+                        <li><a href="#conditions">Conditions</a></li>
+                        <li><a href="#examples">Example Rules</a></li>
+                        <li><a href="#running">Running YARA</a></li>
+                        <li><a href="#tips">Best Practices</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <article class="writeup-content">
+
+                <section id="intro" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>What is YARA?</h2>
+                    <p>YARA is a pattern-matching tool used by malware researchers and SOC analysts to identify and classify malware samples based on textual or binary patterns. Rules describe characteristics of malware families — strings, byte sequences, file headers, and conditions that must be met for a file to match.</p>
+                    <p>YARA is integrated into many security tools including VirusTotal, Cuckoo Sandbox, Any.Run, Velociraptor, and EDR platforms. Writing custom YARA rules is a core detection engineering skill.</p>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>YARA rules can match against files on disk, memory dumps, running processes, and network traffic. The same rule syntax works across all contexts.</p>
+                    </div>
+                </section>
+
+                <section id="structure" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Rule Structure</h2>
+                    <p>A YARA rule has three main sections: <code>meta</code> (documentation), <code>strings</code> (patterns to find), and <code>condition</code> (logic to trigger the match).</p>
+
+                    <div class="code-block">
+                        rule <span class="code-keyword">ExampleMalware</span><br>
+                        {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;meta:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;author = <span class="code-val">"Ben Thomson"</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;description = <span class="code-val">"Detects ExampleMalware based on mutex and C2 string"</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;date = <span class="code-val">"2025-01-01"</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reference = <span class="code-val">"https://example.com/report"</span><br><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;strings:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$mutex = <span class="code-val">"Global\\MyMutex123"</span> <span class="code-op">ascii</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$c2 = <span class="code-val">"evil.example.com"</span> <span class="code-op">ascii</span> <span class="code-op">nocase</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$mz = <span class="code-val">{ 4D 5A }</span> <span class="code-comment">// MZ header — PE file</span><br><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;condition:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$mz at 0 <span class="code-op">and</span> (<span class="code-val">$mutex</span> <span class="code-op">or</span> <span class="code-val">$c2</span>)<br>
+                        }
+                    </div>
+                </section>
+
+                <section id="strings" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>String Types</h2>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Type</th><th>Syntax</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Text string</td><td><code>"string"</code></td><td>Matches exact ASCII text. Use nocase for case-insensitive.</td></tr>
+                                <tr><td>Wide string</td><td><code>"string" wide</code></td><td>Matches UTF-16 LE encoded text (common in Windows PE strings).</td></tr>
+                                <tr><td>ASCII + Wide</td><td><code>"string" ascii wide</code></td><td>Matches both ASCII and UTF-16 — covers most encoding variants.</td></tr>
+                                <tr><td>Hex pattern</td><td><code>{ 4D 5A ?? 00 }</code></td><td>Matches raw bytes. <code>??</code> is a wildcard for any byte.</td></tr>
+                                <tr><td>Hex jump</td><td><code>{ 4D [2-4] 5A }</code></td><td>Matches bytes with a variable gap of 2–4 bytes between them.</td></tr>
+                                <tr><td>Regex</td><td><code>/pattern/</code></td><td>PCRE-compatible regex for flexible pattern matching.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="modifiers" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Modifiers</h2>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Modifier</th><th>Effect</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>nocase</code></td><td>Case-insensitive matching (text strings only)</td></tr>
+                                <tr><td><code>ascii</code></td><td>Match ASCII encoding (default for text strings)</td></tr>
+                                <tr><td><code>wide</code></td><td>Match UTF-16 LE encoding</td></tr>
+                                <tr><td><code>fullword</code></td><td>Match only if string is a full word (not part of a larger word)</td></tr>
+                                <tr><td><code>xor</code></td><td>Match the string XOR'd with every single-byte key (0x00–0xFF)</td></tr>
+                                <tr><td><code>base64</code></td><td>Match the string in its base64-encoded form</td></tr>
+                                <tr><td><code>private</code></td><td>String is used in conditions but not reported in output</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="conditions" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Conditions</h2>
+                    <p>The <code>condition</code> section defines when a rule fires. It supports Boolean logic, counting, offsets, and built-in YARA functions.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Condition</th><th>Example</th><th>Meaning</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Boolean</td><td><code>$a and $b</code></td><td>Both strings must be present</td></tr>
+                                <tr><td>OR logic</td><td><code>$a or $b or $c</code></td><td>Any of the strings is present</td></tr>
+                                <tr><td>At offset</td><td><code>$mz at 0</code></td><td>String must appear at byte offset 0</td></tr>
+                                <tr><td>Count</td><td><code>#string > 3</code></td><td>String appears more than 3 times</td></tr>
+                                <tr><td>Any of</td><td><code>any of ($a, $b, $c)</code></td><td>Any one of the named strings matches</td></tr>
+                                <tr><td>All of</td><td><code>all of ($a*)</code></td><td>All strings in the $a* set must match</td></tr>
+                                <tr><td>N of</td><td><code>2 of ($a, $b, $c)</code></td><td>At least 2 of the listed strings match</td></tr>
+                                <tr><td>File size</td><td><code>filesize &lt; 1MB</code></td><td>Only match files under 1 MB</td></tr>
+                                <tr><td>PE sections</td><td><code>pe.sections[0].name == ".text"</code></td><td>First PE section is .text (requires pe module)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="examples" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Example Rules</h2>
+
+                    <h3>Detect Mimikatz by strings</h3>
+                    <div class="code-block">
+                        rule <span class="code-keyword">Mimikatz_Strings</span><br>
+                        {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;meta:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;description = <span class="code-val">"Detects Mimikatz credential dumping tool"</span><br><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;strings:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$s1 = <span class="code-val">"sekurlsa::logonpasswords"</span> <span class="code-op">ascii</span> <span class="code-op">nocase</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$s2 = <span class="code-val">"lsadump::dcsync"</span> <span class="code-op">ascii</span> <span class="code-op">nocase</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$s3 = <span class="code-val">"mimikatz"</span> <span class="code-op">ascii</span> <span class="code-op">wide</span> <span class="code-op">nocase</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$s4 = <span class="code-val">"gentilkiwi"</span> <span class="code-op">ascii</span> <span class="code-op">nocase</span><br><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;condition:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2 of ($s*)<br>
+                        }
+                    </div>
+
+                    <h3>Detect XOR-obfuscated shellcode</h3>
+                    <div class="code-block">
+                        rule <span class="code-keyword">XOR_Shellcode_Pattern</span><br>
+                        {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;meta:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;description = <span class="code-val">"Detects shellcode download cradle strings XOR-obfuscated"</span><br><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;strings:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$dl = <span class="code-val">"DownloadString"</span> <span class="code-op">xor</span> <span class="code-op">ascii</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$iex = <span class="code-val">"Invoke-Expression"</span> <span class="code-op">xor</span> <span class="code-op">nocase</span><br><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;condition:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;any of them<br>
+                        }
+                    </div>
+
+                    <h3>Detect suspicious PE with no legitimate sections</h3>
+                    <div class="code-block">
+                        import <span class="code-val">"pe"</span><br><br>
+                        rule <span class="code-keyword">Suspicious_PE_Packed</span><br>
+                        {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;meta:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;description = <span class="code-val">"PE file with unusually few sections — possible packing"</span><br><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;condition:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;uint16(0) <span class="code-op">==</span> 0x5A4D<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-op">and</span> pe.number_of_sections <span class="code-op">&lt;</span> 3<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-op">and</span> filesize <span class="code-op">&lt;</span> 500KB<br>
+                        }
+                    </div>
+
+                    <h3>Detect PowerShell download cradle in scripts</h3>
+                    <div class="code-block">
+                        rule <span class="code-keyword">PowerShell_Download_Cradle</span><br>
+                        {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;meta:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;description = <span class="code-val">"PowerShell download and execute pattern"</span><br><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;strings:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$dl1 = <span class="code-val">"DownloadString"</span> <span class="code-op">nocase</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$dl2 = <span class="code-val">"DownloadFile"</span> <span class="code-op">nocase</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$iex = <span class="code-val">"IEX"</span> <span class="code-op">fullword</span> <span class="code-op">nocase</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$invoke = <span class="code-val">"Invoke-Expression"</span> <span class="code-op">nocase</span><br><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;condition:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;any of ($dl*) <span class="code-op">and</span> any of ($iex, $invoke)<br>
+                        }
+                    </div>
+                </section>
+
+                <section id="running" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Running YARA</h2>
+
+                    <div class="code-block">
+                        <span class="code-comment"># Scan a single file</span><br>
+                        yara rule.yar suspicious.exe<br><br>
+                        <span class="code-comment"># Scan a directory recursively</span><br>
+                        yara -r rule.yar /path/to/dir/<br><br>
+                        <span class="code-comment"># Scan with multiple rule files</span><br>
+                        yara rules/ suspicious.exe<br><br>
+                        <span class="code-comment"># Scan a running process by PID</span><br>
+                        yara -p 1234 rule.yar .<br><br>
+                        <span class="code-comment"># Scan with verbose output (print matched strings)</span><br>
+                        yara -s rule.yar suspicious.exe<br><br>
+                        <span class="code-comment"># Scan all running processes</span><br>
+                        yara rule.yar --scan-proc-mem
+                    </div>
+
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>YARA rules can also be run directly in VirusTotal, Any.Run, and Intezer — submit a rule and it will match against their corpus of known samples. This is useful for validating rules before deployment.</p>
+                    </div>
+                </section>
+
+                <section id="tips" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Best Practices</h2>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Use multiple weak strings rather than one strong one.</strong> A single unique string can be easily patched by an attacker. Two or three weaker indicators together are harder to evade.</p>
+                    </div>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Always add a filesize condition.</strong> Including <code>filesize &lt; 2MB</code> or similar prevents YARA from scanning large files that couldn't possibly contain the target pattern, dramatically improving scan speed.</p>
+                    </div>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Test rules against goodware.</strong> Before deploying, scan a clean Windows install directory to ensure your rule doesn't fire on legitimate files. False positives destroy analyst trust in detections.</p>
+                    </div>
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>The <code>xor</code> modifier is expensive.</strong> It generates 255 variants of each string. Use it sparingly and combine with <code>filesize</code> limits to avoid performance issues during large scans.</p>
+                    </div>
+                </section>
+
+            </article>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+    </script>
+</body>
+</html>

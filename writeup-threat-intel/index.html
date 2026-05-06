@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threat Intelligence & IOC Analysis | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/home" class="nav-logo writeup-logo">
+                <img src="/mouse_t.png" class="nav-mouse" alt="">
+            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="/labs" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Labs
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="writeup-hero">
+        <div class="container">
+            <div class="writeup-meta">
+                <span class="ctf-platform detection">Detection</span>
+                <span class="ctf-difficulty easy">Beginner</span>
+                <span class="writeup-category"><i class="fas fa-tag"></i> Threat Intelligence / OSINT / IOC Analysis</span>
+            </div>
+            <h1 class="writeup-title">Threat Intelligence &amp; IOC Analysis</h1>
+            <p class="writeup-subtitle">A practical guide to threat intelligence — IOC types, enrichment tools, OSINT sources, threat feeds, and a structured workflow for investigating suspicious indicators.</p>
+            <div class="writeup-stats">
+                <span><i class="fas fa-clock"></i> 15 min read</span>
+                <span><i class="fas fa-tools"></i> 12+ tools</span>
+                <span><i class="fas fa-shield-alt"></i> Blue Team</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="writeup-body">
+        <div class="container writeup-container">
+
+            <aside class="writeup-toc">
+                <div class="toc-card">
+                    <h3 class="toc-title"><i class="fas fa-list"></i> Contents</h3>
+                    <ul class="toc-links">
+                        <li><a href="#intro">What is Threat Intelligence?</a></li>
+                        <li><a href="#ioc-types">IOC Types</a></li>
+                        <li><a href="#tools">Enrichment Tools</a></li>
+                        <li><a href="#feeds">Threat Feeds</a></li>
+                        <li><a href="#workflow">Investigation Workflow</a></li>
+                        <li><a href="#models">TI Frameworks</a></li>
+                        <li><a href="#tips">Tips</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <article class="writeup-content">
+
+                <section id="intro" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>What is Threat Intelligence?</h2>
+                    <p>Threat intelligence (TI) is evidence-based knowledge about threats — who is attacking, how they operate, what infrastructure they use, and what their objectives are. For SOC analysts, practical TI primarily means enriching indicators of compromise (IOCs) to understand whether a suspicious IP, domain, hash, or email address is malicious and what threat actor or campaign it belongs to.</p>
+                    <p>TI is commonly split into three tiers: <strong>strategic</strong> (APT reports, industry trends — for management), <strong>operational</strong> (TTPs, campaign analysis — for security architects), and <strong>tactical</strong> (IOCs, YARA rules, Sigma rules — for analysts).</p>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>IOCs have a short shelf life. IP addresses used by C2 servers rotate within days. Focus on TTPs (how attackers behave) for durable detection value, not just raw IOC lists.</p>
+                    </div>
+                </section>
+
+                <section id="ioc-types" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>IOC Types</h2>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>IOC Type</th><th>Examples</th><th>Durability</th><th>Notes</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>File Hash (MD5/SHA256)</td><td><code>d41d8cd98f00b204e9800998ecf8427e</code></td><td>Low</td><td>Single-byte change defeats hash matching; use fuzzy hashing (ssdeep) for variants</td></tr>
+                                <tr><td>IP Address</td><td><code>185.220.101.47</code></td><td>Very Low</td><td>Shared hosting means false positives; cloud IPs rotate rapidly</td></tr>
+                                <tr><td>Domain</td><td><code>evil-c2.example.com</code></td><td>Low</td><td>DGAs generate thousands of domains; focus on registrar/WHOIS patterns</td></tr>
+                                <tr><td>URL</td><td><code>http://evil.com/payload.ps1</code></td><td>Low</td><td>More specific than domain alone; useful for phishing lure detection</td></tr>
+                                <tr><td>Email Address</td><td><code>attacker@phish.com</code></td><td>Low</td><td>Trivial to change; useful within a campaign window</td></tr>
+                                <tr><td>Registry Key</td><td><code>HKCU\...\Run\PersistMalware</code></td><td>Medium</td><td>More durable than network IOCs; specific persistence locations are reused</td></tr>
+                                <tr><td>Mutex</td><td><code>Global\\ControlMutex01</code></td><td>Medium</td><td>Malware families often reuse mutexes across versions</td></tr>
+                                <tr><td>User-Agent</td><td><code>Mozilla/5.0 (compatible; MSIE 9.0)</code></td><td>Medium</td><td>Custom UAs in malware C2 are often reused; useful in proxy logs</td></tr>
+                                <tr><td>JARM / JA3</td><td>TLS fingerprint</td><td>Medium–High</td><td>TLS fingerprints are harder to change; effective for C2 detection in encrypted traffic</td></tr>
+                                <tr><td>TTP (MITRE ATT&CK)</td><td>T1059.001 PowerShell</td><td>High</td><td>Behavioural patterns persist across campaigns and tool changes</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="tools" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Enrichment Tools</h2>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Tool</th><th>Best For</th><th>Free Tier?</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><strong>VirusTotal</strong></td><td>File hashes, IPs, domains, URLs — multi-engine scanning and historical data</td><td>Yes (limited)</td></tr>
+                                <tr><td><strong>Shodan</strong></td><td>Banner grabbing IPs, finding C2 infrastructure, exposed services</td><td>Yes (limited)</td></tr>
+                                <tr><td><strong>AbuseIPDB</strong></td><td>IP reputation, abuse reports with categories and confidence scores</td><td>Yes</td></tr>
+                                <tr><td><strong>URLScan.io</strong></td><td>Scanning URLs, screenshots, DOM analysis, redirect chains</td><td>Yes</td></tr>
+                                <tr><td><strong>MXToolbox</strong></td><td>Email header analysis, SPF/DKIM/DMARC lookups, blacklist checks</td><td>Yes</td></tr>
+                                <tr><td><strong>AlienVault OTX</strong></td><td>Community threat feeds, pulse reports, IOC correlation</td><td>Yes</td></tr>
+                                <tr><td><strong>Censys</strong></td><td>Internet-wide scan data, certificate transparency, C2 infra hunting</td><td>Yes (limited)</td></tr>
+                                <tr><td><strong>Any.Run</strong></td><td>Interactive malware sandbox with behaviour analysis and IOC extraction</td><td>Yes (public)</td></tr>
+                                <tr><td><strong>Hybrid Analysis</strong></td><td>Free malware sandbox, links to CrowdStrike threat intel</td><td>Yes</td></tr>
+                                <tr><td><strong>MalwareBazaar</strong></td><td>Malware sample repository with hash lookup and YARA search</td><td>Yes</td></tr>
+                                <tr><td><strong>Pulsedive</strong></td><td>Risk-scored IOC enrichment, linked feeds, threat context</td><td>Yes</td></tr>
+                                <tr><td><strong>MISP</strong></td><td>Self-hosted threat intelligence sharing platform</td><td>Open source</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="feeds" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Threat Feeds</h2>
+                    <p>Threat feeds provide continuously updated lists of malicious indicators. Most SIEM platforms support automatic ingestion of these feeds for alerting and enrichment.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Feed</th><th>Type</th><th>Source</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>abuse.ch URLhaus</td><td>Malicious URLs</td><td>Community-reported malware delivery URLs</td></tr>
+                                <tr><td>abuse.ch ThreatFox</td><td>IPs, domains, hashes</td><td>IOCs from malware analysis</td></tr>
+                                <tr><td>Feodo Tracker</td><td>C2 IPs</td><td>Botnet C2 infrastructure tracking</td></tr>
+                                <tr><td>EmergingThreats</td><td>IDS rules, IPs</td><td>Snort/Suricata rule sets for known threats</td></tr>
+                                <tr><td>CISA KEV</td><td>Vulnerabilities</td><td>Known Exploited Vulnerabilities catalogue</td></tr>
+                                <tr><td>Spamhaus</td><td>IPs, domains</td><td>Spam and malware hosting infrastructure</td></tr>
+                                <tr><td>OpenPhish</td><td>URLs</td><td>Phishing URL feed</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="workflow" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Investigation Workflow</h2>
+                    <p>When an alert fires or a suspicious indicator appears, follow a consistent enrichment workflow before deciding on a response action.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Step</th><th>Action</th><th>Tool</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>1</td><td>Identify indicator type (IP / domain / hash / URL)</td><td>Alert context</td></tr>
+                                <tr><td>2</td><td>Check reputation and detection rate</td><td>VirusTotal, AbuseIPDB</td></tr>
+                                <tr><td>3</td><td>Look up WHOIS / registration history for domains</td><td>Whois lookup, DomainTools</td></tr>
+                                <tr><td>4</td><td>Check hosting provider and geo for IPs</td><td>Shodan, ipinfo.io</td></tr>
+                                <tr><td>5</td><td>Search for the IOC in threat intel platforms</td><td>OTX, MISP, Pulsedive</td></tr>
+                                <tr><td>6</td><td>Pivot — what else is hosted on that IP/domain?</td><td>Censys, Shodan, VirusTotal graph</td></tr>
+                                <tr><td>7</td><td>Correlate with internal logs — who touched it?</td><td>SIEM, EDR</td></tr>
+                                <tr><td>8</td><td>Determine if indicator is internal or ISP-shared</td><td>RFC 1918 check, ASN lookup</td></tr>
+                                <tr><td>9</td><td>Document findings and assign confidence level</td><td>Ticket / SOAR platform</td></tr>
+                                <tr><td>10</td><td>Share enriched IOCs with team / block if confirmed</td><td>MISP, EDR, firewall</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="models" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>TI Frameworks</h2>
+
+                    <h3>Diamond Model</h3>
+                    <p>The Diamond Model represents an intrusion event across four axes: <strong>Adversary</strong> (who), <strong>Capability</strong> (what tool/exploit), <strong>Infrastructure</strong> (IP, domain, C2), and <strong>Victim</strong> (who was targeted). Pivoting between axes reveals related infrastructure and campaigns.</p>
+
+                    <h3>Pyramid of Pain</h3>
+                    <p>Created by David Bianco, the Pyramid of Pain ranks IOC types by how much pain they cause an adversary when blocked. Hash → IP → Domain → Artefact → TTP — blocking TTPs (the top) forces adversaries to fundamentally change how they operate, while blocking hashes (the bottom) is trivially bypassed.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Level</th><th>IOC Type</th><th>Pain to Attacker</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>6 (top)</td><td>TTPs</td><td>Tough — forces fundamental changes to how they operate</td></tr>
+                                <tr><td>5</td><td>Tools (YARA/signatures)</td><td>Challenging — must find or build new tools</td></tr>
+                                <tr><td>4</td><td>Network / Host Artefacts</td><td>Annoying — registry keys, mutexes, filenames</td></tr>
+                                <tr><td>3</td><td>Domain Names</td><td>Simple — register new domain in minutes</td></tr>
+                                <tr><td>2</td><td>IP Addresses</td><td>Easy — spin up new VPS</td></tr>
+                                <tr><td>1 (bottom)</td><td>File Hashes</td><td>Trivial — change one byte</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="tips" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Tips</h2>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Never submit sensitive samples to public sandboxes.</strong> Any.Run and Hybrid Analysis are public by default. A document with internal company data or a customer's file could be indexed and visible to anyone. Use private submission or an on-premises sandbox.</p>
+                    </div>
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p><strong>Low VT detection count doesn't mean benign.</strong> Fresh malware or targeted samples may have 0/70 detections on VirusTotal for days. Use behavioural analysis and context — a file dropped by mshta.exe with 0 detections is still suspicious.</p>
+                    </div>
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Shared IPs cause false positives.</strong> Cloudflare, AWS, and Azure IPs are used by thousands of organisations. An IP flagged as malicious may also host legitimate services. Always check whether the specific domain or path is malicious, not just the IP.</p>
+                    </div>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Use <strong>MISP</strong> or <strong>OpenCTI</strong> for sharing threat intelligence within a team. Structured sharing using STIX/TAXII standards allows automated ingestion by SIEM and SOAR platforms.</p>
+                    </div>
+                </section>
+
+            </article>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+    </script>
+</body>
+</html>

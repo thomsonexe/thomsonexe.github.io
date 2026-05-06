@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS CloudTrail Threat Hunting | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/home" class="nav-logo writeup-logo">
+                <img src="/mouse_t.png" class="nav-mouse" alt="">
+            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="/labs" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Labs
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="writeup-hero">
+        <div class="container">
+            <div class="writeup-meta">
+                <span class="ctf-platform detection">Detection</span>
+                <span class="ctf-difficulty medium">Intermediate</span>
+                <span class="writeup-category"><i class="fas fa-tag"></i> Cloud / AWS / Threat Hunting</span>
+            </div>
+            <h1 class="writeup-title">AWS CloudTrail Threat Hunting</h1>
+            <p class="writeup-subtitle">A practical guide to hunting threats in AWS — CloudTrail key events, GuardDuty alerts, IAM enumeration detection, persistence mechanisms, and Athena hunting queries.</p>
+            <div class="writeup-stats">
+                <span><i class="fas fa-clock"></i> 18 min read</span>
+                <span><i class="fas fa-search"></i> 20+ queries</span>
+                <span><i class="fas fa-shield-alt"></i> Blue Team</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="writeup-body">
+        <div class="container writeup-container">
+
+            <aside class="writeup-toc">
+                <div class="toc-card">
+                    <h3 class="toc-title"><i class="fas fa-list"></i> Contents</h3>
+                    <ul class="toc-links">
+                        <li><a href="#intro">CloudTrail Overview</a></li>
+                        <li><a href="#events">Key API Events</a></li>
+                        <li><a href="#guardduty">GuardDuty</a></li>
+                        <li><a href="#iam">IAM Enumeration</a></li>
+                        <li><a href="#persistence">Persistence</a></li>
+                        <li><a href="#exfil">Exfiltration</a></li>
+                        <li><a href="#athena">Athena Queries</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <article class="writeup-content">
+
+                <section id="intro" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>CloudTrail Overview</h2>
+                    <p>AWS CloudTrail records API calls made to AWS services — who made the call, from which IP, when, which service and action, and whether it succeeded or failed. CloudTrail is the primary audit log for AWS environments and the foundation for cloud threat hunting.</p>
+                    <p>CloudTrail events fall into three categories: <strong>Management Events</strong> (control plane — creating/deleting resources), <strong>Data Events</strong> (S3 object-level access, Lambda invocations), and <strong>Insights Events</strong> (anomaly detection for unusual API activity). By default, only management events are enabled.</p>
+                    <div class="callout callout-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Data events are not enabled by default and incur additional cost. Without them, you cannot see S3 object reads/writes — a significant blind spot for detecting data exfiltration from S3 buckets.</p>
+                    </div>
+                </section>
+
+                <section id="events" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Key API Events</h2>
+                    <p>These are the high-value CloudTrail events for threat hunters — the ones that appear in attacker playbooks and are worth alerting on.</p>
+
+                    <h3>Authentication & Credential Abuse</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Event</th><th>Service</th><th>Why It Matters</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>ConsoleLogin</code></td><td>signin.amazonaws.com</td><td>Console logins — check sourceIPAddress and mfaUsed fields</td></tr>
+                                <tr><td><code>GetCallerIdentity</code></td><td>STS</td><td>First call attackers make to identify their access — "who am I?"</td></tr>
+                                <tr><td><code>AssumeRole</code></td><td>STS</td><td>Cross-account access and privilege escalation via role chaining</td></tr>
+                                <tr><td><code>GetSessionToken</code></td><td>STS</td><td>Temporary credential generation — watch for unusual source IPs</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>IAM Actions</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Event</th><th>Why It Matters</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>CreateUser</code></td><td>Attacker creating a backdoor IAM user for persistence</td></tr>
+                                <tr><td><code>CreateAccessKey</code></td><td>Generating new long-term credentials — high risk if done by non-admin</td></tr>
+                                <tr><td><code>AttachUserPolicy / AttachRolePolicy</code></td><td>Privilege escalation — attaching AdministratorAccess to an account</td></tr>
+                                <tr><td><code>PutUserPolicy</code></td><td>Inline policy addition — less visible than managed policy attachment</td></tr>
+                                <tr><td><code>UpdateLoginProfile</code></td><td>Password change on another user's console login — account takeover</td></tr>
+                                <tr><td><code>DeleteTrail / StopLogging</code></td><td>Defence evasion — attacker disabling CloudTrail to hide their tracks</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>Compute & Execution</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Event</th><th>Why It Matters</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>RunInstances</code></td><td>EC2 instance launch — cryptomining in new regions is common</td></tr>
+                                <tr><td><code>CreateFunction / UpdateFunctionCode</code></td><td>Lambda deployment — execution via serverless is hard to detect without data events</td></tr>
+                                <tr><td><code>SendCommand</code></td><td>SSM Run Command on EC2 — lateral movement / code execution without SSH</td></tr>
+                                <tr><td><code>GetParameter</code></td><td>SSM Parameter Store reads — attackers accessing stored secrets and credentials</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="guardduty" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>GuardDuty</h2>
+                    <p>Amazon GuardDuty is an AWS-native threat detection service that analyses CloudTrail, VPC Flow Logs, and DNS logs to generate findings (alerts). It uses ML and threat intelligence to identify suspicious patterns without requiring manual queries.</p>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Finding Type</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>UnauthorizedAccess:IAMUser/TorIPCaller</code></td><td>API call from a Tor exit node — deliberate anonymisation</td></tr>
+                                <tr><td><code>Recon:IAMUser/MaliciousIPCaller</code></td><td>API recon calls (ListUsers, DescribeInstances) from known-bad IP</td></tr>
+                                <tr><td><code>PrivilegeEscalation:IAMUser/AdministrativePermissions</code></td><td>User attached Admin policy to themselves</td></tr>
+                                <tr><td><code>Persistence:IAMUser/UserPermissions</code></td><td>New IAM user or access key created — possible backdoor</td></tr>
+                                <tr><td><code>CryptoCurrency:EC2/BitcoinTool.B</code></td><td>EC2 instance communicating with cryptocurrency mining pool</td></tr>
+                                <tr><td><code>Exfiltration:S3/ObjectRead.Unusual</code></td><td>Unusual volume of S3 object reads from an IAM entity</td></tr>
+                                <tr><td><code>Impact:S3/AnomalousBehavior.Delete</code></td><td>Mass S3 delete — potential ransomware or destructive attack</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="iam" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>IAM Enumeration Detection</h2>
+                    <p>After gaining initial access, attackers enumerate IAM to understand what permissions they have and what escalation paths exist. This enumeration leaves a distinctive pattern in CloudTrail.</p>
+
+                    <div class="code-block">
+                        <span class="code-comment"># Classic IAM enumeration sequence — look for these in rapid succession from one source</span><br>
+                        sts:GetCallerIdentity<br>
+                        iam:GetAccountSummary<br>
+                        iam:ListUsers<br>
+                        iam:ListGroups<br>
+                        iam:ListRoles<br>
+                        iam:ListPolicies<br>
+                        iam:GetUser<br>
+                        iam:ListAttachedUserPolicies<br>
+                        iam:SimulatePrincipalPolicy
+                    </div>
+
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Tools like <strong>Pacu</strong> (AWS exploitation framework) and <strong>ScoutSuite</strong> automate IAM enumeration and leave these patterns in bulk. A burst of IAM read API calls from a single user ARN in a short window is a strong signal.</p>
+                    </div>
+                </section>
+
+                <section id="persistence" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Persistence Mechanisms</h2>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Mechanism</th><th>API Events</th><th>Detection</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Backdoor IAM user</td><td><code>CreateUser</code>, <code>CreateAccessKey</code></td><td>New user created outside of IaC / Terraform workflows</td></tr>
+                                <tr><td>Shadow admin role</td><td><code>CreateRole</code>, <code>AttachRolePolicy</code></td><td>Role with Admin access created, or existing role policy expanded</td></tr>
+                                <tr><td>Lambda backdoor</td><td><code>CreateFunction</code>, <code>AddPermission</code></td><td>Lambda with wide permissions and public URL or unusual trigger</td></tr>
+                                <tr><td>EC2 user-data persistence</td><td><code>RunInstances</code>, <code>ModifyInstanceAttribute</code></td><td>Large user-data payload; base64-encoded scripts in instance launch</td></tr>
+                                <tr><td>SSM session persistence</td><td><code>CreateActivation</code></td><td>SSM activation for non-EC2 instance — attacker registering external machine</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="exfil" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Exfiltration Detection</h2>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Technique</th><th>API Events</th><th>Detection</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>S3 mass download</td><td><code>GetObject</code> (data events)</td><td>High volume of GetObject from single IAM entity to unusual IP</td></tr>
+                                <tr><td>S3 bucket made public</td><td><code>PutBucketAcl</code>, <code>PutBucketPolicy</code></td><td>ACL or policy change granting public read to bucket</td></tr>
+                                <tr><td>Snapshot exfiltration</td><td><code>ModifySnapshotAttribute</code></td><td>EBS snapshot shared with external AWS account</td></tr>
+                                <tr><td>Secrets Manager read</td><td><code>GetSecretValue</code></td><td>Secrets accessed from unusual IP or by unexpected IAM principal</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="athena" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Athena Hunting Queries</h2>
+                    <p>When CloudTrail logs are stored in S3, you can query them at scale using Amazon Athena (serverless SQL). First, create a table over your CloudTrail S3 prefix.</p>
+
+                    <h3>Failed API calls (access denied)</h3>
+                    <div class="code-block">
+                        SELECT useridentity.arn, eventsource, eventname, COUNT(*) as fail_count<br>
+                        FROM cloudtrail_logs<br>
+                        WHERE errorcode IN (<span class="code-val">'AccessDenied'</span>, <span class="code-val">'UnauthorizedOperation'</span>)<br>
+                        AND eventtime &gt; <span class="code-val">'2025-01-01'</span><br>
+                        GROUP BY useridentity.arn, eventsource, eventname<br>
+                        HAVING COUNT(*) &gt; 10<br>
+                        ORDER BY fail_count DESC
+                    </div>
+
+                    <h3>Console logins without MFA</h3>
+                    <div class="code-block">
+                        SELECT eventtime, useridentity.username, sourceipaddress, useragent<br>
+                        FROM cloudtrail_logs<br>
+                        WHERE eventname = <span class="code-val">'ConsoleLogin'</span><br>
+                        AND additionaleventdata LIKE <span class="code-val">'%"MFAUsed":"No"%'</span><br>
+                        AND responseelements LIKE <span class="code-val">'%"ConsoleLogin":"Success"%'</span><br>
+                        ORDER BY eventtime DESC
+                    </div>
+
+                    <h3>CloudTrail logging disabled</h3>
+                    <div class="code-block">
+                        SELECT eventtime, useridentity.arn, sourceipaddress<br>
+                        FROM cloudtrail_logs<br>
+                        WHERE eventname IN (<span class="code-val">'StopLogging'</span>, <span class="code-val">'DeleteTrail'</span>, <span class="code-val">'UpdateTrail'</span>)<br>
+                        ORDER BY eventtime DESC
+                    </div>
+
+                    <h3>New IAM users created</h3>
+                    <div class="code-block">
+                        SELECT eventtime, useridentity.arn, requestparameters<br>
+                        FROM cloudtrail_logs<br>
+                        WHERE eventname IN (<span class="code-val">'CreateUser'</span>, <span class="code-val">'CreateAccessKey'</span>)<br>
+                        AND errorcode IS NULL<br>
+                        ORDER BY eventtime DESC
+                    </div>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p>Enable <strong>CloudTrail Lake</strong> for simpler SQL querying without needing to set up Athena tables manually. It provides a managed query interface directly within the CloudTrail console and retains events for up to 7 years.</p>
+                    </div>
+                </section>
+
+            </article>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+    </script>
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNS Threat Hunting | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/home" class="nav-logo writeup-logo">
+                <img src="/mouse_t.png" class="nav-mouse" alt="">
+            </a>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <a href="/labs" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Labs
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="writeup-hero">
+        <div class="container">
+            <div class="writeup-meta">
+                <span class="ctf-platform network">Network</span>
+                <span class="ctf-difficulty medium">Intermediate</span>
+                <span class="writeup-category"><i class="fas fa-tag"></i> Network / DNS / Threat Hunting</span>
+            </div>
+            <h1 class="writeup-title">DNS Threat Hunting</h1>
+            <p class="writeup-subtitle">A practical guide to hunting threats through DNS — covering record types, suspicious patterns, DGA detection, DNS tunneling, C2 over DNS, and hunting queries.</p>
+            <div class="writeup-stats">
+                <span><i class="fas fa-clock"></i> 15 min read</span>
+                <span><i class="fas fa-search"></i> 15+ techniques</span>
+                <span><i class="fas fa-shield-alt"></i> Blue Team</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="writeup-body">
+        <div class="container writeup-container">
+
+            <aside class="writeup-toc">
+                <div class="toc-card">
+                    <h3 class="toc-title"><i class="fas fa-list"></i> Contents</h3>
+                    <ul class="toc-links">
+                        <li><a href="#intro">Why DNS?</a></li>
+                        <li><a href="#records">DNS Record Types</a></li>
+                        <li><a href="#patterns">Suspicious Patterns</a></li>
+                        <li><a href="#dga">DGA Detection</a></li>
+                        <li><a href="#tunneling">DNS Tunneling</a></li>
+                        <li><a href="#c2">C2 over DNS</a></li>
+                        <li><a href="#hunting">Hunting Queries</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <article class="writeup-content">
+
+                <section id="intro" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Why DNS?</h2>
+                    <p>DNS is the internet's phone book — it resolves domain names to IP addresses. Critically for defenders, almost every network connection starts with a DNS query. This makes DNS logs an exceptionally rich data source for threat hunting: you can see what domains endpoints are resolving, detect malware C2 communication, identify data exfiltration via DNS tunneling, and spot DGA (Domain Generation Algorithm) malware before it successfully reaches a live C2 server.</p>
+                    <p>DNS is also frequently overlooked. Many organisations have robust firewall and endpoint logging but sparse or no DNS query logging, creating a significant blind spot that attackers exploit.</p>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Sysmon Event ID 22 captures DNS queries on Windows endpoints. For network-level DNS, enable logging on your DNS resolver (Windows DNS Server, Pi-hole, BIND) or use a cloud DNS service with logging such as Cloudflare Gateway or Route 53 Resolver Query Logging.</p>
+                    </div>
+                </section>
+
+                <section id="records" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>DNS Record Types</h2>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Record</th><th>Purpose</th><th>Abuse Potential</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>A</code></td><td>Maps hostname to IPv4 address</td><td>Most common for C2; watch for fast-flux (A records rotating every few seconds)</td></tr>
+                                <tr><td><code>AAAA</code></td><td>Maps hostname to IPv6 address</td><td>IPv6 C2 often bypasses IPv4-only firewall rules</td></tr>
+                                <tr><td><code>CNAME</code></td><td>Alias pointing to another hostname</td><td>Used in domain fronting; long CNAME chains can obscure real destination</td></tr>
+                                <tr><td><code>MX</code></td><td>Mail exchange record</td><td>Low abuse, but querying unexpected MX records may indicate mail-related recon</td></tr>
+                                <tr><td><code>TXT</code></td><td>Freeform text — used for SPF, DKIM, domain verification</td><td>High: TXT records commonly used for DNS tunneling data exfiltration and C2</td></tr>
+                                <tr><td><code>NS</code></td><td>Nameserver for a domain</td><td>Attacker-controlled NS can reroute queries; watch for rare NS changes</td></tr>
+                                <tr><td><code>PTR</code></td><td>Reverse DNS (IP to hostname)</td><td>Reconnaissance — reverse lookups of internal IPs may indicate lateral movement</td></tr>
+                                <tr><td><code>ANY</code></td><td>Request all record types</td><td>Used in DNS amplification DDoS; endpoints querying ANY are unusual</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="patterns" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Suspicious Patterns</h2>
+
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Pattern</th><th>Indicator</th><th>Why It's Suspicious</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>High-entropy domain names</td><td><code>x7kqpz2m.evil.com</code></td><td>DGA — algorithmically generated names have high Shannon entropy</td></tr>
+                                <tr><td>Very short TTL</td><td>TTL &lt; 60 seconds</td><td>Fast-flux — rotating IPs to evade blocklists and attribution</td></tr>
+                                <tr><td>Very long subdomain labels</td><td><code>AAAAAAAAAAAAAAAAAAAAAA.evil.com</code></td><td>DNS tunneling — data encoded in the subdomain portion of the query</td></tr>
+                                <tr><td>High query volume to one domain</td><td>1000+ queries/hour from one host</td><td>DNS beaconing — malware polling C2 via frequent DNS requests</td></tr>
+                                <tr><td>Queries to non-existent domains (NXDOMAIN storms)</td><td>Many NXDOMAIN responses in sequence</td><td>DGA malware failing to reach live C2 domains — still highly diagnostic</td></tr>
+                                <tr><td>Newly registered domain</td><td>Domain registered &lt; 30 days ago</td><td>Attackers often register domains shortly before use</td></tr>
+                                <tr><td>Direct IP resolution bypassing DNS</td><td>Outbound connection to IP with no prior DNS query</td><td>Malware hardcoding C2 IP — bypasses DNS-based controls</td></tr>
+                                <tr><td>TXT record queries from endpoints</td><td>Internal host querying TXT records</td><td>Legitimate apps rarely query TXT; common in DNS tunneling</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="dga" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>DGA Detection</h2>
+                    <p>Domain Generation Algorithms (DGAs) are used by malware to generate thousands of pseudo-random domain names. Only the attacker knows which domains are live on a given day — this makes blocklisting impractical. Detection relies on spotting the statistical properties of DGA names.</p>
+
+                    <h3>DGA indicators</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Indicator</th><th>Normal Range</th><th>DGA Range</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Shannon entropy of domain name</td><td>2.0–3.5 bits</td><td>3.5–5.0+ bits</td></tr>
+                                <tr><td>Consonant-to-vowel ratio</td><td>1.5–2.5</td><td>4.0+ (lots of consonants)</td></tr>
+                                <tr><td>Presence in Alexa/Tranco top 1M</td><td>Yes</td><td>No</td></tr>
+                                <tr><td>Trigram frequency</td><td>High (real words)</td><td>Low (random character sequences)</td></tr>
+                                <tr><td>NXDOMAIN rate for the domain</td><td>Low</td><td>High — most DGA domains don't resolve</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="callout callout-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <p>NXDOMAIN storms are often more diagnostic than the domains themselves. If a host generates 500 NXDOMAIN responses in an hour for domains that look like <code>xkqvzrpml.com</code>, it's likely running DGA malware — even if you can't identify the specific family.</p>
+                    </div>
+                </section>
+
+                <section id="tunneling" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>DNS Tunneling</h2>
+                    <p>DNS tunneling encodes arbitrary data (commands, stolen files, C2 traffic) inside DNS queries and responses — exploiting the fact that DNS is almost never blocked at the perimeter. Tools like <strong>iodine</strong>, <strong>dnscat2</strong>, and <strong>DNSExfiltrator</strong> are commonly used.</p>
+
+                    <h3>Detection indicators</h3>
+                    <div class="kql-table-wrap">
+                        <table class="kql-table">
+                            <thead>
+                                <tr><th>Indicator</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Long subdomain labels</td><td>Labels approaching the 63-character limit packed with base32/base64 encoded data</td></tr>
+                                <tr><td>High query volume per domain</td><td>Hundreds of queries per minute to the same authoritative domain</td></tr>
+                                <tr><td>Large TXT or NULL record responses</td><td>Response payload carrying encoded commands or shell output</td></tr>
+                                <tr><td>Uncommon record types</td><td>TXT, NULL, CNAME, MX used for data exfil instead of A/AAAA</td></tr>
+                                <tr><td>Unique subdomains per query</td><td>Every query has a different subdomain — each carrying a unique data chunk</td></tr>
+                                <tr><td>Data rate anomaly</td><td>DNS data volume far exceeds what resolution alone would require</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="c2" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>C2 over DNS</h2>
+                    <p>Beyond full tunneling, many malware families use DNS for lightweight C2 beaconing — periodically resolving a domain and using the returned IP address as an encoded command. This is harder to detect because each individual query looks legitimate.</p>
+
+                    <h3>Beaconing detection</h3>
+                    <div class="callout callout-info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Look for <strong>regularity</strong> — malware beacons on a fixed schedule while humans browse irregularly. A host querying the same domain every 60 seconds for hours is a strong beacon signal. Use jitter analysis (standard deviation of query intervals) to separate malware from legitimate polling software.</p>
+                    </div>
+                </section>
+
+                <section id="hunting" class="writeup-section">
+                    <h2><span class="title-prefix">// </span>Hunting Queries</h2>
+
+                    <h3>High-volume DNS queries from single endpoint (beaconing)</h3>
+                    <div class="code-block">
+                        <span class="code-comment">// Endpoints making unusually high number of DNS queries — Sysmon Event ID 22</span><br>
+                        <span class="code-table">Event</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">where</span> Source <span class="code-op">==</span> <span class="code-val">"Microsoft-Windows-Sysmon"</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">where</span> EventID <span class="code-op">==</span> <span class="code-val">22</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">where</span> TimeGenerated <span class="code-op">&gt;</span> <span class="code-fn">ago</span>(<span class="code-val">1h</span>)<br>
+                        <span class="code-pipe">| </span><span class="code-op">extend</span> QueryName <span class="code-op">=</span> <span class="code-fn">extract</span>(<span class="code-val">@"QueryName: ([^\s]+)"</span>, <span class="code-val">1</span>, RenderedDescription)<br>
+                        <span class="code-pipe">| </span><span class="code-op">summarize</span> QueryCount <span class="code-op">=</span> <span class="code-fn">count</span>(), Domains <span class="code-op">=</span> <span class="code-fn">dcount</span>(QueryName) <span class="code-op">by</span> Computer<br>
+                        <span class="code-pipe">| </span><span class="code-op">where</span> QueryCount <span class="code-op">&gt;</span> <span class="code-val">500</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">sort by</span> QueryCount <span class="code-op">desc</span>
+                    </div>
+
+                    <h3>Long subdomain labels (DNS tunneling)</h3>
+                    <div class="code-block">
+                        <span class="code-comment">// Queries where the subdomain portion is unusually long</span><br>
+                        <span class="code-table">Event</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">where</span> Source <span class="code-op">==</span> <span class="code-val">"Microsoft-Windows-Sysmon"</span> <span class="code-op">and</span> EventID <span class="code-op">==</span> <span class="code-val">22</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">extend</span> QueryName <span class="code-op">=</span> <span class="code-fn">extract</span>(<span class="code-val">@"QueryName: ([^\s]+)"</span>, <span class="code-val">1</span>, RenderedDescription)<br>
+                        <span class="code-pipe">| </span><span class="code-op">extend</span> NameLen <span class="code-op">=</span> <span class="code-fn">strlen</span>(QueryName)<br>
+                        <span class="code-pipe">| </span><span class="code-op">where</span> NameLen <span class="code-op">&gt;</span> <span class="code-val">60</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">project</span> TimeGenerated, Computer, QueryName, NameLen<br>
+                        <span class="code-pipe">| </span><span class="code-op">sort by</span> NameLen <span class="code-op">desc</span>
+                    </div>
+
+                    <h3>NXDOMAIN storm detection (DGA)</h3>
+                    <div class="code-block">
+                        <span class="code-comment">// DNS queries returning NXDOMAIN in high volume — potential DGA</span><br>
+                        <span class="code-comment">// Requires DNS server logs with response codes ingested into Sentinel</span><br>
+                        <span class="code-table">DnsEvents</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">where</span> TimeGenerated <span class="code-op">&gt;</span> <span class="code-fn">ago</span>(<span class="code-val">1h</span>)<br>
+                        <span class="code-pipe">| </span><span class="code-op">where</span> ResultCode <span class="code-op">==</span> <span class="code-val">3</span> <span class="code-comment">// NXDOMAIN</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">summarize</span> NXCount <span class="code-op">=</span> <span class="code-fn">count</span>() <span class="code-op">by</span> ClientIP<br>
+                        <span class="code-pipe">| </span><span class="code-op">where</span> NXCount <span class="code-op">&gt;</span> <span class="code-val">100</span><br>
+                        <span class="code-pipe">| </span><span class="code-op">sort by</span> NXCount <span class="code-op">desc</span>
+                    </div>
+                </section>
+
+            </article>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; grep -r <span class="accent">"flag"</span> /var/log/threats/ 2&gt;/dev/null
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+    </script>
+</body>
+</html>
