@@ -366,10 +366,10 @@
             <ul class="nav-links" id="navLinks">
                 <li><a href="/" class="nav-link">home</a></li>
                 <li><a href="/about" class="nav-link">about</a></li>
-                <li><a href="/labs" class="nav-link">notes</a></li><li><a href="/tools" class="nav-link">tools</a></li>
+                <li><a href="/labs" class="nav-link">notes</a></li><li><a href="/tools" class="nav-link">tools</a></li><li><a href="/vm" class="nav-link active">ctf</a></li>
                 <li><a href="/cves" class="nav-link">cves</a></li>
                 <li><a href="/map" class="nav-link">map</a></li>
-                <li><a href="/intel" class="nav-link">intel</a></li><li><a href="/vm" class="nav-link active">vm</a></li><li><a href="/guestbook" class="nav-link">guestbook</a></li>
+                <li><a href="/intel" class="nav-link">intel</a></li><li><a href="/guestbook" class="nav-link">guestbook</a></li>
             </ul>
             <div class="nav-right">
                 <button class="auth-btn" id="authBtn" onclick="openAuthModal()">
@@ -430,53 +430,6 @@
     </style>
 
     <!-- LEADERBOARD LINK -->
-    <section class="section section-alt" id="leaderboardSection">
-        <div class="container" style="text-align:center;">
-            <h2 class="section-title" style="justify-content:center;"><span class="title-prefix">//</span> Leaderboard</h2>
-            <p style="font-family:var(--font-mono);font-size:0.88rem;color:var(--text-secondary);margin:0.75rem 0 2rem;">See who's leading the board — podium, rankings, and solve counts.</p>
-            <a href="/leaderboard" class="lb-gold-btn">
-                <span class="lb-podium-icon">
-                    <span class="lb-pod lb-pod-2">2</span>
-                    <span class="lb-pod lb-pod-1">1</span>
-                    <span class="lb-pod lb-pod-3">3</span>
-                </span>
-                <span class="lb-btn-text">View Leaderboard</span>
-                <i class="fas fa-arrow-right" style="font-size:0.8rem;opacity:0.7;"></i>
-            </a>
-        </div>
-    </section>
-    <style>
-        .lb-gold-btn {
-            display: inline-flex; align-items: center; gap: 1rem;
-            background: linear-gradient(135deg, rgba(255,215,0,0.12) 0%, rgba(255,180,0,0.06) 100%);
-            border: 1px solid rgba(255,215,0,0.45);
-            border-radius: 12px; padding: 1rem 2rem;
-            text-decoration: none; transition: var(--transition);
-            box-shadow: 0 0 24px rgba(255,215,0,0.08);
-        }
-        .lb-gold-btn:hover {
-            background: linear-gradient(135deg, rgba(255,215,0,0.2) 0%, rgba(255,180,0,0.1) 100%);
-            border-color: rgba(255,215,0,0.7);
-            box-shadow: 0 0 36px rgba(255,215,0,0.18);
-            transform: translateY(-2px);
-        }
-        .lb-btn-text {
-            font-family: var(--font-mono); font-size: 0.95rem;
-            font-weight: 600; color: #ffd700; letter-spacing: 0.5px;
-        }
-        .lb-podium-icon {
-            display: flex; align-items: flex-end; gap: 2px; height: 28px;
-        }
-        .lb-pod {
-            display: flex; align-items: center; justify-content: center;
-            font-family: var(--font-mono); font-size: 0.6rem; font-weight: 700;
-            border-radius: 3px 3px 0 0;
-        }
-        .lb-pod-1 { width: 18px; height: 28px; background: rgba(255,215,0,0.5); color: #ffd700; border: 1px solid rgba(255,215,0,0.6); border-bottom: none; }
-        .lb-pod-2 { width: 16px; height: 20px; background: rgba(180,180,180,0.25); color: #b0b0b0; border: 1px solid rgba(180,180,180,0.4); border-bottom: none; }
-        .lb-pod-3 { width: 16px; height: 14px; background: rgba(201,123,58,0.25); color: #c97b3a; border: 1px solid rgba(201,123,58,0.4); border-bottom: none; }
-    </style>
-
     <!-- HOW IT WORKS -->
     <section class="section">
         <div class="container">
@@ -1028,6 +981,14 @@
             localStorage.setItem('ctf_username', uname);
             if (profile.avatar_url) localStorage.setItem('ctf_avatar', profile.avatar_url);
 
+            // Update the nav button immediately (initAuthNavBtn ran before auth resolved)
+            const navBtn = document.getElementById('authNavBtn');
+            if (navBtn) {
+                navBtn.innerHTML = '<i class="fas fa-user"></i> ' + uname.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                navBtn.classList.add('active');
+                navBtn.onclick = () => window.location.href = '/profile';
+            }
+
             // Load solves + update points display
             await refreshSolves(user.id);
 
@@ -1045,6 +1006,12 @@
             userSolves.clear();
             localStorage.removeItem('ctf_username');
             localStorage.removeItem('ctf_avatar');
+            const navBtnOut = document.getElementById('authNavBtn');
+            if (navBtnOut) {
+                navBtnOut.innerHTML = '<i class="fas fa-user"></i> sign in';
+                navBtnOut.classList.remove('active');
+                navBtnOut.onclick = () => window.location.href = '/vm';
+            }
             document.getElementById('authBtn').innerHTML = '<i class="fas fa-user"></i> sign in';
             document.getElementById('authBtn').classList.remove('logged-in');
             document.getElementById('authBtn').onclick = openAuthModal;
