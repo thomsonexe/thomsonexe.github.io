@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTF Lab | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/writeup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .how-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2.5rem;
+        }
+        .how-step {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.75rem;
+            position: relative;
+            transition: var(--transition);
+        }
+        .how-step:hover { border-color: var(--border-accent); box-shadow: var(--glow); }
+        .how-num {
+            font-family: var(--font-mono);
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            opacity: 0.12;
+            position: absolute;
+            top: 1rem; right: 1.25rem;
+            line-height: 1;
+            pointer-events: none;
+        }
+        .how-icon { font-size: 1.4rem; color: var(--accent); margin-bottom: 1rem; }
+        .how-step h3 { font-family: var(--font-mono); font-size: 0.95rem; color: var(--text-primary); margin-bottom: 0.6rem; }
+        .how-step p { font-size: 0.87rem; color: var(--text-secondary); line-height: 1.7; margin: 0; }
+
+        /* TERMINAL PREVIEW */
+        .terminal-preview {
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 2.5rem 0 0;
+            font-family: var(--font-mono);
+        }
+        .terminal-titlebar {
+            display: flex; align-items: center; gap: 0.5rem;
+            padding: 0.65rem 1rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+        .dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+        .dot-red    { background: #ff5f57; }
+        .dot-yellow { background: #febc2e; }
+        .dot-green  { background: #28c840; }
+        .terminal-label { font-size: 0.72rem; color: var(--text-secondary); margin-left: auto; }
+        .terminal-body {
+            padding: 1.25rem 1.5rem;
+            font-size: 0.82rem;
+            line-height: 2;
+            min-height: 200px;
+            overflow: hidden;
+        }
+        .t-prompt { color: var(--accent); }
+        .t-out    { color: #5a6575; }
+        .t-flag   { color: var(--accent-yellow); font-weight: 600; }
+        .t-cursor-blink {
+            display: inline-block; width: 8px; height: 1em;
+            background: var(--accent); vertical-align: text-bottom;
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+        /* VM CARDS */
+        .vm-platform {
+            font-family: var(--font-mono); font-size: 0.7rem;
+            padding: 0.18rem 0.55rem; border-radius: 4px;
+            background: rgba(0,255,136,0.08); color: var(--accent);
+            border: 1px solid rgba(0,255,136,0.25);
+        }
+        .vm-points {
+            font-family: var(--font-mono); font-size: 0.7rem;
+            color: var(--accent-cyan); margin-left: auto;
+        }
+        .machine-status {
+            display: flex; align-items: center; gap: 0.4rem;
+            font-family: var(--font-mono); font-size: 0.68rem;
+            color: var(--accent); margin-bottom: 0.75rem;
+        }
+        .status-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--accent);
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+        .status-dot.offline { background: var(--text-secondary); animation: none; }
+        .machine-status.offline-status { color: var(--text-secondary); }
+        @keyframes statusPulse { 0%,100%{opacity:1;box-shadow:0 0 4px var(--accent)} 50%{opacity:0.5;box-shadow:none} }
+
+        .vm-actions { display: flex; gap: 0.75rem; margin-top: auto; flex-wrap: wrap; }
+        .btn-launch {
+            font-family: var(--font-mono); font-size: 0.8rem;
+            color: var(--bg-primary); background: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 0.45rem 1.1rem; border-radius: 6px;
+            cursor: pointer; transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex; align-items: center; gap: 0.4rem;
+        }
+        .btn-launch:hover { background: var(--accent-dim); border-color: var(--accent-dim); }
+        .btn-objectives {
+            font-family: var(--font-mono); font-size: 0.8rem;
+            color: var(--accent); background: transparent;
+            border: 1px solid rgba(0,255,136,0.35);
+            padding: 0.45rem 1.1rem; border-radius: 6px;
+            cursor: pointer; transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 0.4rem;
+        }
+        .btn-objectives:hover { background: rgba(0,255,136,0.06); }
+
+        /* MODAL */
+        .vm-modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.78); z-index: 2000;
+            align-items: center; justify-content: center;
+            padding: 1rem;
+        }
+        .vm-modal-overlay.active { display: flex; }
+        .vm-modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-accent);
+            border-radius: 12px; padding: 2rem;
+            max-width: 560px; width: 100%;
+            max-height: 88vh; overflow-y: auto;
+            position: relative; box-shadow: var(--glow-strong);
+        }
+        .modal-close {
+            position: absolute; top: 1rem; right: 1rem;
+            background: none; border: 1px solid var(--border);
+            color: var(--text-secondary); width: 30px; height: 30px;
+            border-radius: 6px; cursor: pointer; font-size: 0.9rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: var(--transition);
+        }
+        .modal-close:hover { color: var(--accent); border-color: var(--border-accent); }
+        .modal-meta { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem; }
+        .modal-title {
+            font-family: var(--font-mono); font-size: 1.25rem;
+            color: var(--text-primary); margin-bottom: 1rem;
+        }
+        .modal-desc {
+            font-size: 0.9rem; color: var(--text-secondary);
+            line-height: 1.75; margin-bottom: 1.5rem;
+        }
+        .modal-section-title {
+            font-family: var(--font-mono); font-size: 0.75rem;
+            color: var(--accent); text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 0.75rem;
+        }
+        .objectives-list {
+            list-style: none; display: flex;
+            flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem;
+        }
+        .objectives-list li {
+            font-size: 0.88rem; color: var(--text-secondary);
+            display: flex; align-items: flex-start;
+            gap: 0.6rem; line-height: 1.6;
+        }
+        .objectives-list li i { color: var(--accent); font-size: 0.72rem; margin-top: 0.25rem; flex-shrink: 0; }
+        .modal-code {
+            background: #0d1117; border: 1px solid var(--border);
+            border-radius: 8px; padding: 1rem 1.25rem;
+            font-family: var(--font-mono); font-size: 0.82rem;
+            color: var(--text-primary); margin-bottom: 1.5rem; line-height: 1.9;
+        }
+        .modal-code .t-prompt { color: var(--accent); }
+        .modal-actions { display: flex; gap: 0.75rem; }
+
+        .ctf-card.dim { opacity: 0.55; pointer-events: none; }
+        .ctf-card.dim .btn-launch, .ctf-card.dim .btn-objectives { pointer-events: none; }
+
+        @media (max-width: 600px) {
+            .vm-actions, .modal-actions { flex-direction: column; }
+            .btn-launch, .btn-objectives { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/home" class="nav-logo writeup-logo">
+                <img src="/mouse_t.png" class="nav-mouse" alt="">
+                <span class="glitch glitch-nav glitch-brand" data-text="thomsoN">thomsoN</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/" class="nav-link">home</a></li>
+                <li><a href="/about" class="nav-link">about</a></li>
+                <li><a href="/labs" class="nav-link">labs</a></li><li><a href="/tools" class="nav-link">tools</a></li>
+                <li><a href="/cves" class="nav-link">cves</a></li>
+                <li><a href="/map" class="nav-link">map</a></li>
+                <li><a href="/intel" class="nav-link">intel</a></li><li><a href="/vm" class="nav-link active">vm</a></li><li><a href="/guestbook" class="nav-link">guestbook</a></li>
+            </ul>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="page-hero">
+        <div class="container">
+            <p class="page-hero-prompt"><span class="prompt">ben@thomson.cx:~$</span> ls /vm/challenges/</p>
+            <h1 class="page-hero-title">CTF Lab</h1>
+            <p class="page-hero-sub">Browser-based Linux VMs &mdash; no installation, no account. Powered by WebAssembly.</p>
+        </div>
+        <div class="grid-overlay"></div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section section-alt">
+        <div class="container">
+            <h2 class="section-title"><span class="title-prefix">//</span> How it works</h2>
+            <div class="how-grid">
+                <div class="how-step">
+                    <div class="how-num">01</div>
+                    <div class="how-icon"><i class="fas fa-crosshairs"></i></div>
+                    <h3>Pick a Challenge</h3>
+                    <p>Choose a machine below. Each one has a difficulty rating, category, and clear objectives to guide your investigation.</p>
+                </div>
+                <div class="how-step">
+                    <div class="how-num">02</div>
+                    <div class="how-icon"><i class="fas fa-terminal"></i></div>
+                    <h3>Launch Terminal</h3>
+                    <p>Click <strong style="color:var(--accent)">Launch VM</strong> to open a full Debian Linux environment in your browser — powered by WebAssembly, zero install required.</p>
+                </div>
+                <div class="how-step">
+                    <div class="how-num">03</div>
+                    <div class="how-icon"><i class="fas fa-flag"></i></div>
+                    <h3>Find the Flag</h3>
+                    <p>Use standard Linux tools to solve the challenge. Download the challenge files directly in the terminal and submit flags in the format <code>flag{...}</code>.</p>
+                </div>
+            </div>
+
+            <div class="terminal-preview">
+                <div class="terminal-titlebar">
+                    <span class="dot dot-red"></span>
+                    <span class="dot dot-yellow"></span>
+                    <span class="dot dot-green"></span>
+                    <span class="terminal-label">webvm &mdash; Debian GNU/Linux &mdash; 80&times;24</span>
+                </div>
+                <div class="terminal-body" id="termBody"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CHALLENGES -->
+    <section class="section labs-body">
+        <div class="container">
+            <h2 class="section-title"><span class="title-prefix">//</span> Available Machines</h2>
+
+            <div class="ctf-grid labs-grid">
+
+                <!-- init.flag -->
+                <div class="ctf-card">
+                    <div class="machine-status">
+                        <span class="status-dot"></span>online
+                    </div>
+                    <div class="ctf-meta">
+                        <span class="vm-platform">Custom</span>
+                        <span class="ctf-difficulty easy">Easy</span>
+                        <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>25 pts</span>
+                    </div>
+                    <h3 class="ctf-title">init.flag</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Linux Basics / File System</p>
+                    <p class="ctf-excerpt">Navigate a Linux filesystem to find hidden files and decode base64 strings. A perfect introduction to CTF fundamentals &mdash; no prior experience needed.</p>
+                    <div class="vm-actions">
+                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Launch VM</a>
+                        <button class="btn-objectives" onclick="openModal('init-flag')"><i class="fas fa-scroll"></i> Objectives</button>
+                    </div>
+                </div>
+
+                <!-- log_trace -->
+                <div class="ctf-card">
+                    <div class="machine-status">
+                        <span class="status-dot"></span>online
+                    </div>
+                    <div class="ctf-meta">
+                        <span class="vm-platform">Custom</span>
+                        <span class="ctf-difficulty medium">Medium</span>
+                        <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>75 pts</span>
+                    </div>
+                    <h3 class="ctf-title">log_trace</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Log Analysis / DFIR</p>
+                    <p class="ctf-excerpt">A web server was compromised overnight. Analyse the provided Apache access logs to identify the attacker's IP, the exploit used, and the exfiltration method.</p>
+                    <div class="vm-actions">
+                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Launch VM</a>
+                        <button class="btn-objectives" onclick="openModal('log-trace')"><i class="fas fa-scroll"></i> Objectives</button>
+                    </div>
+                </div>
+
+                <!-- hash_hunt -->
+                <div class="ctf-card">
+                    <div class="machine-status">
+                        <span class="status-dot"></span>online
+                    </div>
+                    <div class="ctf-meta">
+                        <span class="vm-platform">Custom</span>
+                        <span class="ctf-difficulty medium">Medium</span>
+                        <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>100 pts</span>
+                    </div>
+                    <h3 class="ctf-title">hash_hunt</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Cryptography / Password Cracking</p>
+                    <p class="ctf-excerpt">A credential database was leaked. Identify the hash algorithm, select the right wordlist strategy, and crack the target hash to recover the plaintext password.</p>
+                    <div class="vm-actions">
+                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Launch VM</a>
+                        <button class="btn-objectives" onclick="openModal('hash-hunt')"><i class="fas fa-scroll"></i> Objectives</button>
+                    </div>
+                </div>
+
+                <!-- mem_ghost (coming soon) -->
+                <div class="ctf-card dim">
+                    <div class="machine-status offline-status">
+                        <span class="status-dot offline"></span>coming soon
+                    </div>
+                    <div class="ctf-meta">
+                        <span class="vm-platform">Custom</span>
+                        <span class="ctf-difficulty hard">Hard</span>
+                        <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>200 pts</span>
+                    </div>
+                    <h3 class="ctf-title">mem_ghost</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Memory Forensics / Malware Analysis</p>
+                    <p class="ctf-excerpt">Analyse a memory dump to uncover a running rootkit. Extract process trees, network connections, and the attacker's C2 infrastructure using Volatility 3.</p>
+                    <div class="vm-actions">
+                        <span class="coming-soon"><i class="fas fa-clock"></i> In Development</span>
+                    </div>
+                </div>
+
+                <!-- net_tap (coming soon) -->
+                <div class="ctf-card dim">
+                    <div class="machine-status offline-status">
+                        <span class="status-dot offline"></span>coming soon
+                    </div>
+                    <div class="ctf-meta">
+                        <span class="vm-platform">Custom</span>
+                        <span class="ctf-difficulty medium">Medium</span>
+                        <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>150 pts</span>
+                    </div>
+                    <h3 class="ctf-title">net_tap</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Network Analysis / Packet Capture</p>
+                    <p class="ctf-excerpt">Investigate a suspicious PCAP to identify C2 beaconing, DNS exfiltration, and credential theft over an unencrypted protocol.</p>
+                    <div class="vm-actions">
+                        <span class="coming-soon"><i class="fas fa-clock"></i> In Development</span>
+                    </div>
+                </div>
+
+                <!-- web_break (coming soon) -->
+                <div class="ctf-card dim">
+                    <div class="machine-status offline-status">
+                        <span class="status-dot offline"></span>coming soon
+                    </div>
+                    <div class="ctf-meta">
+                        <span class="vm-platform">Custom</span>
+                        <span class="ctf-difficulty hard">Hard</span>
+                        <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>250 pts</span>
+                    </div>
+                    <h3 class="ctf-title">web_break</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Web Security / SQL Injection</p>
+                    <p class="ctf-excerpt">A vulnerable web application is running locally. Exploit SQL injection, bypass authentication, and escalate privileges to read the root flag.</p>
+                    <div class="vm-actions">
+                        <span class="coming-soon"><i class="fas fa-clock"></i> In Development</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                <span class="prompt">ben@thomson.cx:~$</span>&nbsp; nc -lvnp <span class="accent">4444</span>
+            </p>
+        </div>
+    </footer>
+
+    <!-- MODALS -->
+    <div class="vm-modal-overlay" id="modal-init-flag">
+        <div class="vm-modal">
+            <button class="modal-close" onclick="closeModal('init-flag')"><i class="fas fa-times"></i></button>
+            <div class="modal-meta">
+                <span class="vm-platform">Custom</span>
+                <span class="ctf-difficulty easy">Easy</span>
+                <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--accent-cyan);margin-left:auto;">25 pts</span>
+            </div>
+            <h2 class="modal-title">init.flag</h2>
+            <p class="modal-desc">A user account has been configured on a Debian system. Explore the filesystem to find what was left behind. Some flags are in plain sight — others require decoding.</p>
+            <p class="modal-section-title"><i class="fas fa-list-check" style="margin-right:0.4rem;"></i>Objectives</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-chevron-right"></i>Find the hidden file in the user's home directory</li>
+                <li><i class="fas fa-chevron-right"></i>Decode the base64-encoded string inside it</li>
+                <li><i class="fas fa-chevron-right"></i>Locate a second flag buried deeper in the filesystem</li>
+                <li><i class="fas fa-chevron-right"></i>Submit both flags in the format <code>flag{...}</code></li>
+            </ul>
+            <p class="modal-section-title"><i class="fas fa-download" style="margin-right:0.4rem;"></i>Get the Challenge Files</p>
+            <div class="modal-code">
+                <span class="t-prompt">$ </span>wget https://thomson.cx/challenges/init-flag.tar.gz<br>
+                <span class="t-prompt">$ </span>tar -xzf init-flag.tar.gz &amp;&amp; cd init-flag/
+            </div>
+            <p class="modal-section-title"><i class="fas fa-wrench" style="margin-right:0.4rem;"></i>Tools You'll Need</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>ls -la</code> &mdash; list hidden files</li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>find / -name "*.flag" 2&gt;/dev/null</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>echo "..." | base64 -d</code></li>
+            </ul>
+            <div class="modal-actions">
+                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Open Terminal</a>
+                <button class="btn-objectives" onclick="closeModal('init-flag')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="vm-modal-overlay" id="modal-log-trace">
+        <div class="vm-modal">
+            <button class="modal-close" onclick="closeModal('log-trace')"><i class="fas fa-times"></i></button>
+            <div class="modal-meta">
+                <span class="vm-platform">Custom</span>
+                <span class="ctf-difficulty medium">Medium</span>
+                <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--accent-cyan);margin-left:auto;">75 pts</span>
+            </div>
+            <h2 class="modal-title">log_trace</h2>
+            <p class="modal-desc">A web server was breached overnight. You've been handed the Apache access logs from the incident window. Find the attacker, trace their steps, and determine what they exfiltrated.</p>
+            <p class="modal-section-title"><i class="fas fa-list-check" style="margin-right:0.4rem;"></i>Objectives</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-chevron-right"></i>Identify the attacker's IP address</li>
+                <li><i class="fas fa-chevron-right"></i>Determine which vulnerability was exploited</li>
+                <li><i class="fas fa-chevron-right"></i>Find the first file accessed post-exploitation</li>
+                <li><i class="fas fa-chevron-right"></i>Identify the exfiltration method used</li>
+            </ul>
+            <p class="modal-section-title"><i class="fas fa-download" style="margin-right:0.4rem;"></i>Get the Challenge Files</p>
+            <div class="modal-code">
+                <span class="t-prompt">$ </span>wget https://thomson.cx/challenges/log-trace.tar.gz<br>
+                <span class="t-prompt">$ </span>tar -xzf log-trace.tar.gz &amp;&amp; cd log-trace/
+            </div>
+            <p class="modal-section-title"><i class="fas fa-wrench" style="margin-right:0.4rem;"></i>Tools You'll Need</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>grep</code>, <code>awk</code>, <code>cut</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>sort | uniq -c | sort -rn</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>sed</code> for log field parsing</li>
+            </ul>
+            <div class="modal-actions">
+                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Open Terminal</a>
+                <button class="btn-objectives" onclick="closeModal('log-trace')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="vm-modal-overlay" id="modal-hash-hunt">
+        <div class="vm-modal">
+            <button class="modal-close" onclick="closeModal('hash-hunt')"><i class="fas fa-times"></i></button>
+            <div class="modal-meta">
+                <span class="vm-platform">Custom</span>
+                <span class="ctf-difficulty medium">Medium</span>
+                <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--accent-cyan);margin-left:auto;">100 pts</span>
+            </div>
+            <h2 class="modal-title">hash_hunt</h2>
+            <p class="modal-desc">A credential database was dumped during a breach. The passwords are hashed — but not all algorithms are equal. Identify the type and crack the target entry to recover the plaintext.</p>
+            <p class="modal-section-title"><i class="fas fa-list-check" style="margin-right:0.4rem;"></i>Objectives</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-chevron-right"></i>Identify the hash algorithm used in the database</li>
+                <li><i class="fas fa-chevron-right"></i>Crack the target hash to recover the plaintext password</li>
+                <li><i class="fas fa-chevron-right"></i>Find which other account reuses the same password</li>
+            </ul>
+            <p class="modal-section-title"><i class="fas fa-download" style="margin-right:0.4rem;"></i>Get the Challenge Files</p>
+            <div class="modal-code">
+                <span class="t-prompt">$ </span>wget https://thomson.cx/challenges/hash-hunt.tar.gz<br>
+                <span class="t-prompt">$ </span>tar -xzf hash-hunt.tar.gz &amp;&amp; cd hash-hunt/
+            </div>
+            <p class="modal-section-title"><i class="fas fa-wrench" style="margin-right:0.4rem;"></i>Tools You'll Need</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>hashid</code> or <code>hash-identifier</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>john --wordlist=/usr/share/wordlists/rockyou.txt</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>grep</code> for cross-referencing entries</li>
+            </ul>
+            <div class="modal-actions">
+                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Open Terminal</a>
+                <button class="btn-objectives" onclick="closeModal('hash-hunt')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const cur = document.documentElement.getAttribute('data-theme');
+            const next = cur === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+
+        // Navbar scroll
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+
+        // Mobile nav
+        const navToggle = document.getElementById('navToggle');
+        const navLinks = document.getElementById('navLinks');
+        navToggle.addEventListener('click', () => {
+            navToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        // Modals
+        function openModal(id) {
+            document.getElementById('modal-' + id).classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeModal(id) {
+            document.getElementById('modal-' + id).classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        document.querySelectorAll('.vm-modal-overlay').forEach(o => {
+            o.addEventListener('click', e => { if (e.target === o) { o.classList.remove('active'); document.body.style.overflow = ''; } });
+        });
+
+        // Terminal animation
+        const SEQUENCES = [
+            { cmd: 'ls -la /home/ctf/', lines: [
+                { t: 'out', h: 'total 28' },
+                { t: 'out', h: 'drwxr-xr-x 2 ctf  ctf  4096 May  6 09:14 .' },
+                { t: 'out', h: 'drwxr-xr-x 3 root root 4096 May  6 09:12 ..' },
+                { t: 'out', h: '-rw-r--r-- 1 ctf  ctf   220 May  6 09:12 .bash_logout' },
+                { t: 'flag', h: '-rw------- 1 ctf  ctf    47 May  6 09:14 .secret' },
+            ]},
+            { cmd: 'cat /home/ctf/.secret', lines: [
+                { t: 'out', h: 'ZmxhZ3tiNHNlNjRfMXNfdGgzX2JlZ2lubjFuZ30K' },
+            ]},
+            { cmd: 'echo "ZmxhZ3tiNHNlNjRfMXNfdGgzX2JlZ2lubjFuZ30K" | base64 -d', lines: [
+                { t: 'flag', h: 'flag{b4se64_1s_th3_beginn1ng}' },
+            ]},
+        ];
+
+        const termBody = document.getElementById('termBody');
+        let seqIdx = 0, lineIdx = 0, phase = 'cmd', charIdx = 0;
+        let currentEl = null;
+
+        function addLine(html, cls) {
+            const d = document.createElement('div');
+            d.innerHTML = html;
+            if (cls) d.querySelector('span') && (d.querySelector('span').className = cls);
+            termBody.appendChild(d);
+            termBody.scrollTop = termBody.scrollHeight;
+            return d;
+        }
+
+        function tick() {
+            if (seqIdx >= SEQUENCES.length) {
+                // Idle cursor then restart
+                const d = document.createElement('div');
+                d.innerHTML = '<span class="t-prompt">user@localhost:~$ </span><span class="t-cursor-blink"></span>';
+                termBody.appendChild(d);
+                setTimeout(() => { termBody.innerHTML = ''; seqIdx = 0; lineIdx = 0; phase = 'cmd'; charIdx = 0; currentEl = null; setTimeout(tick, 300); }, 3500);
+                return;
+            }
+
+            const seq = SEQUENCES[seqIdx];
+
+            if (phase === 'cmd') {
+                if (charIdx === 0) {
+                    const d = document.createElement('div');
+                    d.innerHTML = '<span class="t-prompt">user@localhost:~$ </span><span class="t-typing"></span><span class="t-cursor-blink"></span>';
+                    termBody.appendChild(d);
+                    currentEl = d;
+                }
+                const typing = currentEl.querySelector('.t-typing');
+                const cursor = currentEl.querySelector('.t-cursor-blink');
+                if (charIdx < seq.cmd.length) {
+                    typing.textContent += seq.cmd[charIdx++];
+                    setTimeout(tick, 42);
+                } else {
+                    cursor.remove();
+                    phase = 'lines'; lineIdx = 0; charIdx = 0;
+                    setTimeout(tick, 380);
+                }
+            } else {
+                if (lineIdx >= seq.lines.length) {
+                    seqIdx++; lineIdx = 0; phase = 'cmd'; charIdx = 0; currentEl = null;
+                    setTimeout(tick, 280);
+                    return;
+                }
+                const ln = seq.lines[lineIdx++];
+                const d = document.createElement('div');
+                const color = ln.t === 'flag' ? 'var(--accent-yellow)' : '#5a6575';
+                d.innerHTML = '<span style="color:' + color + (ln.t === 'flag' ? ';font-weight:600' : '') + '">' + ln.h + '</span>';
+                termBody.appendChild(d);
+                termBody.scrollTop = termBody.scrollHeight;
+                setTimeout(tick, 60);
+            }
+        }
+
+        setTimeout(tick, 900);
+    </script>
+</body>
+</html>
