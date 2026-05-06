@@ -2395,19 +2395,150 @@ initGuestbook();
     })();
 })();
 
-// ── Global CTF auth nav button ────────────────────────────────────────────────
-// Shows username+link to /profile if signed in, otherwise links to /vm to sign in
-(function initAuthNavBtn() {
-    const btn = document.getElementById('authNavBtn');
-    if (!btn) return;
+// ── Global auth nav button + modal ───────────────────────────────────────────
+(function initGlobalAuth() {
+    const SB_URL = 'https://nqrdljwhvjjoahpjfrlh.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xcmRsandodmpqb2FocGpmcmxoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MzYzMzAsImV4cCI6MjA5MzQxMjMzMH0.YO_3Ul7BzuzG7zJahTf5aOQNslOItPqCRRGXwyRCdyI';
+    const inputStyle = 'width:100%;background:var(--bg-primary,#060d14);border:1px solid var(--border,#1e2d3d);border-radius:8px;padding:0.65rem 0.9rem;color:var(--text-primary,#e2e8f0);font-family:var(--font-mono,monospace);font-size:0.85rem;margin-bottom:0.75rem;box-sizing:border-box;';
+    const btnStyle  = 'width:100%;background:var(--accent,#00ff88);color:var(--bg-primary,#060d14);border:none;border-radius:8px;padding:0.72rem;font-family:var(--font-mono,monospace);font-size:0.85rem;font-weight:600;cursor:pointer;';
+    const tabStyle  = (active) => 'font-family:var(--font-mono,monospace);font-size:0.82rem;background:none;border:none;border-bottom:2px solid '+(active?'var(--accent,#00ff88)':'transparent')+';padding:0.6rem 1.1rem;margin-bottom:-1px;cursor:pointer;color:'+(active?'var(--accent,#00ff88)':'var(--text-secondary,#8b9ab1)')+';';
 
-    const username = localStorage.getItem('ctf_username');
-    if (username) {
-        btn.innerHTML = '<i class="fas fa-user"></i> ' + username.replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        btn.classList.add('active');
-        btn.onclick = () => window.location.href = '/profile';
-    } else {
-        btn.innerHTML = '<i class="fas fa-user"></i> sign in';
-        btn.onclick = () => window.location.href = '/vm';
+    document.body.insertAdjacentHTML('beforeend', `
+    <div id="gaOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:9999;align-items:center;justify-content:center;padding:1rem;">
+      <div style="background:var(--bg-secondary,#0d1117);border:1px solid var(--border-accent,#00ff88);border-radius:12px;padding:2rem;max-width:400px;width:100%;position:relative;box-shadow:0 0 40px rgba(0,255,136,0.12);">
+        <button onclick="document.getElementById('gaOverlay').style.display='none'" style="position:absolute;top:0.75rem;right:0.75rem;background:none;border:none;color:var(--text-secondary,#8b9ab1);font-size:1rem;cursor:pointer;"><i class="fas fa-times"></i></button>
+        <div id="gaOut">
+          <div style="display:flex;margin-bottom:1.5rem;border-bottom:1px solid var(--border,#1e2d3d);">
+            <button id="gaTabIn"  onclick="gaTab('in')"  style="${tabStyle(true)}">Sign In</button>
+            <button id="gaTabUp"  onclick="gaTab('up')"  style="${tabStyle(false)}">Sign Up</button>
+          </div>
+          <div id="gaFormIn">
+            <input type="email"    id="gaEmail"    placeholder="email"    autocomplete="email"            style="${inputStyle}">
+            <input type="password" id="gaPass"     placeholder="password" autocomplete="current-password" style="${inputStyle}">
+            <button onclick="gaSignIn()" style="${btnStyle}">Sign In</button>
+            <p id="gaInMsg" style="font-family:var(--font-mono,monospace);font-size:0.8rem;margin-top:0.75rem;min-height:1.2em;"></p>
+          </div>
+          <div id="gaFormUp" style="display:none;">
+            <input type="text"     id="gaUser"     placeholder="username (3-20 chars, a-z 0-9 _-)" autocomplete="off"          style="${inputStyle}">
+            <input type="email"    id="gaEmailUp"  placeholder="email"                             autocomplete="email"         style="${inputStyle}">
+            <input type="password" id="gaPassUp"   placeholder="password (min 6 chars)"            autocomplete="new-password"  style="${inputStyle}">
+            <button onclick="gaSignUp()" style="${btnStyle}">Create Account</button>
+            <p id="gaUpMsg" style="font-family:var(--font-mono,monospace);font-size:0.8rem;margin-top:0.75rem;min-height:1.2em;"></p>
+          </div>
+        </div>
+        <div id="gaIn" style="display:none;">
+          <p style="font-family:var(--font-mono,monospace);font-size:0.9rem;color:var(--text-primary,#e2e8f0);margin-bottom:1rem;">Signed in as <span id="gaName" style="color:var(--accent,#00ff88);"></span></p>
+          <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+            <a href="/profile" style="font-family:var(--font-mono,monospace);font-size:0.78rem;padding:0.4rem 0.9rem;background:var(--accent,#00ff88);color:var(--bg-primary,#060d14);border-radius:6px;text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;"><i class="fas fa-id-card"></i> Profile</a>
+            <button onclick="gaSignOut()" style="font-family:var(--font-mono,monospace);font-size:0.78rem;color:var(--text-secondary,#8b9ab1);background:none;border:1px solid var(--border,#1e2d3d);border-radius:6px;padding:0.35rem 0.85rem;cursor:pointer;">Sign Out</button>
+          </div>
+        </div>
+      </div>
+    </div>`);
+
+    document.getElementById('gaOverlay').addEventListener('click', function(e) {
+        if (e.target === this) this.style.display = 'none';
+    });
+
+    let _sb = null;
+    function getSb(cb) {
+        if (_sb) { cb(_sb); return; }
+        if (window.supabase) { _sb = window.supabase.createClient(SB_URL, SB_KEY); cb(_sb); return; }
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+        s.onload = () => { _sb = window.supabase.createClient(SB_URL, SB_KEY); cb(_sb); };
+        document.head.appendChild(s);
     }
+
+    function setNavBtn(username) {
+        const btn = document.getElementById('authNavBtn');
+        if (!btn) return;
+        if (username) {
+            btn.innerHTML = '<i class="fas fa-user"></i> ' + username.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            btn.classList.add('active');
+            btn.onclick = () => window.location.href = '/profile';
+        } else {
+            btn.innerHTML = '<i class="fas fa-user"></i> sign in';
+            btn.classList.remove('active');
+            btn.onclick = openGaModal;
+        }
+    }
+
+    function showGaSignedIn(uname) {
+        document.getElementById('gaName').textContent = uname;
+        document.getElementById('gaOut').style.display = 'none';
+        document.getElementById('gaIn').style.display = '';
+    }
+
+    window.gaTab = function(t) {
+        const isIn = t === 'in';
+        document.getElementById('gaFormIn').style.display = isIn ? '' : 'none';
+        document.getElementById('gaFormUp').style.display = isIn ? 'none' : '';
+        document.getElementById('gaTabIn').style.cssText = tabStyle(isIn);
+        document.getElementById('gaTabUp').style.cssText = tabStyle(!isIn);
+    };
+
+    window.openGaModal = function() {
+        const overlay = document.getElementById('gaOverlay');
+        overlay.style.display = 'flex';
+        const uname = localStorage.getItem('ctf_username');
+        if (uname) { showGaSignedIn(uname); return; }
+        document.getElementById('gaOut').style.display = '';
+        document.getElementById('gaIn').style.display = 'none';
+        gaTab('in');
+    };
+
+    window.gaSignIn = function() {
+        const msg = document.getElementById('gaInMsg');
+        const email = document.getElementById('gaEmail').value.trim();
+        const pass  = document.getElementById('gaPass').value;
+        msg.style.color = 'var(--text-secondary,#8b9ab1)'; msg.textContent = 'Signing in…';
+        getSb(async function(sb) {
+            const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+            if (error) { msg.style.color = '#ff5f57'; msg.textContent = error.message; return; }
+            let { data: profile } = await sb.from('profiles').select('username').eq('id', data.user.id).single();
+            if (!profile) {
+                const u = data.user.email.split('@')[0].replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,20);
+                await sb.from('profiles').insert({ id: data.user.id, username: u });
+                profile = { username: u };
+            }
+            localStorage.setItem('ctf_username', profile.username);
+            setNavBtn(profile.username);
+            showGaSignedIn(profile.username);
+            msg.style.color = 'var(--accent,#00ff88)'; msg.textContent = 'Signed in!';
+        });
+    };
+
+    window.gaSignUp = function() {
+        const msg  = document.getElementById('gaUpMsg');
+        const user = document.getElementById('gaUser').value.trim();
+        const email= document.getElementById('gaEmailUp').value.trim();
+        const pass = document.getElementById('gaPassUp').value;
+        if (!/^[a-zA-Z0-9_-]{3,20}$/.test(user)) {
+            msg.style.color = '#ff5f57'; msg.textContent = 'Username: 3-20 chars, letters/numbers/_-'; return;
+        }
+        msg.style.color = 'var(--text-secondary,#8b9ab1)'; msg.textContent = 'Creating account…';
+        getSb(async function(sb) {
+            const { data, error } = await sb.auth.signUp({ email, password: pass, options: { data: { username: user } } });
+            if (error) { msg.style.color = '#ff5f57'; msg.textContent = error.message; return; }
+            if (data.user) {
+                await sb.from('profiles').insert({ id: data.user.id, username: user });
+                localStorage.setItem('ctf_username', user);
+                setNavBtn(user);
+                showGaSignedIn(user);
+                msg.style.color = 'var(--accent,#00ff88)'; msg.textContent = 'Account created!';
+            }
+        });
+    };
+
+    window.gaSignOut = function() {
+        getSb(async function(sb) { await sb.auth.signOut(); });
+        localStorage.removeItem('ctf_username');
+        localStorage.removeItem('ctf_avatar');
+        setNavBtn(null);
+        document.getElementById('gaOverlay').style.display = 'none';
+    };
+
+    // Init nav button on page load
+    setNavBtn(localStorage.getItem('ctf_username'));
 })();
