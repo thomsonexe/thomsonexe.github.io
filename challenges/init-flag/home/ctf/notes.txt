@@ -1,0 +1,6 @@
+TODO:
+  - rotate SSH keys
+  - check cron jobs
+  - clean up /var/cache
+
+Remember: always check hidden files before decommissioning a box.
