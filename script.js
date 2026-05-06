@@ -2440,6 +2440,36 @@ initGuestbook();
         if (e.target === this) this.style.display = 'none';
     });
 
+    // ── Profile dropdown ──
+    document.body.insertAdjacentHTML('beforeend', `
+    <div id="gaDropdown" style="display:none;position:fixed;z-index:9998;min-width:160px;background:var(--bg-secondary,#0d1117);border:1px solid var(--border-accent,rgba(0,255,136,0.35));border-radius:8px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+      <a href="/profile" id="gaDropProfile" style="display:flex;align-items:center;gap:0.6rem;padding:0.65rem 1rem;font-family:var(--font-mono,monospace);font-size:0.8rem;color:var(--text-primary,#e2e8f0);text-decoration:none;transition:background 0.15s;">
+        <i class="fas fa-id-card" style="color:var(--accent,#00ff88);width:14px;"></i> Edit Profile
+      </a>
+      <button onclick="gaSignOut()" style="display:flex;align-items:center;gap:0.6rem;width:100%;padding:0.65rem 1rem;font-family:var(--font-mono,monospace);font-size:0.8rem;color:#ff5f57;background:none;border:none;border-top:1px solid var(--border,#1e2d3d);cursor:pointer;transition:background 0.15s;">
+        <i class="fas fa-sign-out-alt" style="width:14px;"></i> Sign Out
+      </button>
+    </div>`);
+
+    const gaDrop = document.getElementById('gaDropdown');
+    document.getElementById('gaDropProfile').addEventListener('mouseenter', function() { this.style.background='rgba(255,255,255,0.04)'; });
+    document.getElementById('gaDropProfile').addEventListener('mouseleave', function() { this.style.background=''; });
+
+    function positionDropdown(btn) {
+        const r = btn.getBoundingClientRect();
+        gaDrop.style.top  = (r.bottom + 8) + 'px';
+        gaDrop.style.right = (window.innerWidth - r.right) + 'px';
+        gaDrop.style.left  = 'auto';
+    }
+
+    function closeDropdown() { gaDrop.style.display = 'none'; }
+
+    document.addEventListener('click', function(e) {
+        if (!gaDrop.contains(e.target) && e.target !== document.getElementById('authNavBtn')) {
+            closeDropdown();
+        }
+    });
+
     let _sb = null;
     function getSb(cb) {
         if (_sb) { cb(_sb); return; }
@@ -2454,9 +2484,17 @@ initGuestbook();
         const btn = document.getElementById('authNavBtn');
         if (!btn) return;
         if (username) {
-            btn.innerHTML = '<i class="fas fa-user"></i> ' + username.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            btn.innerHTML = '<i class="fas fa-user"></i> ' + username.replace(/</g,'&lt;').replace(/>/g,'&gt;') + ' <i class="fas fa-caret-down" style="font-size:0.65rem;opacity:0.7;margin-left:2px;"></i>';
             btn.classList.add('active');
-            btn.onclick = () => window.location.href = '/profile';
+            btn.onclick = function(e) {
+                e.stopPropagation();
+                if (gaDrop.style.display === 'none' || !gaDrop.style.display) {
+                    positionDropdown(btn);
+                    gaDrop.style.display = 'block';
+                } else {
+                    closeDropdown();
+                }
+            };
         } else {
             btn.innerHTML = '<i class="fas fa-user"></i> sign in';
             btn.classList.remove('active');
