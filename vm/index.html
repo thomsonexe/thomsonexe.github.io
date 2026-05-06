@@ -383,14 +383,51 @@
         </div>
     </nav>
 
-    <section class="page-hero">
+    <section class="page-hero" style="position:relative;">
         <div class="container">
             <p class="page-hero-prompt"><span class="prompt">ben@thomson.cx:~$</span> ls /vm/challenges/</p>
             <h1 class="page-hero-title">CTF Lab</h1>
             <p class="page-hero-sub">Browser-based Linux VMs &mdash; no installation required. Solve challenges, earn points, climb the leaderboard.</p>
         </div>
+        <a href="/leaderboard" class="hero-lb-btn">
+            <span class="lb-podium-icon">
+                <span class="lb-pod lb-pod-2">2</span>
+                <span class="lb-pod lb-pod-1">1</span>
+                <span class="lb-pod lb-pod-3">3</span>
+            </span>
+            <span class="lb-btn-text">Leaderboard</span>
+        </a>
         <div class="grid-overlay"></div>
     </section>
+    <style>
+        .hero-lb-btn {
+            position: absolute;
+            top: 50%; right: 3rem;
+            transform: translateY(-50%);
+            display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
+            background: linear-gradient(135deg, rgba(255,215,0,0.1) 0%, rgba(255,180,0,0.05) 100%);
+            border: 1px solid rgba(255,215,0,0.4);
+            border-radius: 14px; padding: 1.25rem 1.75rem;
+            text-decoration: none; transition: var(--transition);
+            box-shadow: 0 0 30px rgba(255,215,0,0.08);
+            z-index: 2;
+        }
+        .hero-lb-btn:hover {
+            background: linear-gradient(135deg, rgba(255,215,0,0.18) 0%, rgba(255,180,0,0.1) 100%);
+            border-color: rgba(255,215,0,0.7);
+            box-shadow: 0 0 40px rgba(255,215,0,0.2);
+            transform: translateY(calc(-50% - 3px));
+        }
+        .hero-lb-btn .lb-podium-icon {
+            display: flex; align-items: flex-end; gap: 3px; height: 36px;
+        }
+        .hero-lb-btn .lb-pod { border-radius: 3px 3px 0 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 0.65rem; font-weight: 700; }
+        .hero-lb-btn .lb-pod-1 { width: 24px; height: 36px; background: rgba(255,215,0,0.45); color: #ffd700; border: 1px solid rgba(255,215,0,0.6); border-bottom: none; }
+        .hero-lb-btn .lb-pod-2 { width: 20px; height: 26px; background: rgba(180,180,180,0.2); color: #b0b0b0; border: 1px solid rgba(180,180,180,0.35); border-bottom: none; }
+        .hero-lb-btn .lb-pod-3 { width: 20px; height: 18px; background: rgba(201,123,58,0.2); color: #c97b3a; border: 1px solid rgba(201,123,58,0.35); border-bottom: none; }
+        .hero-lb-btn .lb-btn-text { font-family: var(--font-mono); font-size: 0.82rem; font-weight: 600; color: #ffd700; letter-spacing: 0.5px; }
+        @media (max-width: 768px) { .hero-lb-btn { display: none; } }
+    </style>
 
     <!-- LEADERBOARD LINK -->
     <section class="section section-alt" id="leaderboardSection">
