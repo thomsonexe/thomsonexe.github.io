@@ -270,7 +270,7 @@
 
             <div class="ctf-grid labs-grid">
 
-                <!-- init.flag -->
+                <!-- init.flag — Easy 25pts -->
                 <div class="ctf-card">
                     <div class="machine-status">
                         <span class="status-dot"></span>online
@@ -289,81 +289,7 @@
                     </div>
                 </div>
 
-                <!-- log_trace -->
-                <div class="ctf-card">
-                    <div class="machine-status">
-                        <span class="status-dot"></span>online
-                    </div>
-                    <div class="ctf-meta">
-                        <span class="vm-platform">Custom</span>
-                        <span class="ctf-difficulty medium">Medium</span>
-                        <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>75 pts</span>
-                    </div>
-                    <h3 class="ctf-title">log_trace</h3>
-                    <p class="ctf-category"><i class="fas fa-tag"></i> Log Analysis / DFIR</p>
-                    <p class="ctf-excerpt">A web server was compromised overnight. Analyse the provided Apache access logs to identify the attacker's IP, the exploit used, and the exfiltration method.</p>
-                    <div class="vm-actions">
-                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Launch VM</a>
-                        <button class="btn-objectives" onclick="openModal('log-trace')"><i class="fas fa-scroll"></i> Objectives</button>
-                    </div>
-                </div>
-
-                <!-- hash_hunt -->
-                <div class="ctf-card">
-                    <div class="machine-status">
-                        <span class="status-dot"></span>online
-                    </div>
-                    <div class="ctf-meta">
-                        <span class="vm-platform">Custom</span>
-                        <span class="ctf-difficulty medium">Medium</span>
-                        <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>100 pts</span>
-                    </div>
-                    <h3 class="ctf-title">hash_hunt</h3>
-                    <p class="ctf-category"><i class="fas fa-tag"></i> Cryptography / Password Cracking</p>
-                    <p class="ctf-excerpt">A credential database was leaked. Identify the hash algorithm, select the right wordlist strategy, and crack the target hash to recover the plaintext password.</p>
-                    <div class="vm-actions">
-                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Launch VM</a>
-                        <button class="btn-objectives" onclick="openModal('hash-hunt')"><i class="fas fa-scroll"></i> Objectives</button>
-                    </div>
-                </div>
-
-                <!-- mem_ghost (coming soon) -->
-                <div class="ctf-card dim">
-                    <div class="machine-status offline-status">
-                        <span class="status-dot offline"></span>coming soon
-                    </div>
-                    <div class="ctf-meta">
-                        <span class="vm-platform">Custom</span>
-                        <span class="ctf-difficulty hard">Hard</span>
-                        <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>200 pts</span>
-                    </div>
-                    <h3 class="ctf-title">mem_ghost</h3>
-                    <p class="ctf-category"><i class="fas fa-tag"></i> Memory Forensics / Malware Analysis</p>
-                    <p class="ctf-excerpt">Analyse a memory dump to uncover a running rootkit. Extract process trees, network connections, and the attacker's C2 infrastructure using Volatility 3.</p>
-                    <div class="vm-actions">
-                        <span class="coming-soon"><i class="fas fa-clock"></i> In Development</span>
-                    </div>
-                </div>
-
-                <!-- net_tap (coming soon) -->
-                <div class="ctf-card dim">
-                    <div class="machine-status offline-status">
-                        <span class="status-dot offline"></span>coming soon
-                    </div>
-                    <div class="ctf-meta">
-                        <span class="vm-platform">Custom</span>
-                        <span class="ctf-difficulty medium">Medium</span>
-                        <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>150 pts</span>
-                    </div>
-                    <h3 class="ctf-title">net_tap</h3>
-                    <p class="ctf-category"><i class="fas fa-tag"></i> Network Analysis / Packet Capture</p>
-                    <p class="ctf-excerpt">Investigate a suspicious PCAP to identify C2 beaconing, DNS exfiltration, and credential theft over an unencrypted protocol.</p>
-                    <div class="vm-actions">
-                        <span class="coming-soon"><i class="fas fa-clock"></i> In Development</span>
-                    </div>
-                </div>
-
-                <!-- file_magic -->
+                <!-- file_magic — Easy 50pts -->
                 <div class="ctf-card">
                     <div class="machine-status">
                         <span class="status-dot"></span>online
@@ -382,7 +308,7 @@
                     </div>
                 </div>
 
-                <!-- strings_attached -->
+                <!-- strings_attached — Easy 60pts -->
                 <div class="ctf-card">
                     <div class="machine-status">
                         <span class="status-dot"></span>online
@@ -401,7 +327,45 @@
                     </div>
                 </div>
 
-                <!-- time_line -->
+                <!-- log_trace — Medium 75pts -->
+                <div class="ctf-card">
+                    <div class="machine-status">
+                        <span class="status-dot"></span>online
+                    </div>
+                    <div class="ctf-meta">
+                        <span class="vm-platform">Custom</span>
+                        <span class="ctf-difficulty medium">Medium</span>
+                        <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>75 pts</span>
+                    </div>
+                    <h3 class="ctf-title">log_trace</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Log Analysis / DFIR</p>
+                    <p class="ctf-excerpt">A web server was compromised overnight. Analyse the provided Apache access logs to identify the attacker's IP, the exploit used, and the exfiltration method.</p>
+                    <div class="vm-actions">
+                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Launch VM</a>
+                        <button class="btn-objectives" onclick="openModal('log-trace')"><i class="fas fa-scroll"></i> Objectives</button>
+                    </div>
+                </div>
+
+                <!-- hash_hunt — Medium 100pts -->
+                <div class="ctf-card">
+                    <div class="machine-status">
+                        <span class="status-dot"></span>online
+                    </div>
+                    <div class="ctf-meta">
+                        <span class="vm-platform">Custom</span>
+                        <span class="ctf-difficulty medium">Medium</span>
+                        <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>100 pts</span>
+                    </div>
+                    <h3 class="ctf-title">hash_hunt</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Cryptography / Password Cracking</p>
+                    <p class="ctf-excerpt">A credential database was leaked. Identify the hash algorithm, select the right wordlist strategy, and crack the target hash to recover the plaintext password.</p>
+                    <div class="vm-actions">
+                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Launch VM</a>
+                        <button class="btn-objectives" onclick="openModal('hash-hunt')"><i class="fas fa-scroll"></i> Objectives</button>
+                    </div>
+                </div>
+
+                <!-- time_line — Medium 125pts -->
                 <div class="ctf-card">
                     <div class="machine-status">
                         <span class="status-dot"></span>online
@@ -420,7 +384,43 @@
                     </div>
                 </div>
 
-                <!-- web_break (coming soon) -->
+                <!-- net_tap — Medium 150pts (coming soon) -->
+                <div class="ctf-card dim">
+                    <div class="machine-status offline-status">
+                        <span class="status-dot offline"></span>coming soon
+                    </div>
+                    <div class="ctf-meta">
+                        <span class="vm-platform">Custom</span>
+                        <span class="ctf-difficulty medium">Medium</span>
+                        <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>150 pts</span>
+                    </div>
+                    <h3 class="ctf-title">net_tap</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Network Analysis / Packet Capture</p>
+                    <p class="ctf-excerpt">Investigate a suspicious PCAP to identify C2 beaconing, DNS exfiltration, and credential theft over an unencrypted protocol.</p>
+                    <div class="vm-actions">
+                        <span class="coming-soon"><i class="fas fa-clock"></i> In Development</span>
+                    </div>
+                </div>
+
+                <!-- mem_ghost — Hard 200pts (coming soon) -->
+                <div class="ctf-card dim">
+                    <div class="machine-status offline-status">
+                        <span class="status-dot offline"></span>coming soon
+                    </div>
+                    <div class="ctf-meta">
+                        <span class="vm-platform">Custom</span>
+                        <span class="ctf-difficulty hard">Hard</span>
+                        <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>200 pts</span>
+                    </div>
+                    <h3 class="ctf-title">mem_ghost</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Memory Forensics / Malware Analysis</p>
+                    <p class="ctf-excerpt">Analyse a memory dump to uncover a running rootkit. Extract process trees, network connections, and the attacker's C2 infrastructure using Volatility 3.</p>
+                    <div class="vm-actions">
+                        <span class="coming-soon"><i class="fas fa-clock"></i> In Development</span>
+                    </div>
+                </div>
+
+                <!-- web_break — Hard 250pts (coming soon) -->
                 <div class="ctf-card dim">
                     <div class="machine-status offline-status">
                         <span class="status-dot offline"></span>coming soon
