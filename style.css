@@ -269,7 +269,7 @@ body {
     border-radius: 12px; overflow: hidden;
     margin-bottom: 2.5rem; text-align: left;
     box-shadow: 0 0 0 1px rgba(0,255,136,0.05), 0 0 40px rgba(0,255,136,0.08), 0 30px 80px rgba(0,0,0,0.6);
-    position: relative;
+    position: relative; width: 100%;
 }
 .hero-terminal::before {
     content: '';
