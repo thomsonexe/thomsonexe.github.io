@@ -337,9 +337,15 @@ function initTerminal() {
     const introSteps = [
         { type: 'login' },
         { type: 'cmd', text: 'whoami' },
-        { type: 'out', text: 'ben' },
-        { type: 'cmd', text: 'id' },
-        { type: 'out-html', html: ID_HTML },
+        { type: 'out', text: 'ben — security analyst, ctf player, builder of things' },
+        { type: 'cmd', text: 'cat welcome.txt' },
+        { type: 'out', text: 'hey! thanks for stopping by :)' },
+        { type: 'out', text: 'feel free to look around, check out my notes,' },
+        { type: 'out', text: 'try the ctf lab, or just say hi in the guestbook.' },
+        { type: 'cmd', text: 'ls interests/' },
+        { type: 'out-html', html: '<span class="t-accent">blue-teaming/</span>  <span class="t-accent">ctf-challenges/</span>  <span class="t-accent">homelab/</span>  <span class="t-accent">coffee.txt</span>' },
+        { type: 'cmd', text: 'cat coffee.txt' },
+        { type: 'out', text: 'currently on cup #3. send help.' },
         { type: 'done' },
     ];
 
