@@ -1,4 +1,4 @@
-?<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
@@ -11,16 +11,129 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        .about-globe-wrap {
+        .about-hero {
+            min-height: 100vh;
             display: flex;
             align-items: center;
-            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            padding: calc(var(--nav-height) + 3rem) 2rem 4rem;
+        }
+        .about-inner {
+            max-width: 1100px;
+            margin: 0 auto;
             width: 100%;
-            padding: 1rem 0;
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 5rem;
+            align-items: center;
+        }
+        .about-flag-side {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
         }
         #aboutGlobe {
             display: block;
-            filter: drop-shadow(0 0 32px rgba(255,255,255,0.18));
+            filter: drop-shadow(0 0 36px rgba(255,255,255,0.15));
+        }
+        .about-flag-label {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: 0.5;
+        }
+        .about-bio-side {
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+        }
+        .about-prompt {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .about-prompt .prompt { color: var(--accent); }
+        .about-name {
+            font-family: 'Orbitron', var(--font-mono);
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 0.05em;
+            line-height: 1.1;
+            text-shadow: 0 0 40px rgba(255,255,255,0.1);
+        }
+        .about-title-line {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--accent);
+            letter-spacing: 1px;
+            margin-top: -0.5rem;
+        }
+        .about-bio {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.85;
+            max-width: 520px;
+            border-left: 2px solid rgba(255,255,255,0.1);
+            padding-left: 1.25rem;
+        }
+        .about-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+        .about-link-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.85rem 1.1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            text-decoration: none;
+            transition: border-color 0.18s, box-shadow 0.18s;
+            max-width: 380px;
+        }
+        .about-link-card:hover {
+            border-color: rgba(255,255,255,0.3);
+            box-shadow: 0 0 20px rgba(255,255,255,0.04);
+        }
+        .about-link-icon {
+            font-size: 1.2rem;
+            width: 36px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .about-link-text {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+        .about-link-sub {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            margin-top: 0.1rem;
+        }
+        .about-link-arrow {
+            margin-left: auto;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+        @media (max-width: 860px) {
+            .about-inner {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+                text-align: center;
+            }
+            .about-flag-side { margin: 0 auto; }
+            .about-bio { border-left: none; padding-left: 0; border-top: 2px solid rgba(255,255,255,0.1); padding-top: 1.25rem; }
+            .about-link-card { max-width: 100%; }
+            .about-links { align-items: center; }
         }
     </style>
 </head>
@@ -35,12 +148,10 @@
             <ul class="nav-links" id="navLinks">
                 <li><a href="/" class="nav-link">home</a></li>
                 <li><a href="/about" class="nav-link">about</a></li>
-                
                 <li><a href="/labs" class="nav-link">notes</a></li><li><a href="/tools" class="nav-link">tools</a></li><li><a href="/vm" class="nav-link">ctf</a></li>
                 <li><a href="/cves" class="nav-link">cves</a></li>
                 <li><a href="/map" class="nav-link">map</a></li>
                 <li><a href="/intel" class="nav-link">intel</a></li><li><a href="/links" class="nav-link">links</a></li><li><a href="/guestbook" class="nav-link">guestbook</a></li>
-                
             </ul>
             <div class="nav-right">
                 <button class="auth-nav-btn" id="authNavBtn"></button>
@@ -52,123 +163,53 @@
         </div>
     </nav>
 
-    <!-- Page Hero -->
-    <section class="page-hero">
-        <div class="container">
-            <p class="page-hero-prompt"><span class="prompt">ben@thomson.cx:~$</span> ./portfolio.sh</p>
-            <h1 class="page-hero-title">About Me</h1>
-            <p class="page-hero-sub">Junior Security Analyst.</p>
-        </div>
+    <section class="about-hero">
         <div class="grid-overlay"></div>
-    </section>
+        <canvas id="particles-bg"></canvas>
+        <div class="about-inner">
 
-    <!-- About -->
-    <section id="about" class="section">
-        <div class="container">
-            <div class="about-grid">
-                <div class="about-image">
-                    <div class="about-globe-wrap">
-                        <canvas id="aboutGlobe"></canvas>
-                    </div>
+            <!-- Flag -->
+            <div class="about-flag-side">
+                <canvas id="aboutGlobe"></canvas>
+                <span class="about-flag-label">thomson.cx</span>
+            </div>
+
+            <!-- Bio -->
+            <div class="about-bio-side">
+                <p class="about-prompt"><span class="prompt">$</span> cat about.txt</p>
+                <div>
+                    <h1 class="about-name">Ben Thomson</h1>
+                    <p class="about-title-line">Junior Security Analyst</p>
                 </div>
-                <div class="about-content">
-                    <p class="about-text">Hey! I am <strong>Ben</strong>, a Junior Security Analyst with a background in Digital Forensics and Cyber Security. Passionate about blue team operations, defending organisations against real-world threats, and continuously developing my skills across threat detection, incident response, and vulnerability management.</p>
-                    <p class="about-text">This site is just an experiment.</p>
-                    <a href="https://www.youtube.com/channel/UCk_oOI7Np2oLSVD6Xb21ccA" target="_blank" rel="noopener" class="yt-card">
-                        <div class="yt-icon"><i class="fab fa-youtube"></i></div>
-                        <div class="yt-info">
-                            <span class="yt-name">thomsoN</span>
-                        </div>
-                        <i class="fas fa-arrow-right yt-arrow"></i>
+                <p class="about-bio">Background in Digital Forensics and Cyber Security. Blue team focused &mdash; threat detection, incident response, log analysis, and vulnerability management. Building skills one lab at a time. This site is just an experiment.</p>
+                <div class="about-links">
+                    <a href="https://www.youtube.com/channel/UCk_oOI7Np2oLSVD6Xb21ccA" target="_blank" rel="noopener" class="about-link-card">
+                        <span class="about-link-icon" style="color:#ff0000;"><i class="fab fa-youtube"></i></span>
+                        <span>
+                            <div class="about-link-text">thomsoN</div>
+                            <div class="about-link-sub">YouTube</div>
+                        </span>
+                        <i class="fas fa-arrow-right about-link-arrow"></i>
                     </a>
-                    <a href="https://discord.gg/x3b4yTbz4f" target="_blank" rel="noopener" class="yt-card">
-                        <div class="yt-icon" style="color: #5865F2;"><i class="fab fa-discord"></i></div>
-                        <div class="yt-info">
-                            <span class="yt-name">thomson.cx</span>
-                        </div>
-                        <i class="fas fa-arrow-right yt-arrow"></i>
+                    <a href="https://discord.gg/x3b4yTbz4f" target="_blank" rel="noopener" class="about-link-card">
+                        <span class="about-link-icon" style="color:#5865F2;"><i class="fab fa-discord"></i></span>
+                        <span>
+                            <div class="about-link-text">thomson.cx</div>
+                            <div class="about-link-sub">Discord server</div>
+                        </span>
+                        <i class="fas fa-arrow-right about-link-arrow"></i>
                     </a>
-                    <div class="skills-grid">
-                        <span class="skill-tag">Threat Detection</span>
-                        <span class="skill-tag">Incident Response</span>
-                        <span class="skill-tag">Log Analysis</span>
-                        <span class="skill-tag">Threat Hunting</span>
-                        <span class="skill-tag">Malware Analysis</span>
-                        <span class="skill-tag">Digital Forensics</span>
-                        <span class="skill-tag">Vulnerability Management</span>
-                        <span class="skill-tag">SIEM</span>
-                        <span class="skill-tag">Wireshark</span>
-                        <span class="skill-tag">Microsoft Sentinel</span>
-                        <span class="skill-tag">Microsoft Defender for Endpoint</span>
-                        <span class="skill-tag">KQL</span>
-                        <span class="skill-tag">Cortex XDR</span>
-                        <span class="skill-tag">Cortex XSOAR</span>
-                        <span class="skill-tag">Active Directory</span>
-                        <span class="skill-tag">Microsoft Entra ID</span>
-                        <span class="skill-tag">Rapid7 InsightVM</span>
-                        <span class="skill-tag">Volatility</span>
-                        <span class="skill-tag">Autopsy</span>
-                        <span class="skill-tag">FTK Imager</span>
-                        <span class="skill-tag">EnCase</span>
-                        <span class="skill-tag">Python</span>
-                        <span class="skill-tag">PowerShell</span>
-                        <span class="skill-tag">Kali Linux</span>
-                    </div>
+                    <a href="mailto:ben@thomson.cx" class="about-link-card">
+                        <span class="about-link-icon" style="color:var(--accent);"><i class="fas fa-envelope"></i></span>
+                        <span>
+                            <div class="about-link-text">ben@thomson.cx</div>
+                            <div class="about-link-sub">Email</div>
+                        </span>
+                        <i class="fas fa-arrow-right about-link-arrow"></i>
+                    </a>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <!-- Certifications -->
-    <section id="certifications" class="section section-alt">
-        <div class="container">
-            <h2 class="section-title"><span class="title-prefix">// </span>Certifications</h2>
-            <div class="cert-grid">
-                <div class="cert-card">
-                    <div class="cert-card-top">
-                        <div class="cert-icon"><i class="fas fa-network-wired"></i></div>
-                        <div class="cert-info">
-                            <h3>CompTIA Network+</h3>
-                            <p>Network+ Certification</p>
-                            <span class="cert-issuer">CompTIA</span>
-                        </div>
-                    </div>
-                    <span class="cert-badge earned">Earned</span>
-                </div>
-                <div class="cert-card">
-                    <div class="cert-card-top">
-                        <div class="cert-icon"><i class="fas fa-lock"></i></div>
-                        <div class="cert-info">
-                            <h3>CompTIA Security+</h3>
-                            <p>Security+ Certification</p>
-                            <span class="cert-issuer">CompTIA</span>
-                        </div>
-                    </div>
-                    <span class="cert-badge earned">Earned</span>
-                </div>
-                <div class="cert-card">
-                    <div class="cert-card-top">
-                        <div class="cert-icon"><i class="fas fa-shield-alt"></i></div>
-                        <div class="cert-info">
-                            <h3>BTL1</h3>
-                            <p>Blue Team Level 1</p>
-                            <span class="cert-issuer">Security Blue Team</span>
-                        </div>
-                    </div>
-                    <span class="cert-badge earned">Earned</span>
-                </div>
-                <div class="cert-card">
-                    <div class="cert-card-top">
-                        <div class="cert-icon"><i class="fas fa-vault"></i></div>
-                        <div class="cert-info">
-                            <h3>CompTIA SecurityX</h3>
-                            <p>Advanced Security Practitioner</p>
-                            <span class="cert-issuer">CompTIA</span>
-                        </div>
-                    </div>
-                    <span class="cert-badge in-progress">In Progress</span>
-                </div>
-            </div>
         </div>
     </section>
 
@@ -184,26 +225,11 @@
         <i class="fas fa-chevron-up"></i>
     </button>
 
-    <!-- Easter egg overlay -->
-    <div id="eggOverlay" class="egg-overlay" aria-hidden="true">
-        <div class="egg-terminal">
-            <div class="egg-header">
-                <span class="egg-dot red"></span>
-                <span class="egg-dot yellow"></span>
-                <span class="egg-dot green"></span>
-                <span class="egg-title">root@thomson.cx &mdash; bash</span>
-            </div>
-            <div class="egg-body" id="eggBody"></div>
-        </div>
-        <p class="egg-dismiss">press <kbd>esc</kbd> or click anywhere to close</p>
-    </div>
-
     <script src="/script.js"></script>
     <script>
     (function() {
         const canvas = document.getElementById('aboutGlobe');
         if (!canvas) return;
-
         const dpr  = Math.min(window.devicePixelRatio || 1, 2);
         const SIZE = 300;
         canvas.width  = SIZE * dpr;
@@ -212,14 +238,10 @@
         canvas.style.height = SIZE + 'px';
         const ctx = canvas.getContext('2d');
         ctx.scale(dpr, dpr);
-
-        const SEGS   = 80;
-        const FW     = SIZE * 0.72;
-        const FH     = SIZE * 0.72;
-        const FX     = (SIZE - FW) / 2;
-        const FY     = (SIZE - FH) / 2;
+        const SEGS = 80;
+        const FW = SIZE * 0.82, FH = SIZE * 0.82;
+        const FX = (SIZE - FW) / 2, FY = (SIZE - FH) / 2;
         let t = 0;
-
         const img = new Image();
         img.src = '/logo2.png';
         img.onload = function() {
