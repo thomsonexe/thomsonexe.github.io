@@ -73,7 +73,7 @@ body {
     z-index: 1000;
     transition: var(--transition);
 }
-.navbar.scrolled { border-bottom-color: var(--border-accent); box-shadow: var(--glow); }
+.navbar.scrolled { border-bottom-color: rgba(255,255,255,0.2); box-shadow: 0 4px 24px rgba(255,255,255,0.04); }
 
 .nav-container {
     max-width: 1200px; margin: 0 auto; padding: 0 2rem;
