@@ -403,16 +403,16 @@ function initTerminal() {
 initTerminal();
 
 // Navbar scroll effect
-const navbar = document.getElementById('navbar');
+var navbar = document.getElementById('navbar');
 window.addEventListener('scroll', () => {
-    navbar.classList.toggle('scrolled', window.scrollY > 50);
+    if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 50);
 });
 
 // Active nav link on scroll
-const sections = document.querySelectorAll('section[id]');
-const navLinks = document.querySelectorAll('.nav-link');
+var sections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.nav-link');
 
-const sectionObserver = new IntersectionObserver((entries) => {
+var sectionObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
             navLinks.forEach(l => l.classList.remove('active'));
@@ -425,8 +425,8 @@ const sectionObserver = new IntersectionObserver((entries) => {
 sections.forEach(s => sectionObserver.observe(s));
 
 // Mobile nav toggle
-const navToggle = document.getElementById('navToggle');
-const navLinksList = document.getElementById('navLinks');
+var navToggle = document.getElementById('navToggle');
+var navLinksList = document.getElementById('navLinks');
 
 if (navToggle) {
     navToggle.addEventListener('click', () => {

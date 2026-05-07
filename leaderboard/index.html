@@ -397,19 +397,6 @@
             return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
         }
 
-        // ── Theme ─────────────────────────────────────────────────────
-        const themeToggle = document.getElementById('themeToggle');
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-        themeToggle.addEventListener('click', () => {
-            const cur = document.documentElement.getAttribute('data-theme');
-            const next = cur === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
-            themeToggle.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-        });
-
         // ── Navbar ─────────────────────────────────────────────────────
         const navbar = document.getElementById('navbar');
         window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
