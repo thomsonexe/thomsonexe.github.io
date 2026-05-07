@@ -337,7 +337,6 @@ function initTerminal() {
     const introSteps = [
         { type: 'login' },
         { type: 'cmd', text: 'cat site.txt' },
-        { type: 'out', text: 'thomson.cx — personal site for ben thomson.' },
         { type: 'out', text: '' },
         { type: 'out-html', html: '  <span class="t-key">/notes</span>    writeups and security notes' },
         { type: 'out-html', html: '  <span class="t-key">/ctf</span>      ctf lab with challenges and leaderboard' },
@@ -345,8 +344,6 @@ function initTerminal() {
         { type: 'out-html', html: '  <span class="t-key">/cves</span>     cve research and advisories' },
         { type: 'out-html', html: '  <span class="t-key">/intel</span>    threat intel and ioc tracking' },
         { type: 'out', text: '' },
-        { type: 'cmd', text: 'whoami' },
-        { type: 'out', text: 'ben' },
         { type: 'done' },
     ];
 
