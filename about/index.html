@@ -223,53 +223,18 @@
         const img = new Image();
         img.src = '/logo2.png';
         img.onload = function() {
-            // Off-screen glow canvas
-            const glow = document.createElement('canvas');
-            glow.width  = SIZE * dpr;
-            glow.height = SIZE * dpr;
-            const gctx = glow.getContext('2d');
-            gctx.scale(dpr, dpr);
-
-            function drawFlag(target, alpha) {
-                const sw = img.width / SEGS;
-                for (let i = 0; i < SEGS; i++) {
-                    const prog = i / SEGS;
-                    // Wave: fixed at pole (left), full amplitude at fly end (right)
-                    const amp   = prog * prog * 22;
-                    const freq  = 2.4;
-                    const dy    = Math.sin(prog * Math.PI * freq - t) * amp;
-                    // Slight vertical squish for perspective as it billows
-                    const squish = 1 - Math.abs(Math.sin(prog * Math.PI * freq - t)) * prog * 0.08;
-                    const dh = FH * squish;
-                    const dyo = FY + (FH - dh) / 2 + dy;
-                    target.globalAlpha = alpha;
-                    target.drawImage(img, i * sw, 0, sw, img.height, FX + i * (FW / SEGS), dyo, FW / SEGS + 0.5, dh);
-                }
-                target.globalAlpha = 1;
-            }
-
             function draw() {
                 ctx.clearRect(0, 0, SIZE, SIZE);
-
-                // Glow pass — draw flag blurred onto glow canvas, then composite
-                gctx.clearRect(0, 0, SIZE, SIZE);
-                gctx.filter = 'blur(18px)';
-                drawFlag(gctx, 0.55);
-                gctx.filter = 'none';
-                ctx.globalCompositeOperation = 'source-over';
-                ctx.drawImage(glow, 0, 0, SIZE * dpr, SIZE * dpr, 0, 0, SIZE, SIZE);
-
-                // Sharp flag on top
-                drawFlag(ctx, 1);
-
-                // Subtle sheen — light sweep from top-left
-                const sheen = ctx.createLinearGradient(FX, FY, FX + FW * 0.6, FY + FH * 0.6);
-                sheen.addColorStop(0,   'rgba(255,255,255,0.07)');
-                sheen.addColorStop(0.5, 'rgba(255,255,255,0.02)');
-                sheen.addColorStop(1,   'rgba(255,255,255,0)');
-                ctx.fillStyle = sheen;
-                ctx.fillRect(FX, FY, FW, FH);
-
+                const sw = img.width / SEGS;
+                for (let i = 0; i < SEGS; i++) {
+                    const prog   = i / SEGS;
+                    const amp    = prog * prog * 22;
+                    const dy     = Math.sin(prog * Math.PI * 2.4 - t) * amp;
+                    const squish = 1 - Math.abs(Math.sin(prog * Math.PI * 2.4 - t)) * prog * 0.08;
+                    const dh     = FH * squish;
+                    const dyo    = FY + (FH - dh) / 2 + dy;
+                    ctx.drawImage(img, i * sw, 0, sw, img.height, FX + i * (FW / SEGS), dyo, FW / SEGS + 0.5, dh);
+                }
                 t += 0.045;
                 requestAnimationFrame(draw);
             }
