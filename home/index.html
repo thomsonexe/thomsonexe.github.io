@@ -229,40 +229,54 @@
         (function() {
             const canvas = document.getElementById('heroFlag');
             if (!canvas) return;
-            const dpr  = Math.min(window.devicePixelRatio || 1, 2);
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
             const SIZE = 170;
             canvas.width  = SIZE * dpr;
             canvas.height = SIZE * dpr;
             canvas.style.width  = SIZE + 'px';
             canvas.style.height = SIZE + 'px';
-            canvas.style.filter = 'drop-shadow(0 0 28px rgba(255,255,255,0.2))';
+            canvas.style.filter = 'drop-shadow(0 0 28px rgba(255,255,255,0.22))';
             canvas.style.animation = 'mouseFloat 4s ease-in-out infinite';
             const ctx = canvas.getContext('2d');
             ctx.scale(dpr, dpr);
-            const SEGS = 80;
-            const FW = SIZE * 0.82, FH = SIZE * 0.82;
+            const N = 80, FW = SIZE * 0.82, FH = SIZE * 0.50;
             const FX = (SIZE - FW) / 2, FY = (SIZE - FH) / 2;
             let t = 0;
-            const img = new Image();
-            img.src = '/logo2.png';
-            img.onload = function() {
-                function draw() {
-                    ctx.clearRect(0, 0, SIZE, SIZE);
-                    const sw = img.width / SEGS;
-                    for (let i = 0; i < SEGS; i++) {
-                        const prog   = i / SEGS;
-                        const amp    = prog * prog * 18;
-                        const dy     = Math.sin(prog * Math.PI * 2.4 - t) * amp;
-                        const squish = 1 - Math.abs(Math.sin(prog * Math.PI * 2.4 - t)) * prog * 0.08;
-                        const dh     = FH * squish;
-                        const dyo    = FY + (FH - dh) / 2 + dy;
-                        ctx.drawImage(img, i * sw, 0, sw, img.height, FX + i * (FW / SEGS), dyo, FW / SEGS + 0.5, dh);
-                    }
-                    t += 0.045;
-                    requestAnimationFrame(draw);
+            function draw() {
+                ctx.clearRect(0, 0, SIZE, SIZE);
+                const tops = [], bots = [], cv = [];
+                for (let i = 0; i <= N; i++) {
+                    const p = i / N, ph = p * Math.PI * 2.4 - t;
+                    const dy = Math.sin(ph) * p * p * 18;
+                    const sc = 1 - Math.abs(Math.sin(ph)) * p * 0.08;
+                    tops.push(FY + FH / 2 + dy - FH * sc / 2);
+                    bots.push(FY + FH / 2 + dy + FH * sc / 2);
+                    cv.push(Math.cos(ph) * p);
                 }
-                draw();
-            };
+                ctx.save();
+                ctx.beginPath();
+                for (let i = 0; i <= N; i++) { const x = FX + i / N * FW; i ? ctx.lineTo(x, tops[i]) : ctx.moveTo(x, tops[i]); }
+                for (let i = N; i >= 0; i--) ctx.lineTo(FX + i / N * FW, bots[i]);
+                ctx.closePath();
+                ctx.clip();
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(FX - 2, 0, FW + 4, SIZE);
+                const sw = FW / N;
+                for (let i = 0; i < N; i++) {
+                    const s = cv[i] * 0.14;
+                    if (Math.abs(s) > 0.005) {
+                        ctx.fillStyle = s > 0 ? `rgba(255,255,255,${s})` : `rgba(0,0,20,${-s})`;
+                        ctx.fillRect(FX + i / N * FW, 0, sw + 1, SIZE);
+                    }
+                }
+                const eg = ctx.createLinearGradient(FX, 0, FX + FW * 0.1, 0);
+                eg.addColorStop(0, 'rgba(0,0,0,0.15)'); eg.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.fillStyle = eg; ctx.fillRect(FX - 2, 0, FW * 0.12, SIZE);
+                ctx.restore();
+                t += 0.045;
+                requestAnimationFrame(draw);
+            }
+            draw();
         })();
     </script>
 </body>

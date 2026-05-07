@@ -113,7 +113,7 @@ function initTerminal() {
     const body = document.querySelector('.terminal-body');
     if (!body) return;
 
-    const PROMPT = 'ben@thomson.cx:~$';
+    const PROMPT = 'user@thomson.cx:~$';
     let cmdHistory = [];
     let histIdx = -1;
     let activeInput = null;
