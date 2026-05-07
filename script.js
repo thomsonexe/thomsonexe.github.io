@@ -2601,6 +2601,7 @@ initGuestbook();
         { title: 'Links',                  url: '/links',                     cat: 'page', icon: 'fa-link' },
         { title: 'Guestbook',              url: '/guestbook',                 cat: 'page', icon: 'fa-comments' },
         { title: 'Profile',                url: '/profile',                   cat: 'page', icon: 'fa-id-card' },
+        { title: 'Leaderboard',            url: '/leaderboard',               cat: 'page', icon: 'fa-trophy' },
         { title: 'Active Directory',       url: '/writeup-active-directory',  cat: 'note', icon: 'fa-file-lines' },
         { title: 'ANY.RUN Sandbox',        url: '/writeup-anyrun',            cat: 'note', icon: 'fa-file-lines' },
         { title: 'Autopsy Forensics',      url: '/writeup-autopsy',           cat: 'note', icon: 'fa-file-lines' },
