@@ -82,7 +82,7 @@ body {
 
 .nav-logo { cursor: pointer; }
 .writeup-logo { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
-.nav-mouse { width: 34px; height: 34px; flex-shrink: 0; color: var(--accent); filter: drop-shadow(0 0 5px rgba(0,255,136,0.2)); }
+.nav-mouse { width: 34px; height: 34px; flex-shrink: 0; filter: drop-shadow(0 0 6px rgba(255,255,255,0.18)); }
 .logo-wordmark { font-family: var(--font-mono); font-size: 1.1rem; font-weight: 700; color: #e6edf3; }
 .logo-cx { color: var(--accent); }
 
@@ -113,8 +113,8 @@ body {
 [data-theme="light"] .threat-log { scrollbar-color: rgba(9,105,218,0.4) transparent; }
 [data-theme="light"] .threat-log::-webkit-scrollbar-thumb { background: rgba(9,105,218,0.4); }
 [data-theme="light"] .threat-log::-webkit-scrollbar-thumb:hover { background: rgba(9,105,218,0.7); }
-[data-theme="light"] .nav-mouse { filter: drop-shadow(0 0 5px rgba(9,105,218,0.3)); }
-[data-theme="light"] .hero-mouse { filter: drop-shadow(0 0 22px rgba(9,105,218,0.35)); }
+[data-theme="light"] .nav-mouse { filter: drop-shadow(0 0 4px rgba(0,0,0,0.25)); }
+[data-theme="light"] .hero-mouse { filter: drop-shadow(0 0 18px rgba(0,0,0,0.18)); }
 [data-theme="light"] .grid-overlay {
     background-image:
         linear-gradient(rgba(9,105,218,0.08) 1px, transparent 1px),
@@ -187,8 +187,7 @@ body {
     height: 170px;
     display: block;
     margin: 0 auto;
-    color: var(--accent);
-    filter: drop-shadow(0 0 22px rgba(0, 255, 136, 0.28));
+    filter: drop-shadow(0 0 28px rgba(255,255,255,0.2));
     animation: mouseFloat 4s ease-in-out infinite;
 }
 
