@@ -2516,14 +2516,14 @@ initGuestbook();
         document.getElementById('gaTabUp').style.cssText = tabStyle(!isIn);
     };
 
-    window.openGaModal = function() {
+    window.openGaModal = function(tab) {
         const overlay = document.getElementById('gaOverlay');
         overlay.style.display = 'flex';
         const uname = localStorage.getItem('ctf_username');
         if (uname) { showGaSignedIn(uname); return; }
         document.getElementById('gaOut').style.display = '';
         document.getElementById('gaIn').style.display = 'none';
-        gaTab('in');
+        gaTab(tab || 'in');
     };
 
     window.gaSignIn = function() {

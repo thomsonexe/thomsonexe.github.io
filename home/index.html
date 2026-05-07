@@ -10,6 +10,73 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .hero-auth {
+            margin-top: 1.75rem;
+            display: flex; flex-direction: column; align-items: center; gap: 1rem;
+        }
+        .hero-auth-prompt-line {
+            font-family: var(--font-mono); font-size: 0.75rem;
+            color: var(--text-secondary); letter-spacing: 0.5px;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .hero-auth-prompt-line .prompt { color: var(--accent); }
+        .hero-auth-btns {
+            display: flex; gap: 0.85rem; flex-wrap: wrap; justify-content: center;
+        }
+        .hero-auth-btn {
+            font-family: var(--font-mono); font-size: 0.82rem; font-weight: 600;
+            padding: 0.6rem 1.6rem; border-radius: 8px; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 0.55rem;
+            transition: all 0.2s ease; text-decoration: none; letter-spacing: 0.3px;
+            position: relative; overflow: hidden;
+        }
+        .hero-auth-btn::after {
+            content: ''; position: absolute; inset: 0;
+            background: rgba(255,255,255,0.06);
+            opacity: 0; transition: opacity 0.2s;
+        }
+        .hero-auth-btn:hover::after { opacity: 1; }
+        .hero-auth-btn-signin {
+            background: transparent;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.35);
+            box-shadow: 0 0 0 rgba(255,255,255,0);
+        }
+        .hero-auth-btn-signin:hover {
+            border-color: rgba(255,255,255,0.7);
+            box-shadow: 0 0 18px rgba(255,255,255,0.06);
+        }
+        .hero-auth-btn-signup {
+            background: linear-gradient(135deg, rgba(0,255,136,0.18) 0%, rgba(0,200,100,0.1) 100%);
+            color: var(--accent);
+            border: 1px solid rgba(0,255,136,0.5);
+            box-shadow: 0 0 20px rgba(0,255,136,0.1);
+        }
+        .hero-auth-btn-signup:hover {
+            background: linear-gradient(135deg, rgba(0,255,136,0.28) 0%, rgba(0,200,100,0.18) 100%);
+            border-color: rgba(0,255,136,0.8);
+            box-shadow: 0 0 30px rgba(0,255,136,0.2);
+        }
+        .hero-auth-divider {
+            font-family: var(--font-mono); font-size: 0.7rem;
+            color: var(--text-secondary); opacity: 0.5;
+            align-self: center;
+        }
+        .hero-auth-signed-in {
+            display: none;
+            font-family: var(--font-mono); font-size: 0.8rem;
+            color: var(--text-secondary);
+            display: none; align-items: center; gap: 0.75rem; flex-wrap: wrap; justify-content: center;
+        }
+        .hero-auth-signed-in .hi-name { color: var(--accent); font-weight: 600; }
+        .hero-auth-signed-in a {
+            color: var(--text-secondary); text-decoration: none;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            transition: color 0.15s, border-color 0.15s;
+        }
+        .hero-auth-signed-in a:hover { color: #fff; border-color: rgba(255,255,255,0.5); }
+    </style>
 </head>
 <body>
 
@@ -58,6 +125,34 @@
                 </div>
                 <div class="terminal-body"></div>
             </div>
+            <!-- Auth section -->
+            <div class="hero-auth" id="heroAuth">
+                <!-- Signed out -->
+                <div id="heroAuthOut">
+                    <div class="hero-auth-prompt-line">
+                        <span class="prompt">$</span>
+                        <span>./ctf.sh --join-leaderboard</span>
+                    </div>
+                    <div class="hero-auth-btns" style="margin-top:0.75rem;">
+                        <button class="hero-auth-btn hero-auth-btn-signin" onclick="openGaModal('in')">
+                            <i class="fas fa-terminal"></i> Sign In
+                        </button>
+                        <span class="hero-auth-divider">//</span>
+                        <button class="hero-auth-btn hero-auth-btn-signup" onclick="openGaModal('up')">
+                            <i class="fas fa-user-plus"></i> Sign Up
+                        </button>
+                    </div>
+                </div>
+                <!-- Signed in -->
+                <div id="heroAuthIn" style="display:none;" class="hero-auth-signed-in">
+                    <span>welcome back, <span class="hi-name" id="heroAuthName"></span></span>
+                    <span style="opacity:0.3;">·</span>
+                    <a href="/vm">ctf lab</a>
+                    <span style="opacity:0.3;">·</span>
+                    <a href="/profile">profile</a>
+                </div>
+            </div>
+
             <a href="#contact" class="scroll-arrow" aria-label="Scroll down">
                 <i class="fas fa-chevron-down"></i>
             </a>
@@ -121,5 +216,16 @@
     </div>
 
     <script src="/script.js"></script>
+    <script>
+        (function() {
+            const uname = localStorage.getItem('ctf_username');
+            if (uname) {
+                document.getElementById('heroAuthOut').style.display = 'none';
+                const el = document.getElementById('heroAuthIn');
+                el.style.display = 'flex';
+                document.getElementById('heroAuthName').textContent = uname;
+            }
+        })();
+    </script>
 </body>
 </html>
