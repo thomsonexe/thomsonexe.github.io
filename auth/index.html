@@ -39,11 +39,24 @@
         .auth-main {
             flex: 1;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: calc(var(--nav-height) + 2.5rem) 1.25rem 3rem;
+            padding: calc(var(--nav-height) + 2rem) 1.25rem 3rem;
             position: relative;
             z-index: 1;
+            gap: 1.5rem;
+        }
+        .auth-logo-wrap {
+            display: flex;
+            justify-content: center;
+        }
+        .auth-logo-img {
+            width: 90px;
+            height: 90px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 18px rgba(255,255,255,0.2));
+            animation: mouseFloat 4s ease-in-out infinite, heroGlow 3s ease-in-out infinite;
         }
         .auth-card {
             width: 100%;
@@ -392,6 +405,9 @@
     </nav>
 
     <main class="auth-main">
+        <div class="auth-logo-wrap">
+            <img src="/logo2.png" class="auth-logo-img" alt="">
+        </div>
         <div class="auth-card">
             <div class="auth-card-header">
                 <span class="auth-dot red"></span>
