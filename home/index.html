@@ -129,11 +129,7 @@
             <div class="hero-auth" id="heroAuth">
                 <!-- Signed out -->
                 <div id="heroAuthOut">
-                    <div class="hero-auth-prompt-line">
-                        <span class="prompt">$</span>
-                        <span>./ctf.sh --join-leaderboard</span>
-                    </div>
-                    <div class="hero-auth-btns" style="margin-top:0.75rem;">
+                    <div class="hero-auth-btns">
                         <button class="hero-auth-btn hero-auth-btn-signin" onclick="location.href='/auth?tab=in'">
                             <i class="fas fa-terminal"></i> Sign In
                         </button>
@@ -141,6 +137,10 @@
                         <button class="hero-auth-btn hero-auth-btn-signup" onclick="location.href='/auth?tab=up'">
                             <i class="fas fa-user-plus"></i> Sign Up
                         </button>
+                    </div>
+                    <div class="hero-auth-prompt-line" style="margin-top:0.75rem;">
+                        <span class="prompt">$</span>
+                        <span>./ctf.sh --join-leaderboard</span>
                     </div>
                 </div>
                 <!-- Signed in -->
