@@ -1,7 +1,7 @@
 <div align="center">
   <img src="mouse_t.png" width="80" alt="Logo">
   <h1>thomson.cx</h1>
-  <p>Website made for fun — built from scratch in vanilla HTML, CSS & JavaScript.</p>
+  <p>Website made for fun </p>
 
   <a href="https://thomson.cx/home">🌐 Live Site</a> &nbsp;·&nbsp;
   <a href="https://thomson.cx/threats">🛡️ CVE Tracker</a> &nbsp;·&nbsp;
@@ -123,37 +123,6 @@ All external API calls that require CORS handling or API keys go through Cloudfl
 - CompTIA SecurityX (CAS-005) (IN PROGRESS)
 
 ---
-
-## Local Development
-
-No build step required — just open the files directly or serve with any static server:
-
-```bash
-# Python
-python -m http.server 3000
-
-# Node
-npx serve .
-```
-
-Then visit `http://localhost:3000`.
-
-> **Note:** Some features (threat map, CVE feed, Intel feed) require internet access to reach the external APIs.
-
----
-
-## Deployment
-
-Pushed to the `main` branch → GitHub Actions deploys automatically to GitHub Pages → served at `thomson.cx` via Cloudflare DNS.
-
-```bash
-git add .
-git commit -m "your message"
-git push
-```
-
----
-
 <div align="center">
   <sub>Built by <a href="https://thomson.cx/about">Ben Thomson</a> · <a href="mailto:ben@thomson.cx">ben@thomson.cx</a></sub>
 </div>
