@@ -2601,6 +2601,18 @@ initGuestbook();
         { title: 'Guestbook',              url: '/guestbook',                 cat: 'page', icon: 'fa-comments' },
         { title: 'Profile',                url: '/profile',                   cat: 'page', icon: 'fa-id-card' },
         { title: 'Leaderboard',            url: '/leaderboard',               cat: 'page', icon: 'fa-trophy' },
+        { title: 'init.flag',          url: '/vm#init-flag',        cat: 'lab', icon: 'fa-terminal', diff: 'easy',   pts: 25,  cat2: 'Linux Basics / File System' },
+        { title: 'file_magic',         url: '/vm#file-magic',       cat: 'lab', icon: 'fa-terminal', diff: 'easy',   pts: 50,  cat2: 'Forensics / File Analysis' },
+        { title: 'strings_attached',   url: '/vm#strings-attached', cat: 'lab', icon: 'fa-terminal', diff: 'easy',   pts: 60,  cat2: 'Forensics / Binary Analysis' },
+        { title: 'log_trace',          url: '/vm#log-trace',        cat: 'lab', icon: 'fa-terminal', diff: 'medium', pts: 75,  cat2: 'Log Analysis / DFIR' },
+        { title: 'hash_hunt',          url: '/vm#hash-hunt',        cat: 'lab', icon: 'fa-terminal', diff: 'medium', pts: 100, cat2: 'Cryptography / Password Cracking' },
+        { title: 'time_line',          url: '/vm#time-line',        cat: 'lab', icon: 'fa-terminal', diff: 'medium', pts: 125, cat2: 'Forensics / Incident Response' },
+        { title: 'cron_job',           url: '/vm#cron-job',         cat: 'lab', icon: 'fa-terminal', diff: 'medium', pts: 150, cat2: 'Persistence / Privilege Escalation' },
+        { title: 'shadow_walk',        url: '/vm#shadow-walk',      cat: 'lab', icon: 'fa-terminal', diff: 'medium', pts: 175, cat2: 'Linux / SUID Abuse' },
+        { title: 'env_harvest',        url: '/vm#env-harvest',      cat: 'lab', icon: 'fa-terminal', diff: 'medium', pts: 175, cat2: 'DFIR / Secrets Management' },
+        { title: 'pivot_chain',        url: '/vm#pivot-chain',      cat: 'lab', icon: 'fa-terminal', diff: 'medium', pts: 200, cat2: 'Lateral Movement / SSH' },
+        { title: 'blind_sqli',         url: '/vm#blind-sqli',       cat: 'lab', icon: 'fa-terminal', diff: 'hard',   pts: 250, cat2: 'Web Security / SQL Injection' },
+        { title: 'kernel_rx',          url: '/vm#kernel-rx',        cat: 'lab', icon: 'fa-terminal', diff: 'hard',   pts: 300, cat2: 'Memory Forensics / Rootkit Analysis' },
         { title: 'Active Directory',       url: '/writeup-active-directory',  cat: 'note', icon: 'fa-file-lines' },
         { title: 'ANY.RUN Sandbox',        url: '/writeup-anyrun',            cat: 'note', icon: 'fa-file-lines' },
         { title: 'Autopsy Forensics',      url: '/writeup-autopsy',           cat: 'note', icon: 'fa-file-lines' },
@@ -2644,6 +2656,8 @@ initGuestbook();
         '      <div id="ssDefault">',
         '        <div class="ss-section-label">Pages</div>',
         '        <div class="ss-results" id="ssDefaultList"></div>',
+        '        <div class="ss-section-label" style="margin-top:0.75rem;">Recently Added Labs</div>',
+        '        <div class="ss-results" id="ssRecentLabs"></div>',
         '      </div>',
         '      <div id="ssFiltered" style="display:none;">',
         '        <div class="ss-section-label" id="ssFilteredLabel">Results</div>',
@@ -2663,16 +2677,24 @@ initGuestbook();
     var labelEl      = document.getElementById('ssFilteredLabel');
     var emptyEl      = document.getElementById('ssEmpty');
 
+    var DIFF_COLOURS = { easy: '#27c93f', medium: '#febc2e', hard: '#ff5f56' };
     function itemHTML(p) {
+        var right = p.cat === 'lab'
+            ? '<span class="ss-result-diff ss-diff-' + p.diff + '">' + p.diff + '</span><span class="ss-result-pts">' + p.pts + ' pts</span>'
+            : '<span class="ss-result-cat">' + p.cat + '</span>';
+        var sub = p.cat === 'lab' ? '<div class="ss-result-sub">' + p.cat2 + '</div>' : '';
         return '<a class="ss-result" href="' + p.url + '">' +
             '<span class="ss-icon ' + p.cat + '"><i class="fas ' + p.icon + '"></i></span>' +
-            '<span class="ss-result-title">' + p.title + '</span>' +
-            '<span class="ss-result-cat">' + p.cat + '</span>' +
+            '<span style="flex:1;min-width:0;"><div class="ss-result-title">' + p.title + '</div>' + sub + '</span>' +
+            right +
             '</a>';
     }
 
     document.getElementById('ssDefaultList').innerHTML =
         PAGES.filter(function(p) { return p.cat === 'page'; }).map(itemHTML).join('');
+    // Recent labs section (last 3 added = highest pts)
+    var recentLabs = PAGES.filter(function(p) { return p.cat === 'lab'; }).slice(-3).reverse();
+    document.getElementById('ssRecentLabs').innerHTML = recentLabs.map(itemHTML).join('');
 
     function doSearch(q) {
         q = q.trim().toLowerCase();

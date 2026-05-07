@@ -1821,3 +1821,14 @@ mark.regex-match {
     font-size: 0.82rem; color: var(--text-secondary);
     padding: 2rem 0; display: none;
 }
+/* ── Site search lab entries ── */
+.ss-icon.lab   { background: rgba(255,189,46,0.12); color: #febc2e; }
+.ss-result-sub { font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.1rem; font-family: var(--font-mono); }
+.ss-result-diff {
+    font-family: var(--font-mono); font-size: 0.65rem; font-weight: 600;
+    padding: 0.15rem 0.45rem; border-radius: 4px; flex-shrink: 0; text-transform: uppercase;
+}
+.ss-diff-easy   { background: rgba(39,201,63,0.15);  color: #27c93f; }
+.ss-diff-medium { background: rgba(254,188,46,0.15); color: #febc2e; }
+.ss-diff-hard   { background: rgba(255,95,86,0.15);  color: #ff5f56; }
+.ss-result-pts  { font-family: var(--font-mono); font-size: 0.72rem; color: var(--accent); margin-left: 0.5rem; flex-shrink: 0; }
