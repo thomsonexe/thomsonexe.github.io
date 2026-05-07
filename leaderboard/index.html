@@ -197,6 +197,19 @@
             font-size: 0.82rem; color: var(--text-secondary); padding: 2rem;
         }
 
+        /* ── CTA BUTTON ── */
+        .page-hero-cta {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            margin-top: 1.25rem;
+            font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600;
+            color: var(--bg-primary); background: var(--accent);
+            padding: 0.6rem 1.4rem; border-radius: 8px;
+            text-decoration: none;
+            transition: opacity 0.18s, box-shadow 0.18s;
+            box-shadow: 0 0 20px rgba(0,255,136,0.25);
+        }
+        .page-hero-cta:hover { opacity: 0.88; box-shadow: 0 0 30px rgba(0,255,136,0.4); }
+
         /* ── AUTH NAV BTN ── */
         .auth-nav-btn {
             font-family: var(--font-mono); font-size: 0.78rem;
@@ -245,7 +258,8 @@
         <div class="container">
             <p class="page-hero-prompt"><span class="prompt">ben@thomson.cx:~$</span> sort -t: -k2 -rn scores.db</p>
             <h1 class="page-hero-title">Leaderboard</h1>
-            <p class="page-hero-sub">Top players across all CTF challenges. <a href="/vm" style="color:var(--accent);text-decoration:underline;cursor:pointer;">Start solving &rarr;</a></p>
+            <p class="page-hero-sub">Top players across all CTF challenges.</p>
+            <a href="/vm" class="page-hero-cta">Start solving <i class="fas fa-arrow-right"></i></a>
         </div>
         <div class="grid-overlay"></div>
     </section>
