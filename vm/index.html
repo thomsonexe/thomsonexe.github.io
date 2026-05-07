@@ -511,7 +511,7 @@
                     <p class="ctf-category"><i class="fas fa-tag"></i> Linux Basics / File System</p>
                     <p class="ctf-excerpt">Navigate a Linux filesystem to find hidden files and decode base64 strings. A perfect introduction to CTF fundamentals &mdash; no prior experience needed.</p>
                     <div class="vm-actions">
-                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Launch VM</a>
+                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Launch VM</a>
                         <button class="btn-objectives" onclick="openModal('init-flag')"><i class="fas fa-scroll"></i> Objectives</button>
                     </div>
                 </div>
@@ -531,7 +531,7 @@
                     <p class="ctf-category"><i class="fas fa-tag"></i> Forensics / File Analysis</p>
                     <p class="ctf-excerpt">A suspicious file was uploaded to the server with the wrong extension. Use magic bytes and Linux file tools to uncover what it really is &mdash; and what it contains.</p>
                     <div class="vm-actions">
-                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Launch VM</a>
+                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Launch VM</a>
                         <button class="btn-objectives" onclick="openModal('file-magic')"><i class="fas fa-scroll"></i> Objectives</button>
                     </div>
                 </div>
@@ -551,7 +551,7 @@
                     <p class="ctf-category"><i class="fas fa-tag"></i> Forensics / Binary Analysis</p>
                     <p class="ctf-excerpt">A firmware image was recovered from a compromised device. A developer accidentally compiled a secret into the binary. Extract it, decode it, claim the flag.</p>
                     <div class="vm-actions">
-                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Launch VM</a>
+                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Launch VM</a>
                         <button class="btn-objectives" onclick="openModal('strings-attached')"><i class="fas fa-scroll"></i> Objectives</button>
                     </div>
                 </div>
@@ -571,7 +571,7 @@
                     <p class="ctf-category"><i class="fas fa-tag"></i> Log Analysis / DFIR</p>
                     <p class="ctf-excerpt">A web server was compromised overnight. Analyse the provided Apache access logs to identify the attacker's IP, the exploit used, and the exfiltration method.</p>
                     <div class="vm-actions">
-                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Launch VM</a>
+                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Launch VM</a>
                         <button class="btn-objectives" onclick="openModal('log-trace')"><i class="fas fa-scroll"></i> Objectives</button>
                     </div>
                 </div>
@@ -591,7 +591,7 @@
                     <p class="ctf-category"><i class="fas fa-tag"></i> Cryptography / Password Cracking</p>
                     <p class="ctf-excerpt">A credential database was leaked. Identify the hash algorithm, select the right wordlist strategy, and crack the target hash to recover the plaintext password.</p>
                     <div class="vm-actions">
-                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Launch VM</a>
+                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Launch VM</a>
                         <button class="btn-objectives" onclick="openModal('hash-hunt')"><i class="fas fa-scroll"></i> Objectives</button>
                     </div>
                 </div>
@@ -611,7 +611,7 @@
                     <p class="ctf-category"><i class="fas fa-tag"></i> Forensics / Incident Response</p>
                     <p class="ctf-excerpt">An attacker accessed a Linux server at 3:47 AM. Analyse the log directory timestamps to identify which file was tampered with and recover the evidence inside.</p>
                     <div class="vm-actions">
-                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Launch VM</a>
+                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Launch VM</a>
                         <button class="btn-objectives" onclick="openModal('time-line')"><i class="fas fa-scroll"></i> Objectives</button>
                     </div>
                 </div>
@@ -751,7 +751,7 @@
                 <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>unzip</code></li>
             </ul>
             <div class="modal-actions">
-                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Open Terminal</a>
+                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Open Terminal</a>
                 <button class="btn-objectives" onclick="closeModal('file-magic')">Close</button>
             </div>
         </div>
@@ -785,7 +785,7 @@
                 <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>echo "..." | base64 -d</code></li>
             </ul>
             <div class="modal-actions">
-                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Open Terminal</a>
+                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Open Terminal</a>
                 <button class="btn-objectives" onclick="closeModal('strings-attached')">Close</button>
             </div>
         </div>
@@ -818,7 +818,7 @@
                 <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>cat logs/&lt;filename&gt;</code></li>
             </ul>
             <div class="modal-actions">
-                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Open Terminal</a>
+                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Open Terminal</a>
                 <button class="btn-objectives" onclick="closeModal('time-line')">Close</button>
             </div>
         </div>
@@ -853,7 +853,7 @@
                 <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>echo "..." | base64 -d</code></li>
             </ul>
             <div class="modal-actions">
-                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Open Terminal</a>
+                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Open Terminal</a>
                 <button class="btn-objectives" onclick="closeModal('init-flag')">Close</button>
             </div>
         </div>
@@ -888,7 +888,7 @@
                 <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>sed</code> for log field parsing</li>
             </ul>
             <div class="modal-actions">
-                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Open Terminal</a>
+                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Open Terminal</a>
                 <button class="btn-objectives" onclick="closeModal('log-trace')">Close</button>
             </div>
         </div>
@@ -922,7 +922,7 @@
                 <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>grep</code> for cross-referencing entries</li>
             </ul>
             <div class="modal-actions">
-                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch"><i class="fas fa-terminal"></i> Open Terminal</a>
+                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Open Terminal</a>
                 <button class="btn-objectives" onclick="closeModal('hash-hunt')">Close</button>
             </div>
         </div>
@@ -1043,6 +1043,13 @@
         }
 
         // ── Flag submission ───────────────────────────────────────────
+        function launchVM(e) {
+            if (!currentUser) {
+                e.preventDefault();
+                openAuthModal();
+            }
+        }
+
         async function submitFlag() {
             const input  = document.getElementById('flagInput');
             const status = document.getElementById('flagStatus');
