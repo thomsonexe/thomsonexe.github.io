@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Cloudflare Turnstile captcha — replace TURNSTILE_SITE_KEY with your real key -->
+    <!-- Setup: 1) Get site key at dash.cloudflare.com/turnstile  -->
+    <!--         2) Add secret key in Supabase → Auth → Settings → Bot Protection -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <style>
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        .auth-page .grid-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .auth-main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: calc(var(--nav-height) + 2.5rem) 1.25rem 3rem;
+            position: relative;
+            z-index: 1;
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 460px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-accent);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 0 60px rgba(0,255,136,0.08), 0 24px 64px rgba(0,0,0,0.5);
+        }
+        .auth-card-header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 0.65rem 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .auth-dot {
+            width: 11px; height: 11px;
+            border-radius: 50%;
+        }
+        .auth-dot.red    { background: #ff5f57; }
+        .auth-dot.yellow { background: #febc2e; }
+        .auth-dot.green  { background: #28c840; }
+        .auth-card-title {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-left: 0.4rem;
+            letter-spacing: 0.3px;
+        }
+        .auth-body { padding: 2rem 2rem 1.75rem; }
+
+        /* Tabs */
+        .auth-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.75rem;
+            gap: 0;
+        }
+        .auth-tab {
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            padding: 0.65rem 1.1rem;
+            margin-bottom: -1px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            transition: color 0.18s, border-color 0.18s;
+        }
+        .auth-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        .auth-tab:hover:not(.active) { color: var(--text-primary); }
+
+        /* Fields */
+        .auth-field {
+            margin-bottom: 1rem;
+        }
+        .auth-field label {
+            display: block;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.4rem;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+        .auth-input {
+            width: 100%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.7rem 0.95rem;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.87rem;
+            box-sizing: border-box;
+            transition: border-color 0.18s, box-shadow 0.18s;
+            outline: none;
+        }
+        .auth-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0,255,136,0.12);
+        }
+        .auth-input::placeholder { color: var(--text-secondary); opacity: 0.55; }
+        .auth-hint {
+            display: block;
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            color: var(--text-secondary);
+            opacity: 0.65;
+            margin-top: 0.3rem;
+        }
+
+        /* Turnstile */
+        .auth-captcha {
+            margin: 1rem 0 1.1rem;
+            min-height: 65px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Submit button */
+        .auth-submit {
+            width: 100%;
+            background: linear-gradient(135deg, rgba(0,255,136,0.18) 0%, rgba(0,200,100,0.1) 100%);
+            color: var(--accent);
+            border: 1px solid rgba(0,255,136,0.5);
+            border-radius: 9px;
+            padding: 0.8rem;
+            font-family: var(--font-mono);
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            box-shadow: 0 0 18px rgba(0,255,136,0.08);
+            position: relative;
+            overflow: hidden;
+            margin-top: 0.25rem;
+        }
+        .auth-submit:hover {
+            background: linear-gradient(135deg, rgba(0,255,136,0.28) 0%, rgba(0,200,100,0.18) 100%);
+            border-color: rgba(0,255,136,0.8);
+            box-shadow: 0 0 28px rgba(0,255,136,0.2);
+        }
+        .auth-submit:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        /* Skip button */
+        .auth-skip {
+            width: 100%;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 0.65rem;
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            margin-top: 0.65rem;
+            transition: border-color 0.18s, color 0.18s;
+        }
+        .auth-skip:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+
+        /* Message */
+        .auth-msg {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            margin-top: 0.85rem;
+            min-height: 1.2em;
+            line-height: 1.4;
+        }
+
+        /* Step header (MFA steps) */
+        .auth-step-header {
+            text-align: center;
+            margin-bottom: 1.75rem;
+        }
+        .auth-step-header i {
+            font-size: 2rem;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 0.75rem;
+        }
+        .auth-step-header h3 {
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin-bottom: 0.4rem;
+        }
+        .auth-step-header p {
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* MFA code input */
+        .auth-code-input {
+            text-align: center;
+            font-size: 1.6rem;
+            letter-spacing: 0.5rem;
+            padding: 0.8rem 1rem !important;
+        }
+
+        /* QR code */
+        .auth-qr-wrap {
+            text-align: center;
+            margin: 0 0 1rem;
+        }
+        .auth-qr-wrap img {
+            width: 160px;
+            height: 160px;
+            border-radius: 8px;
+            border: 3px solid var(--border-accent);
+            background: #fff;
+            padding: 4px;
+        }
+        .auth-secret-wrap {
+            text-align: center;
+            margin-bottom: 1.25rem;
+        }
+        .auth-secret {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--accent);
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.3rem 0.65rem;
+            word-break: break-all;
+            user-select: all;
+            cursor: text;
+            margin-top: 0.3rem;
+        }
+
+        /* Done step */
+        .auth-done-wrap {
+            text-align: center;
+            padding: 0.5rem 0;
+        }
+        .auth-done-icon {
+            font-size: 2.8rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            animation: auth-pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes auth-pop-in {
+            0%   { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1);   opacity: 1; }
+        }
+        .auth-done-text {
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin-bottom: 0.35rem;
+        }
+        .auth-done-text .auth-done-name { color: var(--accent); font-weight: 700; }
+        .auth-done-sub {
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        .auth-done-wrap .auth-submit { margin-top: 0; }
+
+        /* Loading spinner on button */
+        @keyframes auth-spin { to { transform: rotate(360deg); } }
+        .auth-spinner {
+            display: inline-block;
+            width: 14px; height: 14px;
+            border: 2px solid rgba(0,255,136,0.25);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: auth-spin 0.65s linear infinite;
+        }
+
+        /* Divider */
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 1.25rem 0 0;
+        }
+        .auth-divider::before, .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+        .auth-divider span {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            opacity: 0.55;
+        }
+
+        /* Password strength */
+        .pass-strength {
+            height: 3px;
+            border-radius: 2px;
+            margin-top: 0.4rem;
+            background: var(--border);
+            overflow: hidden;
+        }
+        .pass-strength-bar {
+            height: 100%;
+            border-radius: 2px;
+            width: 0;
+            transition: width 0.25s, background 0.25s;
+        }
+
+        /* Responsive */
+        @media (max-width: 520px) {
+            .auth-body { padding: 1.5rem 1.25rem 1.25rem; }
+        }
+    </style>
+</head>
+<body class="auth-page">
+
+    <div class="grid-overlay"></div>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/home" class="nav-logo writeup-logo">
+                <img src="/mouse_t.png" class="nav-mouse" alt="">
+                <span class="glitch glitch-nav glitch-brand" data-text="thomsoN">thomsoN</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/" class="nav-link">home</a></li>
+                <li><a href="/about" class="nav-link">about</a></li>
+                <li><a href="/labs" class="nav-link">notes</a></li>
+                <li><a href="/tools" class="nav-link">tools</a></li>
+                <li><a href="/vm" class="nav-link">ctf</a></li>
+                <li><a href="/cves" class="nav-link">cves</a></li>
+                <li><a href="/map" class="nav-link">map</a></li>
+                <li><a href="/intel" class="nav-link">intel</a></li>
+                <li><a href="/links" class="nav-link">links</a></li>
+                <li><a href="/guestbook" class="nav-link">guestbook</a></li>
+            </ul>
+            <div class="nav-right">
+                <button class="auth-nav-btn" id="authNavBtn"></button>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
+                <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="auth-main">
+        <div class="auth-card">
+            <div class="auth-card-header">
+                <span class="auth-dot red"></span>
+                <span class="auth-dot yellow"></span>
+                <span class="auth-dot green"></span>
+                <span class="auth-card-title">ben@thomson.cx — auth</span>
+            </div>
+            <div class="auth-body">
+
+                <!-- ── Step: Sign In / Sign Up forms ── -->
+                <div id="stepAuth">
+                    <div class="auth-tabs">
+                        <button class="auth-tab active" id="tabIn" onclick="switchTab('in')">
+                            <i class="fas fa-terminal"></i> Sign In
+                        </button>
+                        <button class="auth-tab" id="tabUp" onclick="switchTab('up')">
+                            <i class="fas fa-user-plus"></i> Sign Up
+                        </button>
+                    </div>
+
+                    <!-- Sign In -->
+                    <div id="formIn">
+                        <div class="auth-field">
+                            <label>email</label>
+                            <input class="auth-input" type="email" id="inEmail" placeholder="user@example.com" autocomplete="email">
+                        </div>
+                        <div class="auth-field">
+                            <label>password</label>
+                            <input class="auth-input" type="password" id="inPass" placeholder="••••••••" autocomplete="current-password">
+                        </div>
+                        <!-- Turnstile widget — replace data-sitekey with your real site key -->
+                        <div class="auth-captcha">
+                            <div class="cf-turnstile"
+                                 data-sitekey="1x00000000000000000000AA"
+                                 data-callback="onTurnstileIn"
+                                 data-theme="dark"
+                                 data-size="normal"></div>
+                        </div>
+                        <button class="auth-submit" id="btnSignIn" onclick="doSignIn()">
+                            <i class="fas fa-arrow-right-to-bracket"></i> Sign In
+                        </button>
+                        <p class="auth-msg" id="msgIn"></p>
+                    </div>
+
+                    <!-- Sign Up -->
+                    <div id="formUp" style="display:none;">
+                        <div class="auth-field">
+                            <label>username</label>
+                            <input class="auth-input" type="text" id="upUser" placeholder="hackerman99" autocomplete="off" oninput="checkUsername(this)">
+                            <span class="auth-hint">3–20 chars: letters, numbers, _ -</span>
+                        </div>
+                        <div class="auth-field">
+                            <label>email</label>
+                            <input class="auth-input" type="email" id="upEmail" placeholder="user@example.com" autocomplete="email">
+                        </div>
+                        <div class="auth-field">
+                            <label>password</label>
+                            <input class="auth-input" type="password" id="upPass" placeholder="min 8 characters" autocomplete="new-password" oninput="updatePassStrength(this.value)">
+                            <div class="pass-strength"><div class="pass-strength-bar" id="passBar"></div></div>
+                        </div>
+                        <!-- Turnstile widget — replace data-sitekey with your real site key -->
+                        <div class="auth-captcha">
+                            <div class="cf-turnstile"
+                                 data-sitekey="1x00000000000000000000AA"
+                                 data-callback="onTurnstileUp"
+                                 data-theme="dark"
+                                 data-size="normal"></div>
+                        </div>
+                        <button class="auth-submit" id="btnSignUp" onclick="doSignUp()">
+                            <i class="fas fa-user-plus"></i> Create Account
+                        </button>
+                        <p class="auth-msg" id="msgUp"></p>
+                    </div>
+                </div>
+
+                <!-- ── Step: MFA Verify (after sign-in) ── -->
+                <div id="stepMFA" style="display:none;">
+                    <div class="auth-step-header">
+                        <i class="fas fa-shield-halved"></i>
+                        <h3>Two-Factor Authentication</h3>
+                        <p>Enter the 6-digit code from your authenticator app</p>
+                    </div>
+                    <div class="auth-field">
+                        <label>Authentication code</label>
+                        <input class="auth-input auth-code-input" type="text" id="mfaCode"
+                               placeholder="000000" maxlength="6" inputmode="numeric"
+                               pattern="[0-9]*" autocomplete="one-time-code"
+                               oninput="this.value=this.value.replace(/\D/g,'').slice(0,6)">
+                    </div>
+                    <button class="auth-submit" id="btnMFA" onclick="doMFAVerify()">
+                        <i class="fas fa-check"></i> Verify
+                    </button>
+                    <p class="auth-msg" id="msgMFA"></p>
+                    <div class="auth-divider"><span>or</span></div>
+                    <button class="auth-skip" onclick="showStep('stepAuth');switchTab('in')">
+                        <i class="fas fa-arrow-left" style="font-size:0.7rem;"></i> Back to Sign In
+                    </button>
+                </div>
+
+                <!-- ── Step: MFA Enroll (after sign-up, optional) ── -->
+                <div id="stepEnroll" style="display:none;">
+                    <div class="auth-step-header">
+                        <i class="fas fa-shield-halved"></i>
+                        <h3>Enable Two-Factor Auth</h3>
+                        <p>Scan with Google Authenticator, Authy, or any TOTP app</p>
+                    </div>
+                    <div class="auth-qr-wrap">
+                        <img id="mfaQRImg" alt="MFA QR Code">
+                    </div>
+                    <div class="auth-secret-wrap">
+                        <span class="auth-hint">Can't scan? Enter secret manually:</span>
+                        <code id="mfaSecret" class="auth-secret" title="Click to copy" onclick="copySecret(this)"></code>
+                    </div>
+                    <div class="auth-field">
+                        <label>Verify code to activate</label>
+                        <input class="auth-input auth-code-input" type="text" id="enrollCode"
+                               placeholder="000000" maxlength="6" inputmode="numeric"
+                               pattern="[0-9]*" autocomplete="one-time-code"
+                               oninput="this.value=this.value.replace(/\D/g,'').slice(0,6)">
+                    </div>
+                    <button class="auth-submit" id="btnEnroll" onclick="doEnrollVerify()">
+                        <i class="fas fa-lock"></i> Enable MFA
+                    </button>
+                    <button class="auth-skip" onclick="finishAuth()">
+                        Skip for now
+                    </button>
+                    <p class="auth-msg" id="msgEnroll"></p>
+                </div>
+
+                <!-- ── Step: Done ── -->
+                <div id="stepDone" style="display:none;">
+                    <div class="auth-done-wrap">
+                        <div class="auth-done-icon">
+                            <i class="fas fa-circle-check"></i>
+                        </div>
+                        <p class="auth-done-text">
+                            access granted, <span class="auth-done-name" id="doneName"></span>
+                        </p>
+                        <p class="auth-done-sub" id="doneSub">session established</p>
+                        <a href="/" class="auth-submit" id="doneBtn" style="margin-top:1.25rem;">
+                            <i class="fas fa-terminal"></i> Continue
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="/script.js"></script>
+    <script>
+    (function() {
+        const SB_URL = 'https://nqrdljwhvjjoahpjfrlh.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xcmRsandodmpqb2FocGpmcmxoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MzYzMzAsImV4cCI6MjA5MzQxMjMzMH0.YO_3Ul7BzuzG7zJahTf5aOQNslOItPqCRRGXwyRCdyI';
+
+        const sb = supabase.createClient(SB_URL, SB_KEY);
+
+        let captchaTokenIn  = null;
+        let captchaTokenUp  = null;
+        let mfaFactorId     = null;
+        let mfaChallengeId  = null;
+        let mfaEnrollId     = null;
+        let currentUsername = null;
+
+        function getNext() {
+            return new URLSearchParams(location.search).get('next') || '/';
+        }
+
+        // ── Tab switching ──
+        window.switchTab = function(t) {
+            document.getElementById('formIn').style.display = t === 'in' ? '' : 'none';
+            document.getElementById('formUp').style.display = t === 'up' ? '' : 'none';
+            document.getElementById('tabIn').classList.toggle('active', t === 'in');
+            document.getElementById('tabUp').classList.toggle('active', t === 'up');
+            document.title = (t === 'in' ? 'Sign In' : 'Sign Up') + ' | Ben Thomson';
+        };
+
+        // ── Step management ──
+        window.showStep = function(id) {
+            ['stepAuth','stepMFA','stepEnroll','stepDone'].forEach(function(s) {
+                document.getElementById(s).style.display = s === id ? '' : 'none';
+            });
+        };
+
+        // ── Turnstile callbacks ──
+        window.onTurnstileIn = function(token) { captchaTokenIn = token; };
+        window.onTurnstileUp = function(token) { captchaTokenUp = token; };
+
+        function resetTurnstile(id) {
+            if (window.turnstile) {
+                const el = document.querySelector('#' + id + ' .cf-turnstile') ||
+                           document.querySelector('#form' + id.charAt(0).toUpperCase() + id.slice(1) + ' .cf-turnstile');
+                if (el) turnstile.reset(el);
+            }
+        }
+
+        // ── UI helpers ──
+        function setMsg(id, text, ok) {
+            const el = document.getElementById(id);
+            if (ok === true)       el.style.color = 'var(--accent)';
+            else if (ok === false) el.style.color = '#ff5f57';
+            else                   el.style.color = 'var(--text-secondary)';
+            el.textContent = text;
+        }
+
+        function setBusy(btnId, busy) {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            btn.disabled = busy;
+            if (busy) {
+                btn.dataset.origHtml = btn.innerHTML;
+                btn.innerHTML = '<span class="auth-spinner"></span>';
+            } else if (btn.dataset.origHtml) {
+                btn.innerHTML = btn.dataset.origHtml;
+            }
+        }
+
+        window.updatePassStrength = function(val) {
+            const bar = document.getElementById('passBar');
+            let score = 0;
+            if (val.length >= 8)  score++;
+            if (val.length >= 12) score++;
+            if (/[A-Z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+            const pct = score * 20;
+            const colours = ['', '#ff5f57', '#ff5f57', '#febc2e', '#febc2e', '#28c840'];
+            bar.style.width  = pct + '%';
+            bar.style.background = colours[score] || '';
+        };
+
+        window.checkUsername = function(input) {
+            const ok = /^[a-zA-Z0-9_-]{3,20}$/.test(input.value);
+            input.style.borderColor = input.value.length > 2
+                ? (ok ? 'var(--accent)' : '#ff5f57')
+                : '';
+        };
+
+        window.copySecret = function(el) {
+            navigator.clipboard.writeText(el.textContent).then(function() {
+                const orig = el.textContent;
+                el.textContent = 'copied!';
+                setTimeout(function() { el.textContent = orig; }, 1500);
+            });
+        };
+
+        // ── Sign In ──
+        window.doSignIn = async function() {
+            const email = document.getElementById('inEmail').value.trim();
+            const pass  = document.getElementById('inPass').value;
+            if (!email || !pass) { setMsg('msgIn','Enter email and password', false); return; }
+
+            setBusy('btnSignIn', true);
+            setMsg('msgIn', 'Authenticating…', null);
+
+            const opts = { email, password: pass };
+            if (captchaTokenIn) opts.options = { captchaToken: captchaTokenIn };
+
+            const { data, error } = await sb.auth.signInWithPassword(opts);
+            setBusy('btnSignIn', false);
+            if (error) {
+                setMsg('msgIn', error.message, false);
+                captchaTokenIn = null;
+                return;
+            }
+
+            // Fetch username from profiles
+            let { data: profile } = await sb.from('profiles').select('username').eq('id', data.user.id).single();
+            if (!profile) {
+                const u = data.user.email.split('@')[0].replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,20);
+                await sb.from('profiles').insert({ id: data.user.id, username: u });
+                profile = { username: u };
+            }
+            currentUsername = profile.username;
+
+            // Check MFA
+            const { data: aal } = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
+            if (aal && aal.nextLevel === 'aal2' && aal.nextLevel !== aal.currentLevel) {
+                const { data: factors } = await sb.auth.mfa.listFactors();
+                const totp = factors && factors.totp && factors.totp[0];
+                if (totp) {
+                    const { data: ch } = await sb.auth.mfa.challenge({ factorId: totp.id });
+                    mfaFactorId    = totp.id;
+                    mfaChallengeId = ch.id;
+                    showStep('stepMFA');
+                    setTimeout(function() { document.getElementById('mfaCode').focus(); }, 80);
+                    return;
+                }
+            }
+
+            finishAuth();
+        };
+
+        // ── MFA Verify ──
+        window.doMFAVerify = async function() {
+            const code = document.getElementById('mfaCode').value.trim();
+            if (code.length !== 6) { setMsg('msgMFA', 'Enter your 6-digit code', false); return; }
+
+            setBusy('btnMFA', true);
+            setMsg('msgMFA', 'Verifying…', null);
+
+            const { error } = await sb.auth.mfa.verify({ factorId: mfaFactorId, challengeId: mfaChallengeId, code });
+            setBusy('btnMFA', false);
+            if (error) { setMsg('msgMFA', error.message, false); return; }
+
+            setMsg('msgMFA', 'Verified!', true);
+            setTimeout(finishAuth, 500);
+        };
+
+        // ── Sign Up ──
+        window.doSignUp = async function() {
+            const user  = document.getElementById('upUser').value.trim();
+            const email = document.getElementById('upEmail').value.trim();
+            const pass  = document.getElementById('upPass').value;
+
+            if (!/^[a-zA-Z0-9_-]{3,20}$/.test(user)) {
+                setMsg('msgUp', 'Username: 3–20 chars, letters/numbers/_ -', false); return;
+            }
+            if (!email) { setMsg('msgUp', 'Enter an email address', false); return; }
+            if (pass.length < 8) { setMsg('msgUp', 'Password must be at least 8 characters', false); return; }
+
+            setBusy('btnSignUp', true);
+            setMsg('msgUp', 'Creating account…', null);
+
+            const opts = { email, password: pass, options: { data: { username: user } } };
+            if (captchaTokenUp) opts.options.captchaToken = captchaTokenUp;
+
+            const { data, error } = await sb.auth.signUp(opts);
+            setBusy('btnSignUp', false);
+
+            if (error) {
+                setMsg('msgUp', error.message, false);
+                captchaTokenUp = null;
+                return;
+            }
+
+            if (!data.user) {
+                setMsg('msgUp', 'Check your email to confirm your account.', null);
+                return;
+            }
+
+            await sb.from('profiles').upsert({ id: data.user.id, username: user });
+            currentUsername = user;
+            setMsg('msgUp', 'Account created!', true);
+
+            // Offer MFA enrollment
+            await startMFAEnroll();
+        };
+
+        // ── MFA Enroll ──
+        async function startMFAEnroll() {
+            const { data, error } = await sb.auth.mfa.enroll({
+                factorType: 'totp',
+                friendlyName: 'Authenticator App'
+            });
+            if (error || !data || !data.totp) {
+                finishAuth(); return;
+            }
+            mfaEnrollId = data.id;
+            document.getElementById('mfaQRImg').src    = data.totp.qr_code;
+            document.getElementById('mfaSecret').textContent = data.totp.secret;
+            showStep('stepEnroll');
+            setTimeout(function() { document.getElementById('enrollCode').focus(); }, 80);
+        }
+
+        window.doEnrollVerify = async function() {
+            const code = document.getElementById('enrollCode').value.trim();
+            if (code.length !== 6) { setMsg('msgEnroll', 'Enter your 6-digit code', false); return; }
+
+            setBusy('btnEnroll', true);
+            setMsg('msgEnroll', 'Verifying…', null);
+
+            const { data: ch, error: chErr } = await sb.auth.mfa.challenge({ factorId: mfaEnrollId });
+            if (chErr) { setBusy('btnEnroll', false); setMsg('msgEnroll', chErr.message, false); return; }
+
+            const { error } = await sb.auth.mfa.verify({
+                factorId: mfaEnrollId,
+                challengeId: ch.id,
+                code
+            });
+            setBusy('btnEnroll', false);
+            if (error) { setMsg('msgEnroll', error.message, false); return; }
+
+            setMsg('msgEnroll', 'MFA enabled!', true);
+            setTimeout(finishAuth, 600);
+        };
+
+        // ── Finish auth and redirect ──
+        window.finishAuth = function() {
+            localStorage.setItem('ctf_username', currentUsername);
+            showStep('stepDone');
+            document.getElementById('doneName').textContent = currentUsername;
+            const next = getNext();
+            document.getElementById('doneBtn').href = next;
+            document.getElementById('doneSub').textContent = next !== '/'
+                ? 'redirecting to ' + next
+                : 'session established';
+            // Redirect automatically after a short moment
+            setTimeout(function() { location.href = next; }, 1800);
+        };
+
+        // ── Init ──
+        const tab = new URLSearchParams(location.search).get('tab') || 'in';
+        switchTab(tab);
+
+        // If already signed in, show done
+        const existing = localStorage.getItem('ctf_username');
+        if (existing) {
+            currentUsername = existing;
+            showStep('stepDone');
+            document.getElementById('doneName').textContent = existing;
+            document.getElementById('doneSub').textContent  = 'already signed in';
+            document.getElementById('doneBtn').href = getNext();
+        }
+
+        // Enter to submit
+        document.addEventListener('keydown', function(e) {
+            if (e.key !== 'Enter') return;
+            const sAuth   = document.getElementById('stepAuth');
+            const sMFA    = document.getElementById('stepMFA');
+            const sEnroll = document.getElementById('stepEnroll');
+            if (sAuth.style.display !== 'none') {
+                const isIn = document.getElementById('formIn').style.display !== 'none';
+                isIn ? doSignIn() : doSignUp();
+            } else if (sMFA.style.display !== 'none') {
+                doMFAVerify();
+            } else if (sEnroll.style.display !== 'none') {
+                doEnrollVerify();
+            }
+        });
+    })();
+    </script>
+</body>
+</html>

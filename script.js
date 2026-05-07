@@ -2498,7 +2498,7 @@ initGuestbook();
         } else {
             btn.innerHTML = '<i class="fas fa-user"></i> sign in';
             btn.classList.remove('active');
-            btn.onclick = openGaModal;
+            btn.onclick = function() { location.href = '/auth'; };
         }
     }
 

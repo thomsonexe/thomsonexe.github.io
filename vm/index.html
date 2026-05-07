@@ -483,7 +483,7 @@
                 </div>
                 <div id="flagSubmitAnon" class="flag-auth-prompt">
                     <i class="fas fa-lock" style="color:var(--accent);margin-right:0.5rem;"></i>
-                    <a onclick="openAuthModal()">Sign in</a> to submit flags and track your score on the leaderboard.
+                    <a href="/auth?next=/vm">Sign in</a> to submit flags and track your score on the leaderboard.
                 </div>
             </div>
         </div>
@@ -1290,7 +1290,7 @@
             }
             document.getElementById('authBtn').innerHTML = '<i class="fas fa-user"></i> sign in';
             document.getElementById('authBtn').classList.remove('logged-in');
-            document.getElementById('authBtn').onclick = openAuthModal;
+            document.getElementById('authBtn').onclick = function() { location.href = '/auth?next=/vm'; };
             document.getElementById('flagSubmitLoggedIn').style.display = 'none';
             document.getElementById('flagSubmitAnon').style.display = '';
             document.getElementById('authSignedOut').style.display = '';
@@ -1322,7 +1322,7 @@
         function launchVM(e) {
             if (!currentUser) {
                 e.preventDefault();
-                openAuthModal();
+                location.href = '/auth?next=/vm';
             }
         }
 
