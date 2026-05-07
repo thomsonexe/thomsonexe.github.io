@@ -616,57 +616,123 @@
                     </div>
                 </div>
 
-                <!-- net_tap — Medium 150pts (coming soon) -->
-                <div class="ctf-card dim">
-                    <div class="machine-status offline-status">
-                        <span class="status-dot offline"></span>coming soon
+                <!-- cron_job — Medium 150pts -->
+                <div class="ctf-card" data-challenge="cron-job">
+                    <div class="machine-status">
+                        <span class="status-dot"></span>online
                     </div>
                     <div class="ctf-meta">
                         <span class="vm-platform">Custom</span>
                         <span class="ctf-difficulty medium">Medium</span>
                         <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>150 pts</span>
+                        <span class="solved-badge"><i class="fas fa-check" style="font-size:0.55rem;margin-right:0.25rem;"></i>solved</span>
                     </div>
-                    <h3 class="ctf-title">net_tap</h3>
-                    <p class="ctf-category"><i class="fas fa-tag"></i> Network Analysis / Packet Capture</p>
-                    <p class="ctf-excerpt">Investigate a suspicious PCAP to identify C2 beaconing, DNS exfiltration, and credential theft over an unencrypted protocol.</p>
+                    <h3 class="ctf-title">cron_job</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Persistence / Privilege Escalation</p>
+                    <p class="ctf-excerpt">An attacker maintained persistence on a compromised Linux host by planting a scheduled task. Hunt through cron directories, decode the obfuscated payload, and recover the flag hidden inside.</p>
                     <div class="vm-actions">
-                        <span class="coming-soon"><i class="fas fa-clock"></i> In Development</span>
+                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Launch VM</a>
+                        <button class="btn-objectives" onclick="openModal('cron-job')"><i class="fas fa-scroll"></i> Objectives</button>
                     </div>
                 </div>
 
-                <!-- mem_ghost — Hard 200pts (coming soon) -->
-                <div class="ctf-card dim">
-                    <div class="machine-status offline-status">
-                        <span class="status-dot offline"></span>coming soon
+                <!-- shadow_walk — Medium 175pts -->
+                <div class="ctf-card" data-challenge="shadow-walk">
+                    <div class="machine-status">
+                        <span class="status-dot"></span>online
                     </div>
                     <div class="ctf-meta">
                         <span class="vm-platform">Custom</span>
-                        <span class="ctf-difficulty hard">Hard</span>
-                        <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>200 pts</span>
+                        <span class="ctf-difficulty medium">Medium</span>
+                        <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>175 pts</span>
+                        <span class="solved-badge"><i class="fas fa-check" style="font-size:0.55rem;margin-right:0.25rem;"></i>solved</span>
                     </div>
-                    <h3 class="ctf-title">mem_ghost</h3>
-                    <p class="ctf-category"><i class="fas fa-tag"></i> Memory Forensics / Malware Analysis</p>
-                    <p class="ctf-excerpt">Analyse a memory dump to uncover a running rootkit. Extract process trees, network connections, and the attacker's C2 infrastructure using Volatility 3.</p>
+                    <h3 class="ctf-title">shadow_walk</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Linux / SUID Abuse</p>
+                    <p class="ctf-excerpt">A misconfigured SUID binary is running on this host. Identify it, understand how it can be abused, and use it to read a privileged file that contains the flag.</p>
                     <div class="vm-actions">
-                        <span class="coming-soon"><i class="fas fa-clock"></i> In Development</span>
+                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Launch VM</a>
+                        <button class="btn-objectives" onclick="openModal('shadow-walk')"><i class="fas fa-scroll"></i> Objectives</button>
                     </div>
                 </div>
 
-                <!-- web_break — Hard 250pts (coming soon) -->
-                <div class="ctf-card dim">
-                    <div class="machine-status offline-status">
-                        <span class="status-dot offline"></span>coming soon
+                <!-- env_harvest — Medium 175pts -->
+                <div class="ctf-card" data-challenge="env-harvest">
+                    <div class="machine-status">
+                        <span class="status-dot"></span>online
+                    </div>
+                    <div class="ctf-meta">
+                        <span class="vm-platform">Custom</span>
+                        <span class="ctf-difficulty medium">Medium</span>
+                        <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>175 pts</span>
+                        <span class="solved-badge"><i class="fas fa-check" style="font-size:0.55rem;margin-right:0.25rem;"></i>solved</span>
+                    </div>
+                    <h3 class="ctf-title">env_harvest</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> DFIR / Secrets Management</p>
+                    <p class="ctf-excerpt">A developer left API keys and credentials scattered across environment variables, dotfiles, and shell history. Harvest all exposed secrets and piece together the flag hidden across multiple locations.</p>
+                    <div class="vm-actions">
+                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Launch VM</a>
+                        <button class="btn-objectives" onclick="openModal('env-harvest')"><i class="fas fa-scroll"></i> Objectives</button>
+                    </div>
+                </div>
+
+                <!-- pivot_chain — Medium 200pts -->
+                <div class="ctf-card" data-challenge="pivot-chain">
+                    <div class="machine-status">
+                        <span class="status-dot"></span>online
+                    </div>
+                    <div class="ctf-meta">
+                        <span class="vm-platform">Custom</span>
+                        <span class="ctf-difficulty medium">Medium</span>
+                        <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>200 pts</span>
+                        <span class="solved-badge"><i class="fas fa-check" style="font-size:0.55rem;margin-right:0.25rem;"></i>solved</span>
+                    </div>
+                    <h3 class="ctf-title">pivot_chain</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Lateral Movement / SSH</p>
+                    <p class="ctf-excerpt">An attacker moved laterally through three user accounts using SSH keys left in <code>authorized_keys</code> files. Follow the chain from guest → developer → admin and retrieve the root flag.</p>
+                    <div class="vm-actions">
+                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Launch VM</a>
+                        <button class="btn-objectives" onclick="openModal('pivot-chain')"><i class="fas fa-scroll"></i> Objectives</button>
+                    </div>
+                </div>
+
+                <!-- blind_sqli — Hard 250pts -->
+                <div class="ctf-card" data-challenge="blind-sqli">
+                    <div class="machine-status">
+                        <span class="status-dot"></span>online
                     </div>
                     <div class="ctf-meta">
                         <span class="vm-platform">Custom</span>
                         <span class="ctf-difficulty hard">Hard</span>
                         <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>250 pts</span>
+                        <span class="solved-badge"><i class="fas fa-check" style="font-size:0.55rem;margin-right:0.25rem;"></i>solved</span>
                     </div>
-                    <h3 class="ctf-title">web_break</h3>
+                    <h3 class="ctf-title">blind_sqli</h3>
                     <p class="ctf-category"><i class="fas fa-tag"></i> Web Security / SQL Injection</p>
-                    <p class="ctf-excerpt">A vulnerable web application is running locally. Exploit SQL injection, bypass authentication, and escalate privileges to read the root flag.</p>
+                    <p class="ctf-excerpt">A locally hosted web application has no visible error output, but it's vulnerable. Use boolean-based blind SQL injection to enumerate the database, extract the admin hash, and crack it to get the flag.</p>
                     <div class="vm-actions">
-                        <span class="coming-soon"><i class="fas fa-clock"></i> In Development</span>
+                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Launch VM</a>
+                        <button class="btn-objectives" onclick="openModal('blind-sqli')"><i class="fas fa-scroll"></i> Objectives</button>
+                    </div>
+                </div>
+
+                <!-- kernel_rx — Hard 300pts -->
+                <div class="ctf-card" data-challenge="kernel-rx">
+                    <div class="machine-status">
+                        <span class="status-dot"></span>online
+                    </div>
+                    <div class="ctf-meta">
+                        <span class="vm-platform">Custom</span>
+                        <span class="ctf-difficulty hard">Hard</span>
+                        <span class="vm-points"><i class="fas fa-star" style="font-size:0.6rem;margin-right:0.3rem;"></i>300 pts</span>
+                        <span class="solved-badge"><i class="fas fa-check" style="font-size:0.55rem;margin-right:0.25rem;"></i>solved</span>
+                    </div>
+                    <h3 class="ctf-title">kernel_rx</h3>
+                    <p class="ctf-category"><i class="fas fa-tag"></i> Memory Forensics / Rootkit Analysis</p>
+                    <p class="ctf-excerpt">A suspicious kernel module was loaded on a production server. Analyse <code>/proc</code>, extract the module binary, reverse its embedded strings, and decode the C2 address the attacker left behind.</p>
+                    <div class="vm-actions">
+                        <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Launch VM</a>
+                        <button class="btn-objectives" onclick="openModal('kernel-rx')"><i class="fas fa-scroll"></i> Objectives</button>
                     </div>
                 </div>
 
@@ -924,6 +990,216 @@
             <div class="modal-actions">
                 <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Open Terminal</a>
                 <button class="btn-objectives" onclick="closeModal('hash-hunt')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- cron_job modal -->
+    <div class="vm-modal-overlay" id="modal-cron-job">
+        <div class="vm-modal">
+            <button class="modal-close" onclick="closeModal('cron-job')"><i class="fas fa-times"></i></button>
+            <div class="modal-meta">
+                <span class="vm-platform">Custom</span>
+                <span class="ctf-difficulty medium">Medium</span>
+                <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--accent-cyan);margin-left:auto;">150 pts</span>
+            </div>
+            <h2 class="modal-title">cron_job</h2>
+            <p class="modal-desc">An attacker gained initial access to a Linux host and planted a persistence mechanism using cron. The payload was obfuscated to avoid detection. Hunt through all cron directories, find the malicious job, and decode what was left behind.</p>
+            <p class="modal-section-title"><i class="fas fa-list-check" style="margin-right:0.4rem;"></i>Objectives</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-chevron-right"></i>Search all cron directories for a suspicious scheduled job</li>
+                <li><i class="fas fa-chevron-right"></i>Identify and decode the obfuscated payload in the cron entry</li>
+                <li><i class="fas fa-chevron-right"></i>Extract the flag hidden within the decoded payload</li>
+            </ul>
+            <p class="modal-section-title"><i class="fas fa-download" style="margin-right:0.4rem;"></i>Get the Challenge Files</p>
+            <div class="modal-code">
+                <span class="t-prompt">$ </span>cd ~/challenges/cron-job/<br>
+                <span class="t-prompt">$ </span>cat README.txt
+            </div>
+            <p class="modal-section-title"><i class="fas fa-wrench" style="margin-right:0.4rem;"></i>Tools You'll Need</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>ls /etc/cron* /var/spool/cron/</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>crontab -l -u &lt;user&gt;</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>echo "..." | base64 -d</code></li>
+            </ul>
+            <div class="modal-actions">
+                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Open Terminal</a>
+                <button class="btn-objectives" onclick="closeModal('cron-job')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- shadow_walk modal -->
+    <div class="vm-modal-overlay" id="modal-shadow-walk">
+        <div class="vm-modal">
+            <button class="modal-close" onclick="closeModal('shadow-walk')"><i class="fas fa-times"></i></button>
+            <div class="modal-meta">
+                <span class="vm-platform">Custom</span>
+                <span class="ctf-difficulty medium">Medium</span>
+                <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--accent-cyan);margin-left:auto;">175 pts</span>
+            </div>
+            <h2 class="modal-title">shadow_walk</h2>
+            <p class="modal-desc">A Linux system has been misconfigured — a binary that should not have the SUID bit set does. Identify the binary, understand how it can be exploited, and use it to read a root-owned file containing the flag.</p>
+            <p class="modal-section-title"><i class="fas fa-list-check" style="margin-right:0.4rem;"></i>Objectives</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-chevron-right"></i>Find all SUID binaries on the system</li>
+                <li><i class="fas fa-chevron-right"></i>Identify which one can be abused for privilege escalation</li>
+                <li><i class="fas fa-chevron-right"></i>Use it to read <code>/root/flag.txt</code></li>
+            </ul>
+            <p class="modal-section-title"><i class="fas fa-download" style="margin-right:0.4rem;"></i>Get the Challenge Files</p>
+            <div class="modal-code">
+                <span class="t-prompt">$ </span>cd ~/challenges/shadow-walk/<br>
+                <span class="t-prompt">$ </span>cat README.txt
+            </div>
+            <p class="modal-section-title"><i class="fas fa-wrench" style="margin-right:0.4rem;"></i>Tools You'll Need</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>find / -perm -4000 -type f 2>/dev/null</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i>GTFOBins — <code>gtfobins.github.io</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>ls -la /root/</code></li>
+            </ul>
+            <div class="modal-actions">
+                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Open Terminal</a>
+                <button class="btn-objectives" onclick="closeModal('shadow-walk')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- env_harvest modal -->
+    <div class="vm-modal-overlay" id="modal-env-harvest">
+        <div class="vm-modal">
+            <button class="modal-close" onclick="closeModal('env-harvest')"><i class="fas fa-times"></i></button>
+            <div class="modal-meta">
+                <span class="vm-platform">Custom</span>
+                <span class="ctf-difficulty medium">Medium</span>
+                <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--accent-cyan);margin-left:auto;">175 pts</span>
+            </div>
+            <h2 class="modal-title">env_harvest</h2>
+            <p class="modal-desc">A developer left credentials and API keys scattered across the system — environment variables, shell history, dotfiles, and config files. Each location holds a fragment. Collect all pieces and reconstruct the flag.</p>
+            <p class="modal-section-title"><i class="fas fa-list-check" style="margin-right:0.4rem;"></i>Objectives</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-chevron-right"></i>Search environment variables, <code>.bashrc</code>, and shell history for secrets</li>
+                <li><i class="fas fa-chevron-right"></i>Check dotfiles and <code>.config/</code> directories for exposed credentials</li>
+                <li><i class="fas fa-chevron-right"></i>Combine all recovered fragments to form the flag</li>
+            </ul>
+            <p class="modal-section-title"><i class="fas fa-download" style="margin-right:0.4rem;"></i>Get the Challenge Files</p>
+            <div class="modal-code">
+                <span class="t-prompt">$ </span>cd ~/challenges/env-harvest/<br>
+                <span class="t-prompt">$ </span>cat README.txt
+            </div>
+            <p class="modal-section-title"><i class="fas fa-wrench" style="margin-right:0.4rem;"></i>Tools You'll Need</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>env</code>, <code>printenv</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>cat ~/.bash_history ~/.bashrc ~/.profile</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>grep -r "KEY\|SECRET\|TOKEN\|PASS" ~/</code></li>
+            </ul>
+            <div class="modal-actions">
+                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Open Terminal</a>
+                <button class="btn-objectives" onclick="closeModal('env-harvest')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- pivot_chain modal -->
+    <div class="vm-modal-overlay" id="modal-pivot-chain">
+        <div class="vm-modal">
+            <button class="modal-close" onclick="closeModal('pivot-chain')"><i class="fas fa-times"></i></button>
+            <div class="modal-meta">
+                <span class="vm-platform">Custom</span>
+                <span class="ctf-difficulty medium">Medium</span>
+                <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--accent-cyan);margin-left:auto;">200 pts</span>
+            </div>
+            <h2 class="modal-title">pivot_chain</h2>
+            <p class="modal-desc">An attacker moved laterally through a network of local user accounts using SSH keys cached in <code>authorized_keys</code> files and private keys left in home directories. Start as the guest user and pivot through the chain to reach root.</p>
+            <p class="modal-section-title"><i class="fas fa-list-check" style="margin-right:0.4rem;"></i>Objectives</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-chevron-right"></i>Start as <code>guest</code> — find SSH keys that grant access to the next account</li>
+                <li><i class="fas fa-chevron-right"></i>Pivot from <code>guest</code> → <code>developer</code> → <code>admin</code></li>
+                <li><i class="fas fa-chevron-right"></i>Read the flag from <code>/root/flag.txt</code></li>
+            </ul>
+            <p class="modal-section-title"><i class="fas fa-download" style="margin-right:0.4rem;"></i>Get the Challenge Files</p>
+            <div class="modal-code">
+                <span class="t-prompt">$ </span>cd ~/challenges/pivot-chain/<br>
+                <span class="t-prompt">$ </span>cat README.txt
+            </div>
+            <p class="modal-section-title"><i class="fas fa-wrench" style="margin-right:0.4rem;"></i>Tools You'll Need</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>cat ~/.ssh/authorized_keys</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>ssh -i &lt;key&gt; user@localhost</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>find / -name "id_rsa" 2>/dev/null</code></li>
+            </ul>
+            <div class="modal-actions">
+                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Open Terminal</a>
+                <button class="btn-objectives" onclick="closeModal('pivot-chain')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- blind_sqli modal -->
+    <div class="vm-modal-overlay" id="modal-blind-sqli">
+        <div class="vm-modal">
+            <button class="modal-close" onclick="closeModal('blind-sqli')"><i class="fas fa-times"></i></button>
+            <div class="modal-meta">
+                <span class="vm-platform">Custom</span>
+                <span class="ctf-difficulty hard">Hard</span>
+                <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--accent-cyan);margin-left:auto;">250 pts</span>
+            </div>
+            <h2 class="modal-title">blind_sqli</h2>
+            <p class="modal-desc">A locally hosted login portal is vulnerable to SQL injection, but error output is suppressed — you're flying blind. Use boolean-based inference to enumerate the database schema, extract the admin password hash, and crack it to recover the flag.</p>
+            <p class="modal-section-title"><i class="fas fa-list-check" style="margin-right:0.4rem;"></i>Objectives</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-chevron-right"></i>Confirm the blind SQLi vulnerability and identify injection point</li>
+                <li><i class="fas fa-chevron-right"></i>Extract the admin account password hash via boolean-based inference</li>
+                <li><i class="fas fa-chevron-right"></i>Crack the hash and use the plaintext password to retrieve the flag</li>
+            </ul>
+            <p class="modal-section-title"><i class="fas fa-download" style="margin-right:0.4rem;"></i>Get the Challenge Files</p>
+            <div class="modal-code">
+                <span class="t-prompt">$ </span>cd ~/challenges/blind-sqli/<br>
+                <span class="t-prompt">$ </span>cat README.txt
+            </div>
+            <p class="modal-section-title"><i class="fas fa-wrench" style="margin-right:0.4rem;"></i>Tools You'll Need</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>curl -s "http://localhost/login?id=1 AND 1=1"</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>sqlmap -u "http://localhost/login" --level=3 --risk=2</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>john --wordlist=/usr/share/wordlists/rockyou.txt hash.txt</code></li>
+            </ul>
+            <div class="modal-actions">
+                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Open Terminal</a>
+                <button class="btn-objectives" onclick="closeModal('blind-sqli')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- kernel_rx modal -->
+    <div class="vm-modal-overlay" id="modal-kernel-rx">
+        <div class="vm-modal">
+            <button class="modal-close" onclick="closeModal('kernel-rx')"><i class="fas fa-times"></i></button>
+            <div class="modal-meta">
+                <span class="vm-platform">Custom</span>
+                <span class="ctf-difficulty hard">Hard</span>
+                <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--accent-cyan);margin-left:auto;">300 pts</span>
+            </div>
+            <h2 class="modal-title">kernel_rx</h2>
+            <p class="modal-desc">A suspicious kernel module was loaded on a production host. The module is hiding its presence but left traces in <code>/proc</code>. Extract the module binary, analyse its embedded strings, and decode the C2 address the attacker encoded inside it.</p>
+            <p class="modal-section-title"><i class="fas fa-list-check" style="margin-right:0.4rem;"></i>Objectives</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-chevron-right"></i>Locate the suspicious module via <code>/proc/modules</code> and <code>lsmod</code></li>
+                <li><i class="fas fa-chevron-right"></i>Extract and analyse the module binary with <code>strings</code> and <code>xxd</code></li>
+                <li><i class="fas fa-chevron-right"></i>Decode the encoded C2 address to recover the flag</li>
+            </ul>
+            <p class="modal-section-title"><i class="fas fa-download" style="margin-right:0.4rem;"></i>Get the Challenge Files</p>
+            <div class="modal-code">
+                <span class="t-prompt">$ </span>cd ~/challenges/kernel-rx/<br>
+                <span class="t-prompt">$ </span>cat README.txt
+            </div>
+            <p class="modal-section-title"><i class="fas fa-wrench" style="margin-right:0.4rem;"></i>Tools You'll Need</p>
+            <ul class="objectives-list">
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>lsmod</code>, <code>cat /proc/modules</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>strings /path/to/module.ko</code></li>
+                <li><i class="fas fa-circle" style="font-size:0.35rem;margin-top:0.45rem;"></i><code>echo "..." | base64 -d</code>, <code>xxd</code></li>
+            </ul>
+            <div class="modal-actions">
+                <a href="https://thomsonexe.github.io/webvm/" target="_blank" rel="noopener" class="btn-launch" onclick="launchVM(event)"><i class="fas fa-terminal"></i> Open Terminal</a>
+                <button class="btn-objectives" onclick="closeModal('kernel-rx')">Close</button>
             </div>
         </div>
     </div>
