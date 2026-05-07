@@ -152,8 +152,8 @@ body {
 }
 .page-hero-title {
     font-family: var(--font-mono); font-size: clamp(2rem, 5vw, 3rem);
-    font-weight: 700; color: var(--accent);
-    text-shadow: var(--glow-strong); margin: 0 0 0.5rem;
+    font-weight: 700; color: #ffffff;
+    text-shadow: 0 0 20px rgba(255,255,255,0.15), 0 0 60px rgba(255,255,255,0.08); margin: 0 0 0.5rem;
 }
 .page-hero-sub {
     font-size: 0.95rem; color: var(--text-secondary); margin: 0;
