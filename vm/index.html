@@ -198,6 +198,92 @@
         .ctf-card.solved { border-color: rgba(0,255,136,0.3); }
         .ctf-card.solved .solved-badge { display: inline; }
 
+        /* SEARCH */
+        .ctf-search-btn {
+            background: transparent; border: 1px solid rgba(255,255,255,0.25);
+            color: #fff; width: 34px; height: 34px; border-radius: 6px;
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+            font-size: 0.85rem; transition: var(--transition); flex-shrink: 0;
+        }
+        .ctf-search-btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.55); }
+
+        .ctf-search-overlay {
+            display: none; position: fixed; inset: 0; z-index: 4000;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            padding: calc(var(--nav-height) + 1rem) 1rem 1rem;
+            align-items: flex-start; justify-content: center;
+        }
+        .ctf-search-overlay.active { display: flex; }
+        .ctf-search-panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-accent);
+            border-radius: 14px; width: 100%; max-width: 560px;
+            box-shadow: 0 0 60px rgba(0,255,136,0.1), 0 24px 64px rgba(0,0,0,0.6);
+            overflow: hidden;
+            animation: searchSlideIn 0.18s ease;
+        }
+        @keyframes searchSlideIn {
+            from { opacity: 0; transform: translateY(-12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .ctf-search-input-wrap {
+            display: flex; align-items: center; gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .ctf-search-input-wrap i { color: var(--text-secondary); font-size: 0.95rem; flex-shrink: 0; }
+        .ctf-search-input {
+            flex: 1; background: none; border: none; outline: none;
+            font-family: var(--font-mono); font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+        .ctf-search-input::placeholder { color: var(--text-secondary); opacity: 0.6; }
+        .ctf-search-kbd {
+            font-family: var(--font-mono); font-size: 0.65rem;
+            color: var(--text-secondary); background: var(--bg-card);
+            border: 1px solid var(--border); border-radius: 4px;
+            padding: 0.15rem 0.4rem; flex-shrink: 0;
+        }
+        .ctf-search-body { padding: 1.25rem; max-height: 420px; overflow-y: auto; }
+        .ctf-search-section-label {
+            font-family: var(--font-mono); font-size: 0.68rem;
+            color: var(--text-secondary); text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 0.75rem;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .ctf-search-results { display: flex; flex-direction: column; gap: 0.35rem; }
+        .ctf-search-result {
+            display: flex; align-items: center; gap: 0.9rem;
+            padding: 0.65rem 0.85rem; border-radius: 8px;
+            cursor: pointer; transition: background 0.15s;
+            text-decoration: none;
+        }
+        .ctf-search-result:hover, .ctf-search-result.focused { background: rgba(255,255,255,0.05); }
+        .ctf-search-icon {
+            width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem;
+        }
+        .ctf-search-icon.easy   { background: rgba(39,201,63,0.15);  color: #27c93f; }
+        .ctf-search-icon.medium { background: rgba(255,189,46,0.15); color: #febc2e; }
+        .ctf-search-icon.hard   { background: rgba(255,95,86,0.15);  color: #ff5f56; }
+        .ctf-search-result-title {
+            font-family: var(--font-mono); font-size: 0.87rem;
+            color: var(--text-primary); font-weight: 500;
+        }
+        .ctf-search-result-meta {
+            font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.1rem;
+        }
+        .ctf-search-result-pts {
+            font-family: var(--font-mono); font-size: 0.72rem;
+            color: var(--accent); margin-left: auto; flex-shrink: 0;
+        }
+        .ctf-search-empty {
+            text-align: center; font-family: var(--font-mono);
+            font-size: 0.82rem; color: var(--text-secondary);
+            padding: 2rem 0; display: none;
+        }
+
         /* AUTH BUTTON */
         .auth-btn {
             font-family: var(--font-mono); font-size: 0.78rem;
@@ -372,6 +458,7 @@
                 <li><a href="/intel" class="nav-link">intel</a></li><li><a href="/links" class="nav-link">links</a></li><li><a href="/guestbook" class="nav-link">guestbook</a></li>
             </ul>
             <div class="nav-right">
+                <button class="ctf-search-btn" id="ctfSearchBtn" aria-label="Search labs"><i class="fas fa-magnifying-glass"></i></button>
                 <button class="auth-btn" id="authBtn" onclick="openAuthModal()">
                     <i class="fas fa-user"></i> sign in
                 </button>
@@ -747,6 +834,28 @@
             </p>
         </div>
     </footer>
+
+    <!-- SEARCH OVERLAY -->
+    <div class="ctf-search-overlay" id="ctfSearchOverlay">
+        <div class="ctf-search-panel" id="ctfSearchPanel">
+            <div class="ctf-search-input-wrap">
+                <i class="fas fa-magnifying-glass"></i>
+                <input class="ctf-search-input" id="ctfSearchInput" type="text" placeholder="Search labs..." autocomplete="off" spellcheck="false">
+                <span class="ctf-search-kbd">esc</span>
+            </div>
+            <div class="ctf-search-body" id="ctfSearchBody">
+                <div id="ctfSearchRecent">
+                    <div class="ctf-search-section-label">Recently released</div>
+                    <div class="ctf-search-results" id="ctfRecentList"></div>
+                </div>
+                <div id="ctfSearchResultsWrap" style="display:none;">
+                    <div class="ctf-search-section-label" id="ctfResultsLabel">Results</div>
+                    <div class="ctf-search-results" id="ctfResultsList"></div>
+                </div>
+                <div class="ctf-search-empty" id="ctfSearchEmpty">No labs found</div>
+            </div>
+        </div>
+    </div>
 
     <!-- AUTH MODAL -->
     <div class="auth-modal-overlay" id="authModal">
@@ -1594,6 +1703,104 @@
 
         // ── Boot ──────────────────────────────────────────────────────
         initAuth();
+
+        // ── CTF Search ────────────────────────────────────────────────
+        (function() {
+            const CHALLENGES = [
+                { id: 'init-flag',        title: 'init.flag',        category: 'Linux Basics / File System',          diff: 'easy',   pts: 25  },
+                { id: 'file-magic',       title: 'file_magic',       category: 'Forensics / File Analysis',           diff: 'easy',   pts: 50  },
+                { id: 'strings-attached', title: 'strings_attached', category: 'Forensics / Binary Analysis',         diff: 'easy',   pts: 60  },
+                { id: 'log-trace',        title: 'log_trace',        category: 'Log Analysis / DFIR',                 diff: 'medium', pts: 75  },
+                { id: 'hash-hunt',        title: 'hash_hunt',        category: 'Cryptography / Password Cracking',    diff: 'medium', pts: 100 },
+                { id: 'time-line',        title: 'time_line',        category: 'Forensics / Incident Response',       diff: 'medium', pts: 125 },
+                { id: 'cron-job',         title: 'cron_job',         category: 'Persistence / Privilege Escalation',  diff: 'medium', pts: 150 },
+                { id: 'shadow-walk',      title: 'shadow_walk',      category: 'Linux / SUID Abuse',                  diff: 'medium', pts: 175 },
+                { id: 'env-harvest',      title: 'env_harvest',      category: 'DFIR / Secrets Management',           diff: 'medium', pts: 175 },
+                { id: 'pivot-chain',      title: 'pivot_chain',      category: 'Lateral Movement / SSH',              diff: 'medium', pts: 200 },
+                { id: 'blind-sqli',       title: 'blind_sqli',       category: 'Web Security / SQL Injection',        diff: 'hard',   pts: 250 },
+                { id: 'kernel-rx',        title: 'kernel_rx',        category: 'Memory Forensics / Rootkit Analysis', diff: 'hard',   pts: 300 },
+            ];
+
+            const DIFF_ICON = { easy: 'fa-shield', medium: 'fa-skull', hard: 'fa-biohazard' };
+            const RECENT = CHALLENGES.slice(-3).reverse();
+
+            const overlay   = document.getElementById('ctfSearchOverlay');
+            const input     = document.getElementById('ctfSearchInput');
+            const recentEl  = document.getElementById('ctfSearchRecent');
+            const resultsWrap = document.getElementById('ctfSearchResultsWrap');
+            const resultsList = document.getElementById('ctfResultsList');
+            const emptyEl   = document.getElementById('ctfSearchEmpty');
+            const labelEl   = document.getElementById('ctfResultsLabel');
+
+            function resultHTML(c) {
+                return `<div class="ctf-search-result" onclick="closeSearch();scrollToCard('${c.id}')">
+                    <span class="ctf-search-icon ${c.diff}"><i class="fas ${DIFF_ICON[c.diff]}"></i></span>
+                    <span>
+                        <div class="ctf-search-result-title">${c.title}</div>
+                        <div class="ctf-search-result-meta">${c.category}</div>
+                    </span>
+                    <span class="ctf-search-result-pts">${c.pts} pts</span>
+                </div>`;
+            }
+
+            document.getElementById('ctfRecentList').innerHTML = RECENT.map(resultHTML).join('');
+
+            function doSearch(q) {
+                q = q.trim().toLowerCase();
+                if (!q) {
+                    recentEl.style.display = '';
+                    resultsWrap.style.display = 'none';
+                    emptyEl.style.display = 'none';
+                    return;
+                }
+                recentEl.style.display = 'none';
+                const matches = CHALLENGES.filter(c =>
+                    c.title.toLowerCase().includes(q) ||
+                    c.category.toLowerCase().includes(q) ||
+                    c.diff.includes(q)
+                );
+                if (matches.length) {
+                    labelEl.textContent = matches.length + ' result' + (matches.length !== 1 ? 's' : '');
+                    resultsList.innerHTML = matches.map(resultHTML).join('');
+                    resultsWrap.style.display = '';
+                    emptyEl.style.display = 'none';
+                } else {
+                    resultsWrap.style.display = 'none';
+                    emptyEl.style.display = '';
+                }
+            }
+
+            window.scrollToCard = function(id) {
+                const card = document.querySelector('[data-challenge="' + id + '"]');
+                if (card) { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+            };
+
+            window.closeSearch = function() {
+                overlay.classList.remove('active');
+                input.value = '';
+                doSearch('');
+            };
+
+            document.getElementById('ctfSearchBtn').addEventListener('click', function() {
+                overlay.classList.toggle('active');
+                if (overlay.classList.contains('active')) { setTimeout(function() { input.focus(); }, 60); }
+            });
+
+            input.addEventListener('input', function() { doSearch(this.value); });
+
+            overlay.addEventListener('click', function(e) {
+                if (!document.getElementById('ctfSearchPanel').contains(e.target)) closeSearch();
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeSearch();
+                if ((e.key === 'k' && (e.ctrlKey || e.metaKey)) || e.key === '/') {
+                    e.preventDefault();
+                    overlay.classList.add('active');
+                    setTimeout(function() { input.focus(); }, 60);
+                }
+            });
+        })();
     </script>
 </body>
 </html>
