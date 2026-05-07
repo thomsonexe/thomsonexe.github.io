@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Microsoft Entra ID — Identity Security | Ben Thomson</title>
-    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <title>Microsoft Entra ID ï¿½ Identity Security | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/logo2.png">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/writeup.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,8 +37,8 @@
                 <span class="ctf-difficulty medium">Intermediate</span>
                 <span class="writeup-category"><i class="fas fa-tag"></i> Identity / Cloud / Zero Trust</span>
             </div>
-            <h1 class="writeup-title">Microsoft Entra ID — Identity Security</h1>
-            <p class="writeup-subtitle">A practical guide to Microsoft Entra ID for security analysts — sign-in log investigation, Conditional Access, Identity Protection, risky users, PIM, and detecting identity-based attacks.</p>
+            <h1 class="writeup-title">Microsoft Entra ID ï¿½ Identity Security</h1>
+            <p class="writeup-subtitle">A practical guide to Microsoft Entra ID for security analysts ï¿½ sign-in log investigation, Conditional Access, Identity Protection, risky users, PIM, and detecting identity-based attacks.</p>
             <div class="writeup-stats">
                 <span><i class="fas fa-clock"></i> 17 min read</span>
                 <span><i class="fas fa-id-card"></i> Identity & Access</span>
@@ -73,10 +73,10 @@
                 <section id="intro" class="writeup-section">
                     <h2><span class="title-prefix">// </span>What is Entra ID?</h2>
                     <p>Microsoft Entra ID (formerly Azure Active Directory / Azure AD) is Microsoft's cloud-based identity and access management platform. It provides authentication and authorisation for Microsoft 365, Azure resources, and thousands of third-party SaaS applications.</p>
-                    <p>From a security perspective, Entra ID is one of the most targeted components of a Microsoft environment — compromising an account gives an attacker access to email, files, cloud resources, and potentially the entire tenant. Understanding how to investigate it is essential for any blue team analyst working in a Microsoft shop.</p>
+                    <p>From a security perspective, Entra ID is one of the most targeted components of a Microsoft environment ï¿½ compromising an account gives an attacker access to email, files, cloud resources, and potentially the entire tenant. Understanding how to investigate it is essential for any blue team analyst working in a Microsoft shop.</p>
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
-                        <p>Entra ID is distinct from on-premises Active Directory (AD DS). Entra ID is cloud-native — it uses OAuth 2.0 and OpenID Connect, not Kerberos. Many organisations run <strong>hybrid identity</strong> — syncing on-prem AD to Entra ID using <strong>Microsoft Entra Connect</strong>. Attacks can pivot between the two.</p>
+                        <p>Entra ID is distinct from on-premises Active Directory (AD DS). Entra ID is cloud-native ï¿½ it uses OAuth 2.0 and OpenID Connect, not Kerberos. Many organisations run <strong>hybrid identity</strong> ï¿½ syncing on-prem AD to Entra ID using <strong>Microsoft Entra Connect</strong>. Attacks can pivot between the two.</p>
                     </div>
                 </section>
 
@@ -96,7 +96,7 @@
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-puzzle-piece"></i></div>
                             <h4>App Registrations</h4>
-                            <p>Applications registered to authenticate against Entra ID — each gets a Client ID. Compromised app credentials can grant persistent access without user interaction.</p>
+                            <p>Applications registered to authenticate against Entra ID ï¿½ each gets a Client ID. Compromised app credentials can grant persistent access without user interaction.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-link"></i></div>
@@ -115,9 +115,9 @@
                                 <tr><th>Type</th><th>Description</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Member</td><td>Internal user homed in the tenant — employees, service accounts</td></tr>
-                                <tr><td>Guest</td><td>External user invited via B2B collaboration — often from partner organisations</td></tr>
-                                <tr><td>Service Account</td><td>Non-interactive accounts for apps or automation — should have no MFA exemptions</td></tr>
+                                <tr><td>Member</td><td>Internal user homed in the tenant ï¿½ employees, service accounts</td></tr>
+                                <tr><td>Guest</td><td>External user invited via B2B collaboration ï¿½ often from partner organisations</td></tr>
+                                <tr><td>Service Account</td><td>Non-interactive accounts for apps or automation ï¿½ should have no MFA exemptions</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -129,11 +129,11 @@
                                 <tr><th>Role</th><th>Permissions</th><th>Risk</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Global Administrator</td><td>Full control of the tenant — can reset any password, manage all settings</td><td>Critical — equivalent to Domain Admin</td></tr>
-                                <tr><td>Privileged Role Administrator</td><td>Can assign any Entra ID role, including Global Admin</td><td>Critical — can elevate to Global Admin</td></tr>
-                                <tr><td>Application Administrator</td><td>Can manage app registrations and service principal credentials</td><td>High — can create persistent backdoor apps</td></tr>
-                                <tr><td>User Administrator</td><td>Can create and manage users, reset passwords</td><td>High — can create rogue accounts</td></tr>
-                                <tr><td>Security Administrator</td><td>Manage security policies, read sign-in logs</td><td>Medium — read access to all security data</td></tr>
+                                <tr><td>Global Administrator</td><td>Full control of the tenant ï¿½ can reset any password, manage all settings</td><td>Critical ï¿½ equivalent to Domain Admin</td></tr>
+                                <tr><td>Privileged Role Administrator</td><td>Can assign any Entra ID role, including Global Admin</td><td>Critical ï¿½ can elevate to Global Admin</td></tr>
+                                <tr><td>Application Administrator</td><td>Can manage app registrations and service principal credentials</td><td>High ï¿½ can create persistent backdoor apps</td></tr>
+                                <tr><td>User Administrator</td><td>Can create and manage users, reset passwords</td><td>High ï¿½ can create rogue accounts</td></tr>
+                                <tr><td>Security Administrator</td><td>Manage security policies, read sign-in logs</td><td>Medium ï¿½ read access to all security data</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -155,10 +155,10 @@
                                 <tr><td>UserPrincipalName</td><td>The account that attempted sign-in</td><td>Accounts that don't normally sign in; disabled accounts</td></tr>
                                 <tr><td>IPAddress</td><td>Source IP of the sign-in attempt</td><td>VPN, Tor, datacenter IPs; impossible travel</td></tr>
                                 <tr><td>Location</td><td>Country/city derived from IP</td><td>Unusual countries; multiple countries in short window</td></tr>
-                                <tr><td>ResultType</td><td>0 = Success; non-zero = failure (specific error code)</td><td>Bulk failures from one IP — spray; success after failures — breach</td></tr>
-                                <tr><td>ClientAppUsed</td><td>The app or protocol used</td><td>Legacy auth (IMAP, SMTP, MAPI) — bypasses MFA</td></tr>
-                                <tr><td>ConditionalAccessStatus</td><td>success / failure / notApplied</td><td>notApplied = no CA policy matched — worth investigating</td></tr>
-                                <tr><td>AuthenticationRequirement</td><td>singleFactorAuthentication vs multiFactorAuthentication</td><td>MFA bypassed — legacy auth or excluded user</td></tr>
+                                <tr><td>ResultType</td><td>0 = Success; non-zero = failure (specific error code)</td><td>Bulk failures from one IP ï¿½ spray; success after failures ï¿½ breach</td></tr>
+                                <tr><td>ClientAppUsed</td><td>The app or protocol used</td><td>Legacy auth (IMAP, SMTP, MAPI) ï¿½ bypasses MFA</td></tr>
+                                <tr><td>ConditionalAccessStatus</td><td>success / failure / notApplied</td><td>notApplied = no CA policy matched ï¿½ worth investigating</td></tr>
+                                <tr><td>AuthenticationRequirement</td><td>singleFactorAuthentication vs multiFactorAuthentication</td><td>MFA bypassed ï¿½ legacy auth or excluded user</td></tr>
                                 <tr><td>DeviceDetail</td><td>OS, browser, device compliance state</td><td>Unmanaged or non-compliant devices accessing sensitive apps</td></tr>
                             </tbody>
                         </table>
@@ -167,34 +167,34 @@
 
                 <section id="ca" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Conditional Access</h2>
-                    <p>Conditional Access (CA) policies are Entra ID's Zero Trust enforcement engine. They evaluate signals at sign-in time — user, device, location, app, risk level — and decide whether to allow, block, or require additional verification.</p>
+                    <p>Conditional Access (CA) policies are Entra ID's Zero Trust enforcement engine. They evaluate signals at sign-in time ï¿½ user, device, location, app, risk level ï¿½ and decide whether to allow, block, or require additional verification.</p>
 
                     <div class="concept-grid">
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-filter"></i></div>
                             <h4>Assignments (Conditions)</h4>
-                            <p>Who and what the policy applies to — users/groups, cloud apps, device platforms, locations, sign-in risk level.</p>
+                            <p>Who and what the policy applies to ï¿½ users/groups, cloud apps, device platforms, locations, sign-in risk level.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-gavel"></i></div>
                             <h4>Access Controls (Grant)</h4>
-                            <p>What the policy enforces — require MFA, require compliant device, require hybrid-joined device, block access.</p>
+                            <p>What the policy enforces ï¿½ require MFA, require compliant device, require hybrid-joined device, block access.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-eye"></i></div>
                             <h4>Session Controls</h4>
-                            <p>Controls applied during the session — sign-in frequency, browser persistent sessions, app enforced restrictions.</p>
+                            <p>Controls applied during the session ï¿½ sign-in frequency, browser persistent sessions, app enforced restrictions.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-vial"></i></div>
                             <h4>Report-only mode</h4>
-                            <p>Evaluates policy without enforcing it — useful for testing impact before enabling. Check sign-in logs for what-if results.</p>
+                            <p>Evaluates policy without enforcing it ï¿½ useful for testing impact before enabling. Check sign-in logs for what-if results.</p>
                         </div>
                     </div>
 
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p><strong>CA exclusions are a common attack target.</strong> Attackers who compromise a Global Admin will add themselves (or a new account) to CA policy exclusions — bypassing MFA for their sessions. Audit CA exclusions regularly and alert on any changes.</p>
+                        <p><strong>CA exclusions are a common attack target.</strong> Attackers who compromise a Global Admin will add themselves (or a new account) to CA policy exclusions ï¿½ bypassing MFA for their sessions. Audit CA exclusions regularly and alert on any changes.</p>
                     </div>
                 </section>
 
@@ -207,17 +207,17 @@
                                 <tr><th>Method</th><th>Phishable?</th><th>Notes</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>FIDO2 / Passkeys</td><td>No</td><td>Gold standard — hardware key or device biometric, cryptographically bound to the site</td></tr>
-                                <tr><td>Windows Hello for Business</td><td>No</td><td>Device-bound biometric/PIN — not transferable</td></tr>
-                                <tr><td>Microsoft Authenticator (number matching)</td><td>Resistant</td><td>Requires user to enter a number from sign-in screen — defeats blind push approval attacks</td></tr>
+                                <tr><td>FIDO2 / Passkeys</td><td>No</td><td>Gold standard ï¿½ hardware key or device biometric, cryptographically bound to the site</td></tr>
+                                <tr><td>Windows Hello for Business</td><td>No</td><td>Device-bound biometric/PIN ï¿½ not transferable</td></tr>
+                                <tr><td>Microsoft Authenticator (number matching)</td><td>Resistant</td><td>Requires user to enter a number from sign-in screen ï¿½ defeats blind push approval attacks</td></tr>
                                 <tr><td>TOTP (Authenticator app code)</td><td>Yes</td><td>Can be phished via AiTM proxy in real time</td></tr>
-                                <tr><td>SMS / Voice call</td><td>Yes</td><td>Vulnerable to SIM swapping and SS7 attacks — weakest MFA option</td></tr>
+                                <tr><td>SMS / Voice call</td><td>Yes</td><td>Vulnerable to SIM swapping and SS7 attacks ï¿½ weakest MFA option</td></tr>
                             </tbody>
                         </table>
                     </div>
 
                     <h3 class="sub-heading">Legacy authentication</h3>
-                    <p>Legacy authentication protocols (Basic Auth over IMAP, SMTP, MAPI, POP3, ActiveSync) do not support modern authentication or MFA. They are a common target for credential stuffing and password spraying — an attacker can authenticate with just a password even if MFA is enabled. <strong>Block legacy authentication with a Conditional Access policy.</strong></p>
+                    <p>Legacy authentication protocols (Basic Auth over IMAP, SMTP, MAPI, POP3, ActiveSync) do not support modern authentication or MFA. They are a common target for credential stuffing and password spraying ï¿½ an attacker can authenticate with just a password even if MFA is enabled. <strong>Block legacy authentication with a Conditional Access policy.</strong></p>
                 </section>
 
                 <section id="protection" class="writeup-section">
@@ -236,7 +236,7 @@
                                 <tr><td>Password spray</td><td>Pattern matching credential stuffing or low-and-slow spray</td></tr>
                                 <tr><td>Leaked credentials</td><td>User's credentials found in breach database</td></tr>
                                 <tr><td>Malware-linked IP</td><td>Sign-in from IP associated with a botnet or malware C2</td></tr>
-                                <tr><td>Suspicious inbox manipulation</td><td>Forwarding rules added or emails moved — post-compromise data collection</td></tr>
+                                <tr><td>Suspicious inbox manipulation</td><td>Forwarding rules added or emails moved ï¿½ post-compromise data collection</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -252,8 +252,8 @@
                                 <tr><th>Assignment type</th><th>Behaviour</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Eligible</td><td>User must activate the role, provide justification, and go through approval/MFA — activation is time-limited (e.g. 1 hour)</td></tr>
-                                <tr><td>Active</td><td>Role is permanently assigned — no activation needed. Should be minimised for high-privilege roles.</td></tr>
+                                <tr><td>Eligible</td><td>User must activate the role, provide justification, and go through approval/MFA ï¿½ activation is time-limited (e.g. 1 hour)</td></tr>
+                                <tr><td>Active</td><td>Role is permanently assigned ï¿½ no activation needed. Should be minimised for high-privilege roles.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -273,9 +273,9 @@
                             </thead>
                             <tbody>
                                 <tr><td>Password Spray</td><td>Low-and-slow attempts across many accounts with common passwords</td><td>Many 50126 errors across different UserPrincipalNames from same IP</td></tr>
-                                <tr><td>AiTM Phishing</td><td>Adversary-in-the-middle proxy captures session token — bypasses MFA</td><td>Successful sign-in after suspicious link click; token used from different IP than user</td></tr>
+                                <tr><td>AiTM Phishing</td><td>Adversary-in-the-middle proxy captures session token ï¿½ bypasses MFA</td><td>Successful sign-in after suspicious link click; token used from different IP than user</td></tr>
                                 <tr><td>MFA Fatigue</td><td>Flood user with push notifications until they accidentally approve</td><td>Multiple MFA denial events followed by approval from same user</td></tr>
-                                <tr><td>Consent Phishing</td><td>Victim grants OAuth permissions to attacker-controlled app — gives persistent access without credentials</td><td>New app granted high-privilege consent; app not in approved list</td></tr>
+                                <tr><td>Consent Phishing</td><td>Victim grants OAuth permissions to attacker-controlled app ï¿½ gives persistent access without credentials</td><td>New app granted high-privilege consent; app not in approved list</td></tr>
                                 <tr><td>Token Theft</td><td>Steal a valid access/refresh token and replay it from attacker infrastructure</td><td>Session from a new IP/ASN not matching user's normal pattern immediately after sign-in</td></tr>
                                 <tr><td>Legacy Auth Spray</td><td>Use legacy protocols that bypass MFA</td><td>IMAP or SMTP authentication without MFA; many failures then success</td></tr>
                             </tbody>

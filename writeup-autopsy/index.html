@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Autopsy — Digital Forensics | Ben Thomson</title>
-    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <title>Autopsy ï¿½ Digital Forensics | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/logo2.png">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/writeup.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,8 +37,8 @@
                 <span class="ctf-difficulty easy">Beginner</span>
                 <span class="writeup-category"><i class="fas fa-tag"></i> Digital Forensics / Incident Response</span>
             </div>
-            <h1 class="writeup-title">Autopsy — Digital Forensics</h1>
-            <p class="writeup-subtitle">A practical guide to using Autopsy for digital forensic investigations — from building a case to recovering artefacts, carving deleted files, and producing reports.</p>
+            <h1 class="writeup-title">Autopsy ï¿½ Digital Forensics</h1>
+            <p class="writeup-subtitle">A practical guide to using Autopsy for digital forensic investigations ï¿½ from building a case to recovering artefacts, carving deleted files, and producing reports.</p>
             <div class="writeup-stats">
                 <span><i class="fas fa-clock"></i> 15 min read</span>
                 <span><i class="fas fa-tools"></i> Hands-on</span>
@@ -72,7 +72,7 @@
 
                 <section id="intro" class="writeup-section">
                     <h2><span class="title-prefix">// </span>What is Autopsy?</h2>
-                    <p>Autopsy is a free, open-source digital forensics platform built on top of The Sleuth Kit (TSK). It provides a graphical interface for analysing disk images, file systems, and mobile devices — making it one of the most widely used tools in both law enforcement and corporate DFIR.</p>
+                    <p>Autopsy is a free, open-source digital forensics platform built on top of The Sleuth Kit (TSK). It provides a graphical interface for analysing disk images, file systems, and mobile devices ï¿½ making it one of the most widely used tools in both law enforcement and corporate DFIR.</p>
                     <p>Autopsy is particularly useful for investigating compromised endpoints, recovering deleted files, analysing user activity artefacts, and building a timeline of events across a system.</p>
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
@@ -86,8 +86,8 @@
                             </thead>
                             <tbody>
                                 <tr><td>Raw disk image (<code>.dd</code>, <code>.img</code>)</td><td>Bit-for-bit copy of a disk or partition</td></tr>
-                                <tr><td>E01 / Expert Witness Format</td><td>EnCase forensic image format — most common in corporate DFIR</td></tr>
-                                <tr><td>Virtual machine disks (<code>.vmdk</code>, <code>.vhd</code>)</td><td>VM disk files — useful for cloud and virtualised environments</td></tr>
+                                <tr><td>E01 / Expert Witness Format</td><td>EnCase forensic image format ï¿½ most common in corporate DFIR</td></tr>
+                                <tr><td>Virtual machine disks (<code>.vmdk</code>, <code>.vhd</code>)</td><td>VM disk files ï¿½ useful for cloud and virtualised environments</td></tr>
                                 <tr><td>Local disk</td><td>Analyse a live disk (write-blocker recommended)</td></tr>
                                 <tr><td>Logical files / folders</td><td>Analyse a collection of files without a full image</td></tr>
                             </tbody>
@@ -112,7 +112,7 @@
                             <span class="flow-num">02</span>
                             <div>
                                 <strong>Case Metadata</strong>
-                                <p>Fill in the optional metadata — case number, examiner name, phone, email, and notes. This information is embedded in any reports you export, which matters for chain of custody.</p>
+                                <p>Fill in the optional metadata ï¿½ case number, examiner name, phone, email, and notes. This information is embedded in any reports you export, which matters for chain of custody.</p>
                             </div>
                         </div>
                         <div class="flow-arrow">?</div>
@@ -120,7 +120,7 @@
                             <span class="flow-num">03</span>
                             <div>
                                 <strong>Add Data Source</strong>
-                                <p>After creating the case, Autopsy immediately prompts you to add a data source — a disk image, local disk, or logical file set. You can add more sources later from the <em>Case</em> menu.</p>
+                                <p>After creating the case, Autopsy immediately prompts you to add a data source ï¿½ a disk image, local disk, or logical file set. You can add more sources later from the <em>Case</em> menu.</p>
                             </div>
                         </div>
                     </div>
@@ -133,10 +133,10 @@
 
                 <section id="datasource" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Adding Data Sources</h2>
-                    <p>A data source is the evidence you are analysing. Autopsy supports multiple types — you can add more than one to a single case.</p>
+                    <p>A data source is the evidence you are analysing. Autopsy supports multiple types ï¿½ you can add more than one to a single case.</p>
 
                     <h3 class="sub-heading">Ingest Modules</h3>
-                    <p>When you add a data source, Autopsy runs <strong>ingest modules</strong> — automated analysis passes that extract artefacts from the image. You select which modules to run at this stage.</p>
+                    <p>When you add a data source, Autopsy runs <strong>ingest modules</strong> ï¿½ automated analysis passes that extract artefacts from the image. You select which modules to run at this stage.</p>
 
                     <div class="kql-table-wrap">
                         <table class="kql-table">
@@ -147,12 +147,12 @@
                                 <tr><td>Recent Activity</td><td>Extracts browser history, downloads, searches, last accessed files, installed programs</td></tr>
                                 <tr><td>Hash Lookup</td><td>Compares files against known-good (NSRL) and known-bad hash sets to flag malicious or system files</td></tr>
                                 <tr><td>File Type Identification</td><td>Identifies true file types based on magic bytes, not just extensions</td></tr>
-                                <tr><td>Extension Mismatch Detector</td><td>Flags files where the extension doesn't match the actual file type — a common obfuscation technique</td></tr>
+                                <tr><td>Extension Mismatch Detector</td><td>Flags files where the extension doesn't match the actual file type ï¿½ a common obfuscation technique</td></tr>
                                 <tr><td>Keyword Search</td><td>Indexes file contents for full-text search, including strings inside executables</td></tr>
                                 <tr><td>Email Parser</td><td>Parses PST, MBOX, and EML files and populates the Email Accounts section</td></tr>
-                                <tr><td>Encryption Detection</td><td>Flags encrypted or high-entropy files — may indicate packed malware or encrypted containers</td></tr>
-                                <tr><td>EXIF Parser</td><td>Extracts metadata from images — GPS coordinates, camera model, timestamps</td></tr>
-                                <tr><td>Plaso / Log2Timeline</td><td>Generates a super-timeline from multiple artefact types — requires separate installation; not included in Autopsy by default</td></tr>
+                                <tr><td>Encryption Detection</td><td>Flags encrypted or high-entropy files ï¿½ may indicate packed malware or encrypted containers</td></tr>
+                                <tr><td>EXIF Parser</td><td>Extracts metadata from images ï¿½ GPS coordinates, camera model, timestamps</td></tr>
+                                <tr><td>Plaso / Log2Timeline</td><td>Generates a super-timeline from multiple artefact types ï¿½ requires separate installation; not included in Autopsy by default</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -165,7 +165,7 @@
 
                 <section id="filesystem" class="writeup-section">
                     <h2><span class="title-prefix">// </span>File System Navigation</h2>
-                    <p>The left-hand tree in Autopsy gives you a full view of the file system. You can browse it like Windows Explorer — navigating through folders, viewing file metadata, and examining file contents in the viewer pane.</p>
+                    <p>The left-hand tree in Autopsy gives you a full view of the file system. You can browse it like Windows Explorer ï¿½ navigating through folders, viewing file metadata, and examining file contents in the viewer pane.</p>
 
                     <h3 class="sub-heading">Key views</h3>
                     <div class="concept-grid">
@@ -182,7 +182,7 @@
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-tags"></i></div>
                             <h4>Tagging</h4>
-                            <p>Right-click any file or result to add a tag — Notable, Follow Up, or custom. Tags are collected in the Tags node in the tree and included in reports.</p>
+                            <p>Right-click any file or result to add a tag ï¿½ Notable, Follow Up, or custom. Tags are collected in the Tags node in the tree and included in reports.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-bookmark"></i></div>
@@ -192,7 +192,7 @@
                     </div>
 
                     <h3 class="sub-heading">MAC Times</h3>
-                    <p>Every file in the file system has three timestamps — collectively called <strong>MAC times</strong>. These are critical for building a timeline.</p>
+                    <p>Every file in the file system has three timestamps ï¿½ collectively called <strong>MAC times</strong>. These are critical for building a timeline.</p>
 
                     <div class="kql-table-wrap">
                         <table class="kql-table">
@@ -201,7 +201,7 @@
                             </thead>
                             <tbody>
                                 <tr><td><strong>M</strong>odified</td><td>Last time file content was changed</td><td>Changed when file is written to</td></tr>
-                                <tr><td><strong>A</strong>ccessed</td><td>Last time the file was read or opened</td><td>Can be unreliable — some systems disable access time updates for performance</td></tr>
+                                <tr><td><strong>A</strong>ccessed</td><td>Last time the file was read or opened</td><td>Can be unreliable ï¿½ some systems disable access time updates for performance</td></tr>
                                 <tr><td><strong>C</strong>hanged / Created</td><td>On Windows: Created time. On UNIX: last metadata change (permissions, owner)</td><td>On NTFS, Created time is stored separately and is a reliable creation indicator</td></tr>
                             </tbody>
                         </table>
@@ -209,20 +209,20 @@
 
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p><strong>Timestamps can be manipulated.</strong> Attackers use tools like <code>timestomp</code> to alter MAC times. Look for inconsistencies — a file with a Modified time earlier than its Created time is a red flag.</p>
+                        <p><strong>Timestamps can be manipulated.</strong> Attackers use tools like <code>timestomp</code> to alter MAC times. Look for inconsistencies ï¿½ a file with a Modified time earlier than its Created time is a red flag.</p>
                     </div>
                 </section>
 
                 <section id="deleted" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Deleted File Recovery</h2>
-                    <p>When a file is deleted on most file systems, the data isn't immediately overwritten — only the reference to it is removed. Autopsy can recover these files by reading the raw disk image and identifying unallocated clusters that still contain file data.</p>
+                    <p>When a file is deleted on most file systems, the data isn't immediately overwritten ï¿½ only the reference to it is removed. Autopsy can recover these files by reading the raw disk image and identifying unallocated clusters that still contain file data.</p>
 
                     <h3 class="sub-heading">How to find deleted files</h3>
                     <p>Deleted files appear in the directory tree with a red X icon. You can also navigate to <strong>File Views &gt; Deleted Files</strong> in the left panel to see all recovered deleted files across the image in one place.</p>
 
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
-                        <p>File carving (finding deleted files without a directory entry) is handled by the <strong>PhotoRec</strong> carver integrated into Autopsy. PhotoRec is an open-source tool from CGSecurity — Autopsy bundles it to reconstruct files based on file headers and footers in unallocated space, useful when the directory entry itself has been overwritten.</p>
+                        <p>File carving (finding deleted files without a directory entry) is handled by the <strong>PhotoRec</strong> carver integrated into Autopsy. PhotoRec is an open-source tool from CGSecurity ï¿½ Autopsy bundles it to reconstruct files based on file headers and footers in unallocated space, useful when the directory entry itself has been overwritten.</p>
                     </div>
 
                     <h3 class="sub-heading">Recovery states</h3>
@@ -232,9 +232,9 @@
                                 <tr><th>State</th><th>What it means</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Allocated</td><td>File exists and is referenced by the file system — normal active file</td></tr>
-                                <tr><td>Unallocated</td><td>File has been deleted — directory entry removed, but data clusters may still be intact</td></tr>
-                                <tr><td>Orphan</td><td>File clusters found in unallocated space with no directory entry — recovered by carving</td></tr>
+                                <tr><td>Allocated</td><td>File exists and is referenced by the file system ï¿½ normal active file</td></tr>
+                                <tr><td>Unallocated</td><td>File has been deleted ï¿½ directory entry removed, but data clusters may still be intact</td></tr>
+                                <tr><td>Orphan</td><td>File clusters found in unallocated space with no directory entry ï¿½ recovered by carving</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -247,7 +247,7 @@
 
                 <section id="keyword" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Keyword Search</h2>
-                    <p>The Keyword Search module indexes file content during ingest, allowing you to search across every file on the image — including file slack space and unallocated clusters.</p>
+                    <p>The Keyword Search module indexes file content during ingest, allowing you to search across every file on the image ï¿½ including file slack space and unallocated clusters.</p>
 
                     <h3 class="sub-heading">Types of search</h3>
                     <div class="concept-grid">
@@ -259,7 +259,7 @@
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-asterisk"></i></div>
                             <h4>Substring</h4>
-                            <p>Partial match — finds the string anywhere within a larger string. Useful when you know part of a value.</p>
+                            <p>Partial match ï¿½ finds the string anywhere within a larger string. Useful when you know part of a value.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-code"></i></div>
@@ -276,9 +276,9 @@
                             </thead>
                             <tbody>
                                 <tr><td><code>password</code></td><td>Credentials stored in plaintext in config files, scripts, or documents</td></tr>
-                                <tr><td><code>cmd.exe /c</code></td><td>Command execution via shell — found in scripts, logs, or prefetch</td></tr>
-                                <tr><td><code>powershell -enc</code></td><td>Encoded PowerShell — common obfuscation technique</td></tr>
-                                <tr><td><code>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}</code></td><td>IP addresses (regex) — useful for finding C2 infrastructure in logs or malware</td></tr>
+                                <tr><td><code>cmd.exe /c</code></td><td>Command execution via shell ï¿½ found in scripts, logs, or prefetch</td></tr>
+                                <tr><td><code>powershell -enc</code></td><td>Encoded PowerShell ï¿½ common obfuscation technique</td></tr>
+                                <tr><td><code>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}</code></td><td>IP addresses (regex) ï¿½ useful for finding C2 infrastructure in logs or malware</td></tr>
                                 <tr><td><code>[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}</code></td><td>Email addresses (regex)</td></tr>
                                 <tr><td><code>http://</code> / <code>https://</code></td><td>URLs embedded in files or scripts</td></tr>
                                 <tr><td><code>net user</code></td><td>Account enumeration or manipulation commands</td></tr>
@@ -297,7 +297,7 @@
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-chart-bar"></i></div>
                             <h4>Counts View</h4>
-                            <p>A bar chart showing event density over time. Useful for identifying spikes of activity — a large cluster of events at an unusual hour is immediately visible here.</p>
+                            <p>A bar chart showing event density over time. Useful for identifying spikes of activity ï¿½ a large cluster of events at an unusual hour is immediately visible here.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-list-ul"></i></div>
@@ -313,7 +313,7 @@
 
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
-                        <p><strong>Narrow before you dive.</strong> Use the timeline zoom controls to isolate the window around your suspected incident time. Analysing days of events is overwhelming — zoom into the relevant hour once you have an anchor timestamp.</p>
+                        <p><strong>Narrow before you dive.</strong> Use the timeline zoom controls to isolate the window around your suspected incident time. Analysing days of events is overwhelming ï¿½ zoom into the relevant hour once you have an anchor timestamp.</p>
                     </div>
                 </section>
 
@@ -330,10 +330,10 @@
                                 <tr><td>Web History</td><td>Visited URLs, page titles, visit timestamps</td><td>Chrome: <code>History</code> SQLite DB; Firefox: <code>places.sqlite</code></td></tr>
                                 <tr><td>Web Downloads</td><td>Downloaded files, source URL, timestamps</td><td>Chrome: <code>History</code>; Firefox: <code>downloads.sqlite</code></td></tr>
                                 <tr><td>Web Search Terms</td><td>Search engine queries entered by the user</td><td>Extracted from browser history URLs</td></tr>
-                                <tr><td>Web Cookies</td><td>Stored cookies — can reveal logged-in accounts</td><td>Chrome: <code>Cookies</code>; Firefox: <code>cookies.sqlite</code></td></tr>
+                                <tr><td>Web Cookies</td><td>Stored cookies ï¿½ can reveal logged-in accounts</td><td>Chrome: <code>Cookies</code>; Firefox: <code>cookies.sqlite</code></td></tr>
                                 <tr><td>Installed Programs</td><td>Applications installed on the system</td><td>Registry: <code>SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall</code></td></tr>
                                 <tr><td>Recent Documents</td><td>Files recently accessed by the user</td><td>LNK files in <code>Recent</code> folder; Registry jump lists</td></tr>
-                                <tr><td>Shell Bags</td><td>Folders the user has browsed — persists after deletion</td><td>Registry: <code>UsrClass.dat</code></td></tr>
+                                <tr><td>Shell Bags</td><td>Folders the user has browsed ï¿½ persists after deletion</td><td>Registry: <code>UsrClass.dat</code></td></tr>
                                 <tr><td>USB Devices</td><td>Connected USB storage devices and timestamps</td><td>Registry: <code>SYSTEM\CurrentControlSet\Enum\USBSTOR</code></td></tr>
                                 <tr><td>Email Messages</td><td>Parsed emails including subject, sender, recipients, body</td><td>PST, MBOX, EML files</td></tr>
                                 <tr><td>EXIF Metadata</td><td>GPS, camera model, timestamps from image files</td><td>JPEG, TIFF, PNG files</td></tr>
@@ -356,7 +356,7 @@
                                 <tr><td><code>SOFTWARE</code></td><td><code>config\SOFTWARE</code></td><td>Installed programs, OS version, run keys (autostart)</td></tr>
                                 <tr><td><code>SECURITY</code></td><td><code>config\SECURITY</code></td><td>Security policy, cached domain credentials</td></tr>
                                 <tr><td><code>NTUSER.DAT</code></td><td><code>Users\&lt;username&gt;\NTUSER.DAT</code></td><td>Per-user settings, MRU lists, typed paths, search history</td></tr>
-                                <tr><td><code>UsrClass.dat</code></td><td><code>Users\&lt;username&gt;\AppData\Local\Microsoft\Windows\UsrClass.dat</code></td><td>Shell bags — folder browsing history</td></tr>
+                                <tr><td><code>UsrClass.dat</code></td><td><code>Users\&lt;username&gt;\AppData\Local\Microsoft\Windows\UsrClass.dat</code></td><td>Shell bags ï¿½ folder browsing history</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -374,10 +374,10 @@
                                 <tr><th>Format</th><th>Best used for</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>HTML Report</td><td>Shareable, self-contained report — includes thumbnails and linked artefacts. Best for general reporting.</td></tr>
-                                <tr><td>Excel (XLS)</td><td>Flat data export — useful for sorting and filtering large artefact sets in a spreadsheet.</td></tr>
-                                <tr><td>Tagged Results</td><td>Report limited to files and artefacts you tagged as Notable or Follow Up — keeps the output focused.</td></tr>
-                                <tr><td>Body File</td><td>TSK body file format — all file system events with MAC times. Import into Plaso or mactime for further timeline analysis.</td></tr>
+                                <tr><td>HTML Report</td><td>Shareable, self-contained report ï¿½ includes thumbnails and linked artefacts. Best for general reporting.</td></tr>
+                                <tr><td>Excel (XLS)</td><td>Flat data export ï¿½ useful for sorting and filtering large artefact sets in a spreadsheet.</td></tr>
+                                <tr><td>Tagged Results</td><td>Report limited to files and artefacts you tagged as Notable or Follow Up ï¿½ keeps the output focused.</td></tr>
+                                <tr><td>Body File</td><td>TSK body file format ï¿½ all file system events with MAC times. Import into Plaso or mactime for further timeline analysis.</td></tr>
                             </tbody>
                         </table>
                     </div>

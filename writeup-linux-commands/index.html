@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Linux Commands — Security Reference | Ben Thomson</title>
-    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <title>Linux Commands ï¿½ Security Reference | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/logo2.png">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/writeup.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,8 +37,8 @@
                 <span class="ctf-difficulty easy">Beginner</span>
                 <span class="writeup-category"><i class="fas fa-tag"></i> Linux / CLI / DFIR</span>
             </div>
-            <h1 class="writeup-title">Linux Commands — Security Reference</h1>
-            <p class="writeup-subtitle">An essential Linux CLI reference for security analysts — file system navigation, user and process investigation, network analysis, log searching, and persistence hunting commands.</p>
+            <h1 class="writeup-title">Linux Commands ï¿½ Security Reference</h1>
+            <p class="writeup-subtitle">An essential Linux CLI reference for security analysts ï¿½ file system navigation, user and process investigation, network analysis, log searching, and persistence hunting commands.</p>
             <div class="writeup-stats">
                 <span><i class="fas fa-clock"></i> 14 min read</span>
                 <span><i class="fas fa-terminal"></i> Command Reference</span>
@@ -78,16 +78,16 @@
                             <tbody>
                                 <tr><td><code>pwd</code></td><td>Print current working directory</td></tr>
                                 <tr><td><code>ls -la</code></td><td>List all files including hidden, with permissions and timestamps</td></tr>
-                                <tr><td><code>ls -laht</code></td><td>Same but sorted by modification time — newest first</td></tr>
+                                <tr><td><code>ls -laht</code></td><td>Same but sorted by modification time ï¿½ newest first</td></tr>
                                 <tr><td><code>cd /path</code></td><td>Change directory</td></tr>
                                 <tr><td><code>find / -name "*.sh" 2>/dev/null</code></td><td>Find all shell scripts on the system</td></tr>
                                 <tr><td><code>find / -mtime -1 2>/dev/null</code></td><td>Find files modified in the last 24 hours</td></tr>
-                                <tr><td><code>find / -perm -4000 2>/dev/null</code></td><td>Find all SUID binaries — potential privilege escalation paths</td></tr>
+                                <tr><td><code>find / -perm -4000 2>/dev/null</code></td><td>Find all SUID binaries ï¿½ potential privilege escalation paths</td></tr>
                                 <tr><td><code>find /tmp /var/tmp /dev/shm -type f</code></td><td>Look for files in common malware drop locations</td></tr>
-                                <tr><td><code>stat filename</code></td><td>Full metadata — access, modify, change timestamps and inode info</td></tr>
+                                <tr><td><code>stat filename</code></td><td>Full metadata ï¿½ access, modify, change timestamps and inode info</td></tr>
                                 <tr><td><code>file filename</code></td><td>Identify file type by magic bytes (ignore the extension)</td></tr>
-                                <tr><td><code>du -sh /path/*</code></td><td>Disk usage by subdirectory — spot abnormally large directories</td></tr>
-                                <tr><td><code>df -h</code></td><td>Disk space per filesystem — check for unexpected full disks</td></tr>
+                                <tr><td><code>du -sh /path/*</code></td><td>Disk usage by subdirectory ï¿½ spot abnormally large directories</td></tr>
+                                <tr><td><code>df -h</code></td><td>Disk space per filesystem ï¿½ check for unexpected full disks</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -106,11 +106,11 @@
                                 <tr><td><code>w</code></td><td>Who is currently logged in and what they're running</td></tr>
                                 <tr><td><code>last</code></td><td>Recent logins from <code>/var/log/wtmp</code></td></tr>
                                 <tr><td><code>lastb</code></td><td>Failed login attempts from <code>/var/log/btmp</code></td></tr>
-                                <tr><td><code>cat /etc/passwd</code></td><td>All user accounts — look for unexpected shell users or unusual UIDs</td></tr>
-                                <tr><td><code>cat /etc/shadow</code></td><td>Password hashes (root only) — check for recently changed passwords</td></tr>
-                                <tr><td><code>cat /etc/group</code></td><td>Group memberships — check sudo, wheel, docker groups for unexpected members</td></tr>
+                                <tr><td><code>cat /etc/passwd</code></td><td>All user accounts ï¿½ look for unexpected shell users or unusual UIDs</td></tr>
+                                <tr><td><code>cat /etc/shadow</code></td><td>Password hashes (root only) ï¿½ check for recently changed passwords</td></tr>
+                                <tr><td><code>cat /etc/group</code></td><td>Group memberships ï¿½ check sudo, wheel, docker groups for unexpected members</td></tr>
                                 <tr><td><code>sudo -l</code></td><td>What commands current user can run via sudo</td></tr>
-                                <tr><td><code>cat /etc/sudoers</code></td><td>Sudo configuration — look for NOPASSWD entries</td></tr>
+                                <tr><td><code>cat /etc/sudoers</code></td><td>Sudo configuration ï¿½ look for NOPASSWD entries</td></tr>
                                 <tr><td><code>getent passwd | awk -F: '$3==0'</code></td><td>Find all UID 0 (root-equivalent) accounts</td></tr>
                                 <tr><td><code>chage -l username</code></td><td>Password expiry and last change date for a user</td></tr>
                             </tbody>
@@ -128,10 +128,10 @@
                             <tbody>
                                 <tr><td><code>ps aux</code></td><td>All running processes with user, PID, CPU, memory, command</td></tr>
                                 <tr><td><code>ps auxf</code></td><td>Same but showing parent-child tree relationships</td></tr>
-                                <tr><td><code>top</code> / <code>htop</code></td><td>Live process monitor — useful for spotting high CPU processes</td></tr>
+                                <tr><td><code>top</code> / <code>htop</code></td><td>Live process monitor ï¿½ useful for spotting high CPU processes</td></tr>
                                 <tr><td><code>ls -la /proc/PID/exe</code></td><td>Resolve the executable path for a running process by PID</td></tr>
                                 <tr><td><code>cat /proc/PID/cmdline | tr '\0' ' '</code></td><td>Full command line for a running process (even if renamed)</td></tr>
-                                <tr><td><code>ls /proc/PID/fd</code></td><td>Open file descriptors for a process — network sockets, files</td></tr>
+                                <tr><td><code>ls /proc/PID/fd</code></td><td>Open file descriptors for a process ï¿½ network sockets, files</td></tr>
                                 <tr><td><code>lsof -p PID</code></td><td>All files and sockets opened by a specific process</td></tr>
                                 <tr><td><code>lsof -i :PORT</code></td><td>Which process is listening on a specific port</td></tr>
                                 <tr><td><code>kill -9 PID</code></td><td>Force-kill a process by PID</td></tr>
@@ -151,17 +151,17 @@
                                 <tr><th>Command</th><th>Description</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td><code>ss -tulpn</code></td><td>All listening TCP/UDP ports with process names — replacement for netstat</td></tr>
+                                <tr><td><code>ss -tulpn</code></td><td>All listening TCP/UDP ports with process names ï¿½ replacement for netstat</td></tr>
                                 <tr><td><code>ss -anp</code></td><td>All active connections with PIDs</td></tr>
-                                <tr><td><code>netstat -tulpn</code></td><td>Older equivalent of ss — still common on older systems</td></tr>
+                                <tr><td><code>netstat -tulpn</code></td><td>Older equivalent of ss ï¿½ still common on older systems</td></tr>
                                 <tr><td><code>ip addr</code></td><td>All network interfaces and IP addresses</td></tr>
-                                <tr><td><code>ip route</code></td><td>Routing table — look for unexpected routes</td></tr>
-                                <tr><td><code>arp -a</code></td><td>ARP cache — IP to MAC mappings for recently contacted hosts</td></tr>
-                                <tr><td><code>cat /etc/hosts</code></td><td>Local hostname resolution — check for redirected domains (malware persistence)</td></tr>
-                                <tr><td><code>cat /etc/resolv.conf</code></td><td>DNS server configuration — check for rogue DNS server</td></tr>
+                                <tr><td><code>ip route</code></td><td>Routing table ï¿½ look for unexpected routes</td></tr>
+                                <tr><td><code>arp -a</code></td><td>ARP cache ï¿½ IP to MAC mappings for recently contacted hosts</td></tr>
+                                <tr><td><code>cat /etc/hosts</code></td><td>Local hostname resolution ï¿½ check for redirected domains (malware persistence)</td></tr>
+                                <tr><td><code>cat /etc/resolv.conf</code></td><td>DNS server configuration ï¿½ check for rogue DNS server</td></tr>
                                 <tr><td><code>ping -c 4 host</code></td><td>Test connectivity to a host</td></tr>
-                                <tr><td><code>traceroute host</code></td><td>Trace path to host — identify routing anomalies</td></tr>
-                                <tr><td><code>dig @8.8.8.8 domain.com</code></td><td>DNS lookup using specific resolver — check against your DNS</td></tr>
+                                <tr><td><code>traceroute host</code></td><td>Trace path to host ï¿½ identify routing anomalies</td></tr>
+                                <tr><td><code>dig @8.8.8.8 domain.com</code></td><td>DNS lookup using specific resolver ï¿½ check against your DNS</td></tr>
                                 <tr><td><code>tcpdump -i eth0 -w cap.pcap</code></td><td>Capture live traffic to a file for analysis in Wireshark</td></tr>
                             </tbody>
                         </table>
@@ -179,13 +179,13 @@
                             <tbody>
                                 <tr><td><code>/var/log/auth.log</code></td><td>SSH logins, sudo usage, PAM events (Debian/Ubuntu)</td></tr>
                                 <tr><td><code>/var/log/secure</code></td><td>Same as auth.log for RHEL/CentOS</td></tr>
-                                <tr><td><code>/var/log/syslog</code></td><td>General system messages — services starting, cron jobs, kernel messages</td></tr>
+                                <tr><td><code>/var/log/syslog</code></td><td>General system messages ï¿½ services starting, cron jobs, kernel messages</td></tr>
                                 <tr><td><code>/var/log/messages</code></td><td>RHEL equivalent of syslog</td></tr>
-                                <tr><td><code>/var/log/kern.log</code></td><td>Kernel messages — hardware errors, module loading</td></tr>
+                                <tr><td><code>/var/log/kern.log</code></td><td>Kernel messages ï¿½ hardware errors, module loading</td></tr>
                                 <tr><td><code>/var/log/cron</code></td><td>Cron job execution log</td></tr>
-                                <tr><td><code>/var/log/apache2/access.log</code></td><td>Web server access log — look for exploitation attempts</td></tr>
+                                <tr><td><code>/var/log/apache2/access.log</code></td><td>Web server access log ï¿½ look for exploitation attempts</td></tr>
                                 <tr><td><code>/var/log/apache2/error.log</code></td><td>Web server error log</td></tr>
-                                <tr><td><code>~/.bash_history</code></td><td>Shell history per user — often tampered with by attackers</td></tr>
+                                <tr><td><code>~/.bash_history</code></td><td>Shell history per user ï¿½ often tampered with by attackers</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -218,16 +218,16 @@ grep "CRON" /var/log/syslog | tail -30</code></pre>
                                 <tr><th>Command</th><th>Description</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td><code>md5sum filename</code></td><td>MD5 hash of a file — compare against known good or threat intel</td></tr>
-                                <tr><td><code>sha256sum filename</code></td><td>SHA-256 hash — preferred for threat intel lookups</td></tr>
-                                <tr><td><code>strings filename</code></td><td>Extract printable strings from a binary — URLs, IPs, error messages</td></tr>
+                                <tr><td><code>md5sum filename</code></td><td>MD5 hash of a file ï¿½ compare against known good or threat intel</td></tr>
+                                <tr><td><code>sha256sum filename</code></td><td>SHA-256 hash ï¿½ preferred for threat intel lookups</td></tr>
+                                <tr><td><code>strings filename</code></td><td>Extract printable strings from a binary ï¿½ URLs, IPs, error messages</td></tr>
                                 <tr><td><code>strings -a filename | grep -E "https?://"</code></td><td>Extract URLs embedded in a file</td></tr>
-                                <tr><td><code>xxd filename | head -20</code></td><td>Hex dump — check magic bytes to identify file type</td></tr>
+                                <tr><td><code>xxd filename | head -20</code></td><td>Hex dump ï¿½ check magic bytes to identify file type</td></tr>
                                 <tr><td><code>objdump -d binary</code></td><td>Disassemble a compiled binary</td></tr>
                                 <tr><td><code>ldd binary</code></td><td>Shared libraries a binary links against</td></tr>
                                 <tr><td><code>strace -p PID</code></td><td>System calls made by a running process in real time</td></tr>
-                                <tr><td><code>ltrace binary</code></td><td>Library calls — useful for malware behaviour analysis</td></tr>
-                                <tr><td><code>readelf -h binary</code></td><td>ELF header information — architecture, entry point, sections</td></tr>
+                                <tr><td><code>ltrace binary</code></td><td>Library calls ï¿½ useful for malware behaviour analysis</td></tr>
+                                <tr><td><code>readelf -h binary</code></td><td>ELF header information ï¿½ architecture, entry point, sections</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -238,7 +238,7 @@ grep "CRON" /var/log/syslog | tail -30</code></pre>
                     <p>These are the locations attackers commonly use to maintain persistence on Linux systems. Check all of these during an investigation.</p>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">Bash — Persistence locations to audit</span></div>
+                        <div class="code-header"><span class="code-lang">Bash ï¿½ Persistence locations to audit</span></div>
                         <pre><code># Cron jobs for all users
 for user in $(cut -f1 -d: /etc/passwd); do crontab -l -u $user 2>/dev/null && echo "^ $user"; done
 
@@ -270,7 +270,7 @@ grep -r "alias\|export\|source" /etc/profile /etc/bashrc /etc/bash.bashrc ~/.bas
                     <p>Useful combinations for rapid triage during an incident.</p>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">Bash — Quick triage one-liners</span></div>
+                        <div class="code-header"><span class="code-lang">Bash ï¿½ Quick triage one-liners</span></div>
                         <pre><code># Who is logged in and what are they running?
 w
 

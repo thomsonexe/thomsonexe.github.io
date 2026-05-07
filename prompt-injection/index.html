@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prompt Injection | Ben Thomson</title>
-    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="icon" type="image/png" href="/logo2.png">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/writeup.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,7 +38,7 @@
                 <span class="writeup-category"><i class="fas fa-tag"></i> AI Security / LLM Attacks</span>
             </div>
             <h1 class="writeup-title">Prompt Injection</h1>
-            <p class="writeup-subtitle">How Large Language Models can be manipulated through direct and indirect prompt injection attacks — and why it is ranked the #1 vulnerability for LLMs by OWASP.</p>
+            <p class="writeup-subtitle">How Large Language Models can be manipulated through direct and indirect prompt injection attacks ï¿½ and why it is ranked the #1 vulnerability for LLMs by OWASP.</p>
             <div class="writeup-stats">
                 <span><i class="fas fa-clock"></i> 20 min read</span>
                 <span><i class="fas fa-tasks"></i> 6 tasks</span>
@@ -55,11 +55,11 @@
                     <h3 class="toc-title"><i class="fas fa-list"></i> Contents</h3>
                     <ul class="toc-links">
                         <li><a href="#overview">Room Overview</a></li>
-                        <li><a href="#task2">Task 2 — How LLMs Work</a></li>
-                        <li><a href="#task3">Task 3 — What is Prompt Injection?</a></li>
-                        <li><a href="#task4">Task 4 — Injection in Action</a></li>
-                        <li><a href="#task5">Task 5 — Indirect Injection</a></li>
-                        <li><a href="#task6">Task 6 — CalBot Practical</a></li>
+                        <li><a href="#task2">Task 2 ï¿½ How LLMs Work</a></li>
+                        <li><a href="#task3">Task 3 ï¿½ What is Prompt Injection?</a></li>
+                        <li><a href="#task4">Task 4 ï¿½ Injection in Action</a></li>
+                        <li><a href="#task5">Task 5 ï¿½ Indirect Injection</a></li>
+                        <li><a href="#task6">Task 6 ï¿½ CalBot Practical</a></li>
                         <li><a href="#summary">Summary</a></li>
                     </ul>
                 </div>
@@ -69,7 +69,7 @@
 
                 <section id="overview" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Room Overview</h2>
-                    <p>This TryHackMe room covers how Large Language Models (LLMs) can be manipulated through prompt injection — both directly via user input and indirectly via external data sources. It covers real-world incidents, injection techniques, and a hands-on practical scenario.</p>
+                    <p>This TryHackMe room covers how Large Language Models (LLMs) can be manipulated through prompt injection ï¿½ both directly via user input and indirectly via external data sources. It covers real-world incidents, injection techniques, and a hands-on practical scenario.</p>
                     <div class="room-info-card">
                         <div class="room-info-item">
                             <span class="info-label">Platform</span>
@@ -91,8 +91,8 @@
                 </section>
 
                 <section id="task2" class="writeup-section">
-                    <h2><span class="title-prefix">// </span>Task 2 — How LLMs Follow Instructions</h2>
-                    <p>Before understanding prompt injection, you need to understand how LLMs process input. Everything the model receives — system prompt, user message, history — is concatenated into a single sequence and processed together.</p>
+                    <h2><span class="title-prefix">// </span>Task 2 ï¿½ How LLMs Follow Instructions</h2>
+                    <p>Before understanding prompt injection, you need to understand how LLMs process input. Everything the model receives ï¿½ system prompt, user message, history ï¿½ is concatenated into a single sequence and processed together.</p>
 
                     <div class="concept-grid">
                         <div class="concept-card">
@@ -103,7 +103,7 @@
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-user-shield"></i></div>
                             <h4>System Prompt</h4>
-                            <p>Hidden high-priority instructions that define the model's role and restrictions. Set by the developer — not visible to the user, but not truly separate from user input.</p>
+                            <p>Hidden high-priority instructions that define the model's role and restrictions. Set by the developer ï¿½ not visible to the user, but not truly separate from user input.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-code"></i></div>
@@ -113,7 +113,7 @@
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-forward"></i></div>
                             <h4>Next-token Prediction</h4>
-                            <p>The process where an LLM predicts the next token based on all prior input. The model has no real understanding — it is pattern-matching at scale.</p>
+                            <p>The process where an LLM predicts the next token based on all prior input. The model has no real understanding ï¿½ it is pattern-matching at scale.</p>
                         </div>
                     </div>
 
@@ -139,12 +139,12 @@
                 </section>
 
                 <section id="task3" class="writeup-section">
-                    <h2><span class="title-prefix">// </span>Task 3 — What is Prompt Injection?</h2>
+                    <h2><span class="title-prefix">// </span>Task 3 ï¿½ What is Prompt Injection?</h2>
                     <p>Prompt injection occurs when untrusted user input is concatenated with a trusted developer prompt. Because the model processes everything as a single token sequence, it cannot reliably distinguish between legitimate instructions and injected ones.</p>
 
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p>OWASP ranks prompt injection as the <strong>#1 vulnerability</strong> in the Top 10 for LLMs. It is not a niche edge case — it is the primary attack surface for any LLM-powered application.</p>
+                        <p>OWASP ranks prompt injection as the <strong>#1 vulnerability</strong> in the Top 10 for LLMs. It is not a niche edge case ï¿½ it is the primary attack surface for any LLM-powered application.</p>
                     </div>
 
                     <div class="callout callout-info">
@@ -170,7 +170,7 @@
                 </section>
 
                 <section id="task4" class="writeup-section">
-                    <h2><span class="title-prefix">// </span>Task 4 — Prompt Injection in Action</h2>
+                    <h2><span class="title-prefix">// </span>Task 4 ï¿½ Prompt Injection in Action</h2>
                     <p>Prompt injection is not theoretical. There are well-documented real-world incidents where production systems were manipulated by injected instructions.</p>
 
                     <h3 class="sub-heading">Real-world Incidents</h3>
@@ -248,26 +248,26 @@
                 </section>
 
                 <section id="task5" class="writeup-section">
-                    <h2><span class="title-prefix">// </span>Task 5 — Indirect Prompt Injection</h2>
-                    <p>Indirect prompt injection is more dangerous than direct injection in many scenarios. Rather than the attacker typing malicious instructions themselves, those instructions are hidden inside external data that the AI retrieves and processes — emails, documents, web pages, calendar events.</p>
+                    <h2><span class="title-prefix">// </span>Task 5 ï¿½ Indirect Prompt Injection</h2>
+                    <p>Indirect prompt injection is more dangerous than direct injection in many scenarios. Rather than the attacker typing malicious instructions themselves, those instructions are hidden inside external data that the AI retrieves and processes ï¿½ emails, documents, web pages, calendar events.</p>
 
                     <div class="concept-grid">
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-file-alt"></i></div>
                             <h4>Indirect Prompt Injection</h4>
-                            <p>Malicious instructions hidden in external sources — emails, documents, websites — that the AI pulls in and processes as trusted content.</p>
+                            <p>Malicious instructions hidden in external sources ï¿½ emails, documents, websites ï¿½ that the AI pulls in and processes as trusted content.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-mouse-pointer"></i></div>
                             <h4>Zero-click Exploit</h4>
-                            <p>Triggers when the AI processes data without any direct user interaction with the attacker. The victim does not need to click anything — simply having the AI read a document is enough.</p>
+                            <p>Triggers when the AI processes data without any direct user interaction with the attacker. The victim does not need to click anything ï¿½ simply having the AI read a document is enough.</p>
                         </div>
                     </div>
 
-                    <h3 class="sub-heading">EchoLeak — Microsoft 365 Copilot</h3>
+                    <h3 class="sub-heading">EchoLeak ï¿½ Microsoft 365 Copilot</h3>
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p><strong>EchoLeak</strong> was an incident where Microsoft 365 Copilot exfiltrated files due to hidden instructions embedded in an email. The attacker sent a specially crafted email — when Copilot processed it, the hidden instructions caused it to leak sensitive files from the victim's mailbox. No further interaction from the victim was required.</p>
+                        <p><strong>EchoLeak</strong> was an incident where Microsoft 365 Copilot exfiltrated files due to hidden instructions embedded in an email. The attacker sent a specially crafted email ï¿½ when Copilot processed it, the hidden instructions caused it to leak sensitive files from the victim's mailbox. No further interaction from the victim was required.</p>
                     </div>
 
                     <div class="qa-block">
@@ -288,8 +288,8 @@
                 </section>
 
                 <section id="task6" class="writeup-section">
-                    <h2><span class="title-prefix">// </span>Task 6 — Practical: CalBot</h2>
-                    <p>CalBot is an internal calendar assistant. The attack demonstrates indirect prompt injection — the malicious instructions are not typed directly to the bot, but are instead hidden inside a calendar event description that CalBot reads and processes.</p>
+                    <h2><span class="title-prefix">// </span>Task 6 ï¿½ Practical: CalBot</h2>
+                    <p>CalBot is an internal calendar assistant. The attack demonstrates indirect prompt injection ï¿½ the malicious instructions are not typed directly to the bot, but are instead hidden inside a calendar event description that CalBot reads and processes.</p>
 
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
@@ -337,7 +337,7 @@
                     <div class="summary-grid">
                         <div class="summary-card">
                             <i class="fas fa-stream"></i>
-                            <p>LLMs blur the boundary between instructions and data — everything is processed as one token stream.</p>
+                            <p>LLMs blur the boundary between instructions and data ï¿½ everything is processed as one token stream.</p>
                         </div>
                         <div class="summary-card">
                             <i class="fas fa-user"></i>
@@ -345,7 +345,7 @@
                         </div>
                         <div class="summary-card">
                             <i class="fas fa-shield-alt"></i>
-                            <p>Mitigation requires strong architectural boundaries and treating all external data as untrusted — regardless of its source.</p>
+                            <p>Mitigation requires strong architectural boundaries and treating all external data as untrusted ï¿½ regardless of its source.</p>
                         </div>
                         <div class="summary-card">
                             <i class="fas fa-chart-line"></i>

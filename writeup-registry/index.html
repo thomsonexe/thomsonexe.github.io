@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Windows Registry Forensics | Ben Thomson</title>
-    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="icon" type="image/png" href="/logo2.png">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/writeup.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,7 +38,7 @@
                 <span class="writeup-category"><i class="fas fa-tag"></i> Windows / Registry / Persistence / DFIR</span>
             </div>
             <h1 class="writeup-title">Windows Registry Forensics</h1>
-            <p class="writeup-subtitle">A practical reference for registry-based forensics — key hive locations, forensic artefacts, attacker persistence mechanisms, and how to investigate them.</p>
+            <p class="writeup-subtitle">A practical reference for registry-based forensics ï¿½ key hive locations, forensic artefacts, attacker persistence mechanisms, and how to investigate them.</p>
             <div class="writeup-stats">
                 <span><i class="fas fa-clock"></i> 18 min read</span>
                 <span><i class="fas fa-key"></i> 30+ key paths</span>
@@ -69,7 +69,7 @@
 
                 <section id="intro" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Registry Structure</h2>
-                    <p>The Windows Registry is a hierarchical database storing system and user configuration. It is one of the most important forensic artefacts on a Windows system — attackers write persistence entries, malware stores configuration data, and Windows tracks user activity all in the registry.</p>
+                    <p>The Windows Registry is a hierarchical database storing system and user configuration. It is one of the most important forensic artefacts on a Windows system ï¿½ attackers write persistence entries, malware stores configuration data, and Windows tracks user activity all in the registry.</p>
                     <p>The registry is organised into five root keys (hives), each serving a distinct purpose:</p>
 
                     <div class="kql-table-wrap">
@@ -78,11 +78,11 @@
                                 <tr><th>Root Key</th><th>Abbreviation</th><th>Purpose</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td><code>HKEY_LOCAL_MACHINE</code></td><td>HKLM</td><td>System-wide settings — hardware, installed software, services, security policy</td></tr>
+                                <tr><td><code>HKEY_LOCAL_MACHINE</code></td><td>HKLM</td><td>System-wide settings ï¿½ hardware, installed software, services, security policy</td></tr>
                                 <tr><td><code>HKEY_CURRENT_USER</code></td><td>HKCU</td><td>Settings for the currently logged-on user (mapped from HKU\SID)</td></tr>
-                                <tr><td><code>HKEY_USERS</code></td><td>HKU</td><td>All loaded user profiles — each user's SID has a subkey</td></tr>
+                                <tr><td><code>HKEY_USERS</code></td><td>HKU</td><td>All loaded user profiles ï¿½ each user's SID has a subkey</td></tr>
                                 <tr><td><code>HKEY_CLASSES_ROOT</code></td><td>HKCR</td><td>File associations and COM registration (merged view of HKLM and HKCU)</td></tr>
-                                <tr><td><code>HKEY_CURRENT_CONFIG</code></td><td>HKCC</td><td>Hardware profile used at startup — volatile, not persistent on disk</td></tr>
+                                <tr><td><code>HKEY_CURRENT_CONFIG</code></td><td>HKCC</td><td>Hardware profile used at startup ï¿½ volatile, not persistent on disk</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -133,7 +133,7 @@
 
                     <h3>Services</h3>
                     <div class="code-block">
-                        <span class="code-comment"># All installed services — look for unusual ImagePath values</span><br>
+                        <span class="code-comment"># All installed services ï¿½ look for unusual ImagePath values</span><br>
                         HKLM\SYSTEM\CurrentControlSet\Services\&lt;ServiceName&gt;<br><br>
                         <span class="code-comment"># Start type: 0=Boot, 1=System, 2=Auto, 3=Manual, 4=Disabled</span><br>
                         HKLM\SYSTEM\CurrentControlSet\Services\&lt;ServiceName&gt;\Start
@@ -174,12 +174,12 @@
                             </thead>
                             <tbody>
                                 <tr><td>Installed Software</td><td><code>HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\</code></td><td>Applications installed on the system with timestamps</td></tr>
-                                <tr><td>USB Devices</td><td><code>HKLM\SYSTEM\CurrentControlSet\Enum\USBSTOR\</code></td><td>All USB storage devices ever connected — serial numbers, timestamps</td></tr>
+                                <tr><td>USB Devices</td><td><code>HKLM\SYSTEM\CurrentControlSet\Enum\USBSTOR\</code></td><td>All USB storage devices ever connected ï¿½ serial numbers, timestamps</td></tr>
                                 <tr><td>Network Interfaces</td><td><code>HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\</code></td><td>Historical IP addresses, DHCP info per NIC</td></tr>
-                                <tr><td>Timezone</td><td><code>HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation</code></td><td>System timezone — essential for log timestamp correlation</td></tr>
+                                <tr><td>Timezone</td><td><code>HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation</code></td><td>System timezone ï¿½ essential for log timestamp correlation</td></tr>
                                 <tr><td>Last Shutdown</td><td><code>HKLM\SYSTEM\CurrentControlSet\Control\Windows\ShutdownTime</code></td><td>Last shutdown time as a Windows FILETIME value</td></tr>
                                 <tr><td>Recent Documents</td><td><code>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs</code></td><td>Files recently opened by the user</td></tr>
-                                <tr><td>Shellbags</td><td><code>HKCU\SOFTWARE\Classes\Local Settings\Software\Microsoft\Windows\Shell\</code></td><td>Folders the user has browsed — persists even if folder is deleted</td></tr>
+                                <tr><td>Shellbags</td><td><code>HKCU\SOFTWARE\Classes\Local Settings\Software\Microsoft\Windows\Shell\</code></td><td>Folders the user has browsed ï¿½ persists even if folder is deleted</td></tr>
                                 <tr><td>UserAssist</td><td><code>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist\</code></td><td>GUI applications launched by the user (ROT13 encoded)</td></tr>
                                 <tr><td>Typed URLs</td><td><code>HKCU\SOFTWARE\Microsoft\Internet Explorer\TypedURLs</code></td><td>URLs typed directly into IE/Edge address bar</td></tr>
                             </tbody>
@@ -196,7 +196,7 @@
                         HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\LastLoggedOnUser<br><br>
                         <span class="code-comment"># All local accounts and last logon</span><br>
                         HKLM\SAM\SAM\Domains\Account\Users\<br><br>
-                        <span class="code-comment"># MRU (Most Recently Used) lists — Office documents</span><br>
+                        <span class="code-comment"># MRU (Most Recently Used) lists ï¿½ Office documents</span><br>
                         HKCU\SOFTWARE\Microsoft\Office\16.0\Word\File MRU\<br><br>
                         <span class="code-comment"># Run dialog history</span><br>
                         HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\RunMRU<br><br>
@@ -215,11 +215,11 @@
                             </thead>
                             <tbody>
                                 <tr><td><strong>Registry Explorer</strong> (Eric Zimmermann)</td><td>GUI hive viewer with built-in bookmarks for forensic locations. Best for offline analysis.</td></tr>
-                                <tr><td><strong>RegRipper</strong></td><td>Plugin-based registry parser — produces a timeline of forensic artefacts from hive files.</td></tr>
+                                <tr><td><strong>RegRipper</strong></td><td>Plugin-based registry parser ï¿½ produces a timeline of forensic artefacts from hive files.</td></tr>
                                 <tr><td><strong>Autopsy</strong></td><td>Includes registry plugins that extract Run keys, USB history, and user artefacts automatically.</td></tr>
-                                <tr><td><strong>regedit.exe</strong></td><td>Built-in live registry editor — use on a live system, not for forensic imaging.</td></tr>
-                                <tr><td><strong>reg.exe</strong></td><td>Command-line registry tool — useful for exporting hives (<code>reg save</code>) and querying values.</td></tr>
-                                <tr><td><strong>Shellbags Explorer</strong> (EZ Tools)</td><td>Dedicated parser for shellbag artefacts — shows folder browsing history with timestamps.</td></tr>
+                                <tr><td><strong>regedit.exe</strong></td><td>Built-in live registry editor ï¿½ use on a live system, not for forensic imaging.</td></tr>
+                                <tr><td><strong>reg.exe</strong></td><td>Command-line registry tool ï¿½ useful for exporting hives (<code>reg save</code>) and querying values.</td></tr>
+                                <tr><td><strong>Shellbags Explorer</strong> (EZ Tools)</td><td>Dedicated parser for shellbag artefacts ï¿½ shows folder browsing history with timestamps.</td></tr>
                                 <tr><td><strong>AmcacheParser</strong> (EZ Tools)</td><td>Parses Amcache.hve to extract program execution history and file metadata.</td></tr>
                             </tbody>
                         </table>
@@ -249,7 +249,7 @@
 
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
-                        <p>Always check Amcache.hve alongside persistence keys. Amcache records the hash and path of executables that have been run, even if the malware has since been deleted — invaluable for establishing execution history.</p>
+                        <p>Always check Amcache.hve alongside persistence keys. Amcache records the hash and path of executables that have been run, even if the malware has since been deleted ï¿½ invaluable for establishing execution history.</p>
                     </div>
                 </section>
 

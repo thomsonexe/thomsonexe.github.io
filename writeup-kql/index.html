@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KQL & Log Analytics | Ben Thomson</title>
-    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="icon" type="image/png" href="/logo2.png">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/writeup.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,7 +38,7 @@
                 <span class="writeup-category"><i class="fas fa-tag"></i> Log Analysis / KQL / Threat Hunting</span>
             </div>
             <h1 class="writeup-title">KQL & Log Analytics</h1>
-            <p class="writeup-subtitle">A practical guide to querying Microsoft Sentinel and Log Analytics using KQL — covering core syntax, key tables, and real hunting queries.</p>
+            <p class="writeup-subtitle">A practical guide to querying Microsoft Sentinel and Log Analytics using KQL ï¿½ covering core syntax, key tables, and real hunting queries.</p>
             <div class="writeup-stats">
                 <span><i class="fas fa-clock"></i> 20 min read</span>
                 <span><i class="fas fa-database"></i> 30+ queries</span>
@@ -70,8 +70,8 @@
 
                 <section id="intro" class="writeup-section">
                     <h2><span class="title-prefix">// </span>What is Log Analytics?</h2>
-                    <p>Azure Log Analytics is the data platform that underpins Microsoft Sentinel. All logs ingested into Sentinel — sign-ins, security events, network flows, endpoint telemetry — land in a Log Analytics workspace where they can be queried using <strong>KQL (Kusto Query Language)</strong>.</p>
-                    <p>As a SOC analyst, KQL is one of the most valuable skills you can have in a Microsoft environment. It lets you hunt for threats, investigate alerts, build detection rules, and create dashboards — all from the same query interface.</p>
+                    <p>Azure Log Analytics is the data platform that underpins Microsoft Sentinel. All logs ingested into Sentinel ï¿½ sign-ins, security events, network flows, endpoint telemetry ï¿½ land in a Log Analytics workspace where they can be queried using <strong>KQL (Kusto Query Language)</strong>.</p>
+                    <p>As a SOC analyst, KQL is one of the most valuable skills you can have in a Microsoft environment. It lets you hunt for threats, investigate alerts, build detection rules, and create dashboards ï¿½ all from the same query interface.</p>
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
                         <p>KQL is also used in Microsoft Defender XDR for Advanced Hunting, and in Azure Data Explorer. The same queries largely work across all three.</p>
@@ -80,7 +80,7 @@
 
                 <section id="kql-basics" class="writeup-section">
                     <h2><span class="title-prefix">// </span>KQL Fundamentals</h2>
-                    <p>KQL uses a pipe <code>|</code> syntax — you start with a table and chain operators together, each feeding into the next.</p>
+                    <p>KQL uses a pipe <code>|</code> syntax ï¿½ you start with a table and chain operators together, each feeding into the next.</p>
 
                     <div class="kql-table-wrap">
                         <table class="kql-table">
@@ -121,7 +121,7 @@
                             </thead>
                             <tbody>
                                 <tr><td><code>SigninLogs</code></td><td>Microsoft Entra ID</td><td>User sign-in events including MFA, location, result</td></tr>
-                                <tr><td><code>AuditLogs</code></td><td>Microsoft Entra ID</td><td>Directory changes — user creation, role assignments</td></tr>
+                                <tr><td><code>AuditLogs</code></td><td>Microsoft Entra ID</td><td>Directory changes ï¿½ user creation, role assignments</td></tr>
                                 <tr><td><code>SecurityEvent</code></td><td>Windows (MMA/AMA)</td><td>Windows Security event log (4625, 4624, 4688, etc.)</td></tr>
                                 <tr><td><code>DeviceProcessEvents</code></td><td>MDE</td><td>Process creation events on enrolled endpoints</td></tr>
                                 <tr><td><code>DeviceNetworkEvents</code></td><td>MDE</td><td>Network connections made by endpoints</td></tr>
@@ -155,7 +155,7 @@
 
                     <h3>Sign-ins from multiple countries</h3>
                     <div class="code-block">
-                        <span class="code-comment">// Users signing in from more than one country — possible account sharing or compromise</span><br>
+                        <span class="code-comment">// Users signing in from more than one country ï¿½ possible account sharing or compromise</span><br>
                         <span class="code-table">SigninLogs</span><br>
                         <span class="code-pipe">| </span><span class="code-op">where</span> TimeGenerated <span class="code-op">&gt;</span> <span class="code-fn">ago</span>(<span class="code-val">7d</span>)<br>
                         <span class="code-pipe">| </span><span class="code-op">where</span> ResultType <span class="code-op">==</span> <span class="code-val">0</span><br>
@@ -166,7 +166,7 @@
 
                     <h3>Successful login after multiple failures (potential brute force)</h3>
                     <div class="code-block">
-                        <span class="code-comment">// Accounts with 10+ failures followed by a success — classic brute force indicator</span><br>
+                        <span class="code-comment">// Accounts with 10+ failures followed by a success ï¿½ classic brute force indicator</span><br>
                         <span class="code-keyword">let</span> failures <span class="code-op">=</span> <span class="code-table">SigninLogs</span><br>
                         &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-pipe">| </span><span class="code-op">where</span> TimeGenerated <span class="code-op">&gt;</span> <span class="code-fn">ago</span>(<span class="code-val">1h</span>)<br>
                         &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-pipe">| </span><span class="code-op">where</span> ResultType <span class="code-op">!=</span> <span class="code-val">0</span><br>
@@ -181,7 +181,7 @@
 
                     <h3>MFA failures</h3>
                     <div class="code-block">
-                        <span class="code-comment">// MFA denials — could indicate MFA fatigue attack or legitimate user confusion</span><br>
+                        <span class="code-comment">// MFA denials ï¿½ could indicate MFA fatigue attack or legitimate user confusion</span><br>
                         <span class="code-table">SigninLogs</span><br>
                         <span class="code-pipe">| </span><span class="code-op">where</span> TimeGenerated <span class="code-op">&gt;</span> <span class="code-fn">ago</span>(<span class="code-val">24h</span>)<br>
                         <span class="code-pipe">| </span><span class="code-op">where</span> ResultType <span class="code-op">==</span> <span class="code-val">500121</span><br>
@@ -209,7 +209,7 @@
 
                 <section id="endpoint" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Endpoint Queries (MDE)</h2>
-                    <p>Microsoft Defender for Endpoint tables give you deep visibility into what's happening on endpoints — process execution, file changes, network connections, and registry modifications.</p>
+                    <p>Microsoft Defender for Endpoint tables give you deep visibility into what's happening on endpoints ï¿½ process execution, file changes, network connections, and registry modifications.</p>
 
                     <h3>Suspicious PowerShell execution</h3>
                     <div class="code-block">
@@ -224,7 +224,7 @@
 
                     <h3>New local administrator added</h3>
                     <div class="code-block">
-                        <span class="code-comment">// Event 4732 — member added to local Administrators group</span><br>
+                        <span class="code-comment">// Event 4732 ï¿½ member added to local Administrators group</span><br>
                         <span class="code-table">SecurityEvent</span><br>
                         <span class="code-pipe">| </span><span class="code-op">where</span> TimeGenerated <span class="code-op">&gt;</span> <span class="code-fn">ago</span>(<span class="code-val">7d</span>)<br>
                         <span class="code-pipe">| </span><span class="code-op">where</span> EventID <span class="code-op">==</span> <span class="code-val">4732</span><br>
@@ -234,7 +234,7 @@
 
                     <h3>Scheduled task creation</h3>
                     <div class="code-block">
-                        <span class="code-comment">// Event 4698 — scheduled task created, common persistence mechanism</span><br>
+                        <span class="code-comment">// Event 4698 ï¿½ scheduled task created, common persistence mechanism</span><br>
                         <span class="code-table">SecurityEvent</span><br>
                         <span class="code-pipe">| </span><span class="code-op">where</span> TimeGenerated <span class="code-op">&gt;</span> <span class="code-fn">ago</span>(<span class="code-val">24h</span>)<br>
                         <span class="code-pipe">| </span><span class="code-op">where</span> EventID <span class="code-op">==</span> <span class="code-val">4698</span><br>
@@ -276,7 +276,7 @@
 
                     <h3>Large outbound data transfers</h3>
                     <div class="code-block">
-                        <span class="code-comment">// Endpoints sending large amounts of data outbound — potential exfiltration</span><br>
+                        <span class="code-comment">// Endpoints sending large amounts of data outbound ï¿½ potential exfiltration</span><br>
                         <span class="code-table">DeviceNetworkEvents</span><br>
                         <span class="code-pipe">| </span><span class="code-op">where</span> TimeGenerated <span class="code-op">&gt;</span> <span class="code-fn">ago</span>(<span class="code-val">24h</span>)<br>
                         <span class="code-pipe">| </span><span class="code-op">where</span> RemoteIPType <span class="code-op">==</span> <span class="code-val">"Public"</span><br>
@@ -287,7 +287,7 @@
 
                     <h3>Connections to rare external IPs</h3>
                     <div class="code-block">
-                        <span class="code-comment">// External IPs contacted by only one device — unusual and worth investigating</span><br>
+                        <span class="code-comment">// External IPs contacted by only one device ï¿½ unusual and worth investigating</span><br>
                         <span class="code-table">DeviceNetworkEvents</span><br>
                         <span class="code-pipe">| </span><span class="code-op">where</span> TimeGenerated <span class="code-op">&gt;</span> <span class="code-fn">ago</span>(<span class="code-val">7d</span>)<br>
                         <span class="code-pipe">| </span><span class="code-op">where</span> RemoteIPType <span class="code-op">==</span> <span class="code-val">"Public"</span><br>
@@ -298,7 +298,7 @@
 
                     <h3>Non-standard ports for common protocols</h3>
                     <div class="code-block">
-                        <span class="code-comment">// HTTP/HTTPS traffic on non-standard ports — possible C2 or tunnelling</span><br>
+                        <span class="code-comment">// HTTP/HTTPS traffic on non-standard ports ï¿½ possible C2 or tunnelling</span><br>
                         <span class="code-table">DeviceNetworkEvents</span><br>
                         <span class="code-pipe">| </span><span class="code-op">where</span> TimeGenerated <span class="code-op">&gt;</span> <span class="code-fn">ago</span>(<span class="code-val">24h</span>)<br>
                         <span class="code-pipe">| </span><span class="code-op">where</span> RemoteIPType <span class="code-op">==</span> <span class="code-val">"Public"</span><br>
@@ -310,7 +310,7 @@
 
                 <section id="hunting" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Threat Hunting</h2>
-                    <p>These queries go beyond alerting — they're designed for proactive hunting across your environment.</p>
+                    <p>These queries go beyond alerting ï¿½ they're designed for proactive hunting across your environment.</p>
 
                     <h3>Living off the land binaries (LOLBins)</h3>
                     <div class="code-block">
@@ -324,7 +324,7 @@
 
                     <h3>Lateral movement via PsExec</h3>
                     <div class="code-block">
-                        <span class="code-comment">// PsExec usage — common in both legitimate admin activity and attacker lateral movement</span><br>
+                        <span class="code-comment">// PsExec usage ï¿½ common in both legitimate admin activity and attacker lateral movement</span><br>
                         <span class="code-table">DeviceProcessEvents</span><br>
                         <span class="code-pipe">| </span><span class="code-op">where</span> TimeGenerated <span class="code-op">&gt;</span> <span class="code-fn">ago</span>(<span class="code-val">7d</span>)<br>
                         <span class="code-pipe">| </span><span class="code-op">where</span> FileName <span class="code-op">=~</span> <span class="code-val">"psexec.exe"</span> <span class="code-op">or</span> FileName <span class="code-op">=~</span> <span class="code-val">"psexesvc.exe"</span><br>
@@ -366,7 +366,7 @@
                     </div>
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
-                        <p><strong><code>has</code> vs <code>contains</code>:</strong> Both are case-insensitive by default. The difference is boundaries — <code>has</code> matches on full word tokens (faster, index-backed), while <code>contains</code> matches any substring. Use <code>has</code> for whole terms (<code>has "powershell"</code>) and <code>contains</code> when you need a mid-string match. For case-sensitive matching use <code>has_cs</code> or <code>contains_cs</code>.</p>
+                        <p><strong><code>has</code> vs <code>contains</code>:</strong> Both are case-insensitive by default. The difference is boundaries ï¿½ <code>has</code> matches on full word tokens (faster, index-backed), while <code>contains</code> matches any substring. Use <code>has</code> for whole terms (<code>has "powershell"</code>) and <code>contains</code> when you need a mid-string match. For case-sensitive matching use <code>has_cs</code> or <code>contains_cs</code>.</p>
                     </div>
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
@@ -374,7 +374,7 @@
                     </div>
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p><strong>Context is everything.</strong> A LOLBin usage or off-hours login isn't automatically malicious — always investigate the full picture before escalating.</p>
+                        <p><strong>Context is everything.</strong> A LOLBin usage or off-hours login isn't automatically malicious ï¿½ always investigate the full picture before escalating.</p>
                     </div>
                 </section>
 

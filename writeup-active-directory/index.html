@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Active Directory — Blue Team Detection | Ben Thomson</title>
-    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <title>Active Directory ï¿½ Blue Team Detection | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/logo2.png">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/writeup.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,8 +37,8 @@
                 <span class="ctf-difficulty medium">Intermediate</span>
                 <span class="writeup-category"><i class="fas fa-tag"></i> Active Directory / Threat Hunting / Windows Security</span>
             </div>
-            <h1 class="writeup-title">Active Directory — Blue Team Detection</h1>
-            <p class="writeup-subtitle">Understanding and detecting the most common Active Directory attacks — Kerberoasting, Pass-the-Hash, DCSync, Golden Tickets, and LDAP enumeration — using Windows Event Logs and key indicators of compromise.</p>
+            <h1 class="writeup-title">Active Directory ï¿½ Blue Team Detection</h1>
+            <p class="writeup-subtitle">Understanding and detecting the most common Active Directory attacks ï¿½ Kerberoasting, Pass-the-Hash, DCSync, Golden Tickets, and LDAP enumeration ï¿½ using Windows Event Logs and key indicators of compromise.</p>
             <div class="writeup-stats">
                 <span><i class="fas fa-clock"></i> 20 min read</span>
                 <span><i class="fas fa-shield-alt"></i> Blue Team / Detection</span>
@@ -94,7 +94,7 @@
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-sitemap"></i></div>
                             <h4>Service Principal Names (SPNs)</h4>
-                            <p>Unique identifiers for services running in AD. A service account with an SPN can be Kerberoasted — any domain user can request a service ticket for it.</p>
+                            <p>Unique identifiers for services running in AD. A service account with an SPN can be Kerberoasted ï¿½ any domain user can request a service ticket for it.</p>
                         </div>
                     </div>
 
@@ -106,7 +106,7 @@
 
                 <section id="eventids" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Key Windows Event IDs</h2>
-                    <p>Most AD attack detection relies on Windows Security Event Logs. These are your primary detection source — knowing which event IDs matter and what they mean is fundamental.</p>
+                    <p>Most AD attack detection relies on Windows Security Event Logs. These are your primary detection source ï¿½ knowing which event IDs matter and what they mean is fundamental.</p>
 
                     <div class="kql-table-wrap">
                         <table class="kql-table">
@@ -116,16 +116,16 @@
                             <tbody>
                                 <tr><td>4624</td><td>Security</td><td>Successful logon</td><td>Logon Type 3 (network) and Type 10 (remote interactive) are high-value for lateral movement</td></tr>
                                 <tr><td>4625</td><td>Security</td><td>Failed logon</td><td>High volume = brute force or password spray</td></tr>
-                                <tr><td>4648</td><td>Security</td><td>Logon using explicit credentials</td><td>Indicates runas or credential passing — common in lateral movement</td></tr>
+                                <tr><td>4648</td><td>Security</td><td>Logon using explicit credentials</td><td>Indicates runas or credential passing ï¿½ common in lateral movement</td></tr>
                                 <tr><td>4662</td><td>Security</td><td>Object accessed in AD</td><td>DCSync generates replication permission access events</td></tr>
-                                <tr><td>4672</td><td>Security</td><td>Special privileges assigned to logon</td><td>Admin-level access — watch for unexpected accounts</td></tr>
-                                <tr><td>4688</td><td>Security</td><td>Process creation</td><td>Requires audit policy enabled with command-line logging — catches malicious tooling</td></tr>
+                                <tr><td>4672</td><td>Security</td><td>Special privileges assigned to logon</td><td>Admin-level access ï¿½ watch for unexpected accounts</td></tr>
+                                <tr><td>4688</td><td>Security</td><td>Process creation</td><td>Requires audit policy enabled with command-line logging ï¿½ catches malicious tooling</td></tr>
                                 <tr><td>4698</td><td>Security</td><td>Scheduled task created</td><td>Common persistence mechanism post-compromise</td></tr>
                                 <tr><td>4720</td><td>Security</td><td>User account created</td><td>Attacker-created accounts for persistence</td></tr>
-                                <tr><td>4728 / 4732</td><td>Security</td><td>Member added to security group</td><td>4728 = domain group, 4732 = local group — watch for additions to Domain Admins</td></tr>
-                                <tr><td>4768</td><td>Security</td><td>Kerberos TGT requested (AS-REQ)</td><td>AS-REP Roasting — look for requests with RC4 encryption from non-DCs</td></tr>
-                                <tr><td>4769</td><td>Security</td><td>Kerberos service ticket requested (TGS-REQ)</td><td>Kerberoasting — multiple 4769 events with RC4 encryption type (0x17) for service accounts</td></tr>
-                                <tr><td>4776</td><td>Security</td><td>NTLM authentication attempted</td><td>Pass-the-Hash and NTLM relay — check for failures then success from same source</td></tr>
+                                <tr><td>4728 / 4732</td><td>Security</td><td>Member added to security group</td><td>4728 = domain group, 4732 = local group ï¿½ watch for additions to Domain Admins</td></tr>
+                                <tr><td>4768</td><td>Security</td><td>Kerberos TGT requested (AS-REQ)</td><td>AS-REP Roasting ï¿½ look for requests with RC4 encryption from non-DCs</td></tr>
+                                <tr><td>4769</td><td>Security</td><td>Kerberos service ticket requested (TGS-REQ)</td><td>Kerberoasting ï¿½ multiple 4769 events with RC4 encryption type (0x17) for service accounts</td></tr>
+                                <tr><td>4776</td><td>Security</td><td>NTLM authentication attempted</td><td>Pass-the-Hash and NTLM relay ï¿½ check for failures then success from same source</td></tr>
                                 <tr><td>7045</td><td>System</td><td>New service installed</td><td>Malware and lateral movement tools often install as services (PsExec, Cobalt Strike)</td></tr>
                             </tbody>
                         </table>
@@ -133,13 +133,13 @@
 
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p>Many of these events require <strong>Advanced Audit Policy</strong> to be configured. By default, some subcategories like <em>Process Creation</em> and <em>Directory Service Access</em> are not enabled. Check your GPO audit settings — silent logging = blind detection.</p>
+                        <p>Many of these events require <strong>Advanced Audit Policy</strong> to be configured. By default, some subcategories like <em>Process Creation</em> and <em>Directory Service Access</em> are not enabled. Check your GPO audit settings ï¿½ silent logging = blind detection.</p>
                     </div>
                 </section>
 
                 <section id="kerberoasting" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Kerberoasting</h2>
-                    <p>Any authenticated domain user can request a Kerberos service ticket (TGS) for any service account that has an SPN registered. The ticket is encrypted with the service account's NT hash. An attacker requests the ticket, saves it, and cracks it offline — no interaction with the target account needed.</p>
+                    <p>Any authenticated domain user can request a Kerberos service ticket (TGS) for any service account that has an SPN registered. The ticket is encrypted with the service account's NT hash. An attacker requests the ticket, saves it, and cracks it offline ï¿½ no interaction with the target account needed.</p>
 
                     <h3 class="sub-heading">Attack flow</h3>
                     <div class="kql-table-wrap">
@@ -147,18 +147,18 @@
                             <thead><tr><th>Step</th><th>What happens</th></tr></thead>
                             <tbody>
                                 <tr><td>1. Enumerate SPNs</td><td>Attacker queries AD for accounts with SPNs using <code>setspn -T domain -Q */*</code> or tools like BloodHound/PowerView</td></tr>
-                                <tr><td>2. Request service tickets</td><td>Attacker requests TGS tickets for identified service accounts — this is a legitimate Kerberos operation</td></tr>
+                                <tr><td>2. Request service tickets</td><td>Attacker requests TGS tickets for identified service accounts ï¿½ this is a legitimate Kerberos operation</td></tr>
                                 <tr><td>3. Export tickets</td><td>Tickets saved to disk using Mimikatz, Rubeus, or Impacket's GetUserSPNs.py</td></tr>
-                                <tr><td>4. Offline cracking</td><td>Tickets cracked using Hashcat or John — RC4-encrypted tickets crack significantly faster than AES</td></tr>
+                                <tr><td>4. Offline cracking</td><td>Tickets cracked using Hashcat or John ï¿½ RC4-encrypted tickets crack significantly faster than AES</td></tr>
                             </tbody>
                         </table>
                     </div>
 
                     <h3 class="sub-heading">Detection</h3>
-                    <p>Look for <strong>Event ID 4769</strong> with encryption type <code>0x17</code> (RC4-HMAC). Legitimate Kerberos in modern environments uses AES256 (<code>0x12</code>) — RC4 requests for service accounts are suspicious, especially in bulk.</p>
+                    <p>Look for <strong>Event ID 4769</strong> with encryption type <code>0x17</code> (RC4-HMAC). Legitimate Kerberos in modern environments uses AES256 (<code>0x12</code>) ï¿½ RC4 requests for service accounts are suspicious, especially in bulk.</p>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">KQL — Microsoft Sentinel</span></div>
+                        <div class="code-header"><span class="code-lang">KQL ï¿½ Microsoft Sentinel</span></div>
                         <pre><code>SecurityEvent
 | where EventID == 4769
 | where TicketEncryptionType == "0x17"
@@ -170,22 +170,22 @@
 
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
-                        <p><strong>Mitigation:</strong> Use Managed Service Accounts (MSAs) or Group Managed Service Accounts (gMSAs) — their passwords are 240 characters long and auto-rotated, making cracking infeasible. Enforce AES256 for service accounts and set <em>Account is sensitive and cannot be delegated</em> on privileged accounts.</p>
+                        <p><strong>Mitigation:</strong> Use Managed Service Accounts (MSAs) or Group Managed Service Accounts (gMSAs) ï¿½ their passwords are 240 characters long and auto-rotated, making cracking infeasible. Enforce AES256 for service accounts and set <em>Account is sensitive and cannot be delegated</em> on privileged accounts.</p>
                     </div>
                 </section>
 
                 <section id="asrep" class="writeup-section">
                     <h2><span class="title-prefix">// </span>AS-REP Roasting</h2>
-                    <p>AS-REP Roasting targets accounts that have <strong>Kerberos pre-authentication disabled</strong> — a flag set on the account in AD. When pre-authentication is disabled, the KDC will respond to an AS-REQ with an encrypted TGT without first verifying the requester knows the password. An attacker can request this encrypted blob and crack it offline.</p>
-                    <p>This differs from Kerberoasting in that the attacker doesn't even need valid domain credentials — only network access to a DC — making it useful for initial access or unauthenticated enumeration.</p>
+                    <p>AS-REP Roasting targets accounts that have <strong>Kerberos pre-authentication disabled</strong> ï¿½ a flag set on the account in AD. When pre-authentication is disabled, the KDC will respond to an AS-REQ with an encrypted TGT without first verifying the requester knows the password. An attacker can request this encrypted blob and crack it offline.</p>
+                    <p>This differs from Kerberoasting in that the attacker doesn't even need valid domain credentials ï¿½ only network access to a DC ï¿½ making it useful for initial access or unauthenticated enumeration.</p>
 
                     <h3 class="sub-heading">Attack flow</h3>
                     <div class="kql-table-wrap">
                         <table class="kql-table">
                             <thead><tr><th>Step</th><th>What happens</th></tr></thead>
                             <tbody>
-                                <tr><td>1. Identify vulnerable accounts</td><td>Enumerate accounts with <em>Do not require Kerberos preauthentication</em> set — using tools like <code>Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true}</code> or Impacket's <code>GetNPUsers.py</code></td></tr>
-                                <tr><td>2. Request AS-REP</td><td>Send an unauthenticated AS-REQ to the DC — the KDC responds with a TGT encrypted with the account's password hash</td></tr>
+                                <tr><td>1. Identify vulnerable accounts</td><td>Enumerate accounts with <em>Do not require Kerberos preauthentication</em> set ï¿½ using tools like <code>Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true}</code> or Impacket's <code>GetNPUsers.py</code></td></tr>
+                                <tr><td>2. Request AS-REP</td><td>Send an unauthenticated AS-REQ to the DC ï¿½ the KDC responds with a TGT encrypted with the account's password hash</td></tr>
                                 <tr><td>3. Offline cracking</td><td>Crack the returned hash with Hashcat (<code>-m 18200</code>) or John the Ripper</td></tr>
                             </tbody>
                         </table>
@@ -195,7 +195,7 @@
                     <p>AS-REP Roasting generates <strong>Event ID 4768</strong> (Kerberos TGT requested) with encryption type <code>0x17</code> (RC4-HMAC) and a <strong>pre-authentication type of 0</strong>. Legitimate TGT requests use AES256 and always include pre-authentication.</p>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">KQL — Microsoft Sentinel</span></div>
+                        <div class="code-header"><span class="code-lang">KQL ï¿½ Microsoft Sentinel</span></div>
                         <pre><code>SecurityEvent
 | where EventID == 4768
 | where PreAuthType == "0"
@@ -206,20 +206,20 @@
 
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
-                        <p><strong>Mitigation:</strong> Audit all accounts with pre-authentication disabled using <code>Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true}</code>. There are very few legitimate reasons for this setting — enable pre-authentication on all accounts unless there is a specific technical requirement. Enforce AES256-only Kerberos to make cracking significantly harder.</p>
+                        <p><strong>Mitigation:</strong> Audit all accounts with pre-authentication disabled using <code>Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true}</code>. There are very few legitimate reasons for this setting ï¿½ enable pre-authentication on all accounts unless there is a specific technical requirement. Enforce AES256-only Kerberos to make cracking significantly harder.</p>
                     </div>
                 </section>
 
                 <section id="pth" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Pass-the-Hash (PtH)</h2>
-                    <p>NTLM authentication doesn't require the plaintext password — only the NT hash. An attacker who extracts a user's NTLM hash (via Mimikatz, secretsdump, or a memory dump) can authenticate as that user to any service accepting NTLM without cracking the hash.</p>
+                    <p>NTLM authentication doesn't require the plaintext password ï¿½ only the NT hash. An attacker who extracts a user's NTLM hash (via Mimikatz, secretsdump, or a memory dump) can authenticate as that user to any service accepting NTLM without cracking the hash.</p>
 
                     <h3 class="sub-heading">Common tools used</h3>
                     <div class="kql-table-wrap">
                         <table class="kql-table">
                             <thead><tr><th>Tool</th><th>Usage</th></tr></thead>
                             <tbody>
-                                <tr><td>Mimikatz</td><td><code>sekurlsa::pth</code> — spawns a process authenticated with the supplied hash</td></tr>
+                                <tr><td>Mimikatz</td><td><code>sekurlsa::pth</code> ï¿½ spawns a process authenticated with the supplied hash</td></tr>
                                 <tr><td>Impacket (wmiexec, smbexec, psexec)</td><td>Remote execution using hash authentication over SMB/WMI</td></tr>
                                 <tr><td>CrackMapExec</td><td>Spray a hash across a network range to find where it's valid</td></tr>
                             </tbody>
@@ -230,7 +230,7 @@
                     <p>PtH creates a <strong>Type 3 (Network) logon</strong> using NTLM. Look for Event ID <strong>4624</strong> with Logon Type 3 and Authentication Package = NTLM, particularly from workstations authenticating to other workstations (east-west movement).</p>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">KQL — Microsoft Sentinel</span></div>
+                        <div class="code-header"><span class="code-lang">KQL ï¿½ Microsoft Sentinel</span></div>
                         <pre><code>SecurityEvent
 | where EventID == 4624
 | where LogonType == 3
@@ -243,7 +243,7 @@
 
                 <section id="ptt" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Pass-the-Ticket (PtT)</h2>
-                    <p>Similar to PtH but targets Kerberos. An attacker extracts a valid Kerberos ticket from memory (TGT or TGS) and injects it into a new session — allowing them to authenticate as the ticket's owner without knowing the password.</p>
+                    <p>Similar to PtH but targets Kerberos. An attacker extracts a valid Kerberos ticket from memory (TGT or TGS) and injects it into a new session ï¿½ allowing them to authenticate as the ticket's owner without knowing the password.</p>
 
                     <p>Tickets are extracted using Mimikatz (<code>sekurlsa::tickets /export</code>) or Rubeus (<code>dump</code>) and injected with Mimikatz (<code>kerberos::ptt</code>) or Rubeus (<code>ptt</code>).</p>
 
@@ -252,13 +252,13 @@
 
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
-                        <p>If a TGT is stolen and used, look for Event ID <strong>4768</strong> (TGT requested) from an IP that is not the account's normal machine. The legitimate machine won't re-request a TGT if one is already cached — a second TGT request from a different host for the same account is suspicious.</p>
+                        <p>If a TGT is stolen and used, look for Event ID <strong>4768</strong> (TGT requested) from an IP that is not the account's normal machine. The legitimate machine won't re-request a TGT if one is already cached ï¿½ a second TGT request from a different host for the same account is suspicious.</p>
                     </div>
                 </section>
 
                 <section id="dcsync" class="writeup-section">
                     <h2><span class="title-prefix">// </span>DCSync</h2>
-                    <p>DCSync abuses the <strong>DS-Replication-Get-Changes-All</strong> permission to impersonate a Domain Controller and request password data for any account in AD — including krbtgt and all Domain Admin hashes. An attacker needs to have this permission, which by default only DCs, Domain Admins, and Enterprise Admins hold.</p>
+                    <p>DCSync abuses the <strong>DS-Replication-Get-Changes-All</strong> permission to impersonate a Domain Controller and request password data for any account in AD ï¿½ including krbtgt and all Domain Admin hashes. An attacker needs to have this permission, which by default only DCs, Domain Admins, and Enterprise Admins hold.</p>
 
                     <p>Executed via Mimikatz: <code>lsadump::dcsync /domain:corp.local /user:krbtgt</code></p>
 
@@ -266,7 +266,7 @@
                     <p>DCSync generates <strong>Event ID 4662</strong> on the Domain Controller when a non-DC account accesses replication permissions. Look for access to the <code>DS-Replication-Get-Changes</code> (<code>1131f6aa-9c07-11d1-f79f-00c04fc2dcd2</code>) and <code>DS-Replication-Get-Changes-All</code> (<code>1131f6ad-9c07-11d1-f79f-00c04fc2dcd2</code>) properties by non-DC accounts.</p>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">KQL — Microsoft Sentinel</span></div>
+                        <div class="code-header"><span class="code-lang">KQL ï¿½ Microsoft Sentinel</span></div>
                         <pre><code>SecurityEvent
 | where EventID == 4662
 | where ObjectType contains "domainDNS"
@@ -278,7 +278,7 @@
 
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p>DCSync is often the final step before full domain compromise. An attacker with krbtgt's hash can create <strong>Golden Tickets</strong> — valid Kerberos tickets for any account that last up to 10 years and survive password resets.</p>
+                        <p>DCSync is often the final step before full domain compromise. An attacker with krbtgt's hash can create <strong>Golden Tickets</strong> ï¿½ valid Kerberos tickets for any account that last up to 10 years and survive password resets.</p>
                     </div>
                 </section>
 
@@ -291,15 +291,15 @@
                             <tbody>
                                 <tr><td><strong>Forged using</strong></td><td>krbtgt NT hash</td><td>Service account NT hash</td></tr>
                                 <tr><td><strong>Grants access to</strong></td><td>Any service in the domain</td><td>Specific service on a specific host</td></tr>
-                                <tr><td><strong>Passes through DC?</strong></td><td>No — forged TGT bypasses the KDC</td><td>No — forged TGS bypasses the DC entirely</td></tr>
-                                <tr><td><strong>Detection difficulty</strong></td><td>Hard — no KDC log for ticket usage</td><td>Very hard — no DC logs at all</td></tr>
+                                <tr><td><strong>Passes through DC?</strong></td><td>No ï¿½ forged TGT bypasses the KDC</td><td>No ï¿½ forged TGS bypasses the DC entirely</td></tr>
+                                <tr><td><strong>Detection difficulty</strong></td><td>Hard ï¿½ no KDC log for ticket usage</td><td>Very hard ï¿½ no DC logs at all</td></tr>
                                 <tr><td><strong>Mitigation</strong></td><td>Rotate krbtgt password twice</td><td>Rotate service account password</td></tr>
                             </tbody>
                         </table>
                     </div>
 
                     <h3 class="sub-heading">Golden Ticket detection</h3>
-                    <p>Look for Kerberos tickets with anomalous attributes — Mimikatz-generated Golden Tickets have a default lifetime of 10 years, which is detectable. Event ID <strong>4769</strong> will appear when the forged TGT is used to request service tickets. Compare ticket lifetimes against your domain's policy (typically 10 hours).</p>
+                    <p>Look for Kerberos tickets with anomalous attributes ï¿½ Mimikatz-generated Golden Tickets have a default lifetime of 10 years, which is detectable. Event ID <strong>4769</strong> will appear when the forged TGT is used to request service tickets. Compare ticket lifetimes against your domain's policy (typically 10 hours).</p>
 
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
@@ -309,7 +309,7 @@
 
                 <section id="enumeration" class="writeup-section">
                     <h2><span class="title-prefix">// </span>LDAP Enumeration &amp; BloodHound</h2>
-                    <p>Before executing attacks, adversaries enumerate AD to identify attack paths — privileged accounts, misconfigured delegations, group memberships, and trust relationships. BloodHound is the most common tool for this, using SharpHound to collect data via LDAP queries.</p>
+                    <p>Before executing attacks, adversaries enumerate AD to identify attack paths ï¿½ privileged accounts, misconfigured delegations, group memberships, and trust relationships. BloodHound is the most common tool for this, using SharpHound to collect data via LDAP queries.</p>
 
                     <h3 class="sub-heading">What gets enumerated</h3>
                     <div class="kql-table-wrap">
@@ -320,17 +320,17 @@
                                 <tr><td>Accounts with SPNs</td><td>Kerberoasting candidates</td></tr>
                                 <tr><td>Accounts with no pre-auth (AS-REP Roastable)</td><td>Can request encrypted TGT hash without credentials</td></tr>
                                 <tr><td>Unconstrained delegation</td><td>Compromise these machines to steal TGTs of any user authenticating to them</td></tr>
-                                <tr><td>AdminSDHolder</td><td>Accounts protected by SDProp — modifying AdminSDHolder propagates to all protected accounts</td></tr>
+                                <tr><td>AdminSDHolder</td><td>Accounts protected by SDProp ï¿½ modifying AdminSDHolder propagates to all protected accounts</td></tr>
                                 <tr><td>ACL misconfigurations</td><td>GenericAll, WriteDACL, WriteOwner on sensitive objects enables privilege escalation</td></tr>
                             </tbody>
                         </table>
                     </div>
 
                     <h3 class="sub-heading">Detection</h3>
-                    <p>SharpHound (BloodHound's collector) generates a large volume of LDAP queries in a short time — typically thousands of queries within minutes. Event ID <strong>1644</strong> in the AD Directory Service log captures expensive or inefficient LDAP queries. NetFlow anomalies showing sustained LDAP (port 389/636) from a workstation to the DC are also indicative.</p>
+                    <p>SharpHound (BloodHound's collector) generates a large volume of LDAP queries in a short time ï¿½ typically thousands of queries within minutes. Event ID <strong>1644</strong> in the AD Directory Service log captures expensive or inefficient LDAP queries. NetFlow anomalies showing sustained LDAP (port 389/636) from a workstation to the DC are also indicative.</p>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">KQL — LDAP enumeration spike</span></div>
+                        <div class="code-header"><span class="code-lang">KQL ï¿½ LDAP enumeration spike</span></div>
                         <pre><code>SecurityEvent
 | where EventID == 4662
 | where OperationType == "Object Access"
@@ -348,7 +348,7 @@
                             <thead><tr><th>Attack</th><th>Primary Event ID</th><th>Key indicator</th></tr></thead>
                             <tbody>
                                 <tr><td>Kerberoasting</td><td>4769</td><td>RC4 (0x17) encryption type for service ticket requests</td></tr>
-                                <tr><td>AS-REP Roasting</td><td>4768</td><td>Pre-authentication not required — RC4 TGT requested</td></tr>
+                                <tr><td>AS-REP Roasting</td><td>4768</td><td>Pre-authentication not required ï¿½ RC4 TGT requested</td></tr>
                                 <tr><td>Pass-the-Hash</td><td>4624</td><td>Logon Type 3, NTLM auth, workstation-to-workstation</td></tr>
                                 <tr><td>Pass-the-Ticket</td><td>4624</td><td>Kerberos logon from unexpected source IP</td></tr>
                                 <tr><td>DCSync</td><td>4662</td><td>Replication permission access by non-DC account</td></tr>
@@ -371,7 +371,7 @@
                     </div>
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
-                        <p><strong>Tier your AD model.</strong> Privileged Access Workstations (PAWs) for Tier 0 (DC admins), separate accounts for each tier. Domain Admin accounts should never log into workstations — LSASS on every machine an admin touches holds their credentials in memory.</p>
+                        <p><strong>Tier your AD model.</strong> Privileged Access Workstations (PAWs) for Tier 0 (DC admins), separate accounts for each tier. Domain Admin accounts should never log into workstations ï¿½ LSASS on every machine an admin touches holds their credentials in memory.</p>
                     </div>
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>

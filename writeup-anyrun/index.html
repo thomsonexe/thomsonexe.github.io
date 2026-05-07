@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Any.Run — Malware Sandbox Analysis | Ben Thomson</title>
-    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <title>Any.Run ï¿½ Malware Sandbox Analysis | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/logo2.png">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/writeup.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,8 +37,8 @@
                 <span class="ctf-difficulty easy">Beginner</span>
                 <span class="writeup-category"><i class="fas fa-tag"></i> Malware Analysis / Sandbox / DFIR</span>
             </div>
-            <h1 class="writeup-title">Any.Run — Malware Sandbox Analysis</h1>
-            <p class="writeup-subtitle">A practical guide to Any.Run — submitting samples, reading the process tree, analysing network activity, extracting IOCs, and mapping behaviour to MITRE ATT&CK for incident response and threat hunting.</p>
+            <h1 class="writeup-title">Any.Run ï¿½ Malware Sandbox Analysis</h1>
+            <p class="writeup-subtitle">A practical guide to Any.Run ï¿½ submitting samples, reading the process tree, analysing network activity, extracting IOCs, and mapping behaviour to MITRE ATT&CK for incident response and threat hunting.</p>
             <div class="writeup-stats">
                 <span><i class="fas fa-clock"></i> 12 min read</span>
                 <span><i class="fas fa-bug"></i> Malware Analysis</span>
@@ -72,11 +72,11 @@
 
                 <section id="intro" class="writeup-section">
                     <h2><span class="title-prefix">// </span>What is Any.Run?</h2>
-                    <p>Any.Run is an interactive online malware sandbox. Unlike automated sandboxes that run a sample and generate a report, Any.Run gives you a live virtual machine in your browser where you can interact with the malware in real time — click through installers, open documents, observe what happens when you take specific actions.</p>
+                    <p>Any.Run is an interactive online malware sandbox. Unlike automated sandboxes that run a sample and generate a report, Any.Run gives you a live virtual machine in your browser where you can interact with the malware in real time ï¿½ click through installers, open documents, observe what happens when you take specific actions.</p>
                     <p>It's an invaluable tool for blue team analysts and DFIR responders who need to quickly understand what a suspicious file or URL does without exposing a real system to risk.</p>
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
-                        <p>Any.Run has a free public tier where submissions and reports are publicly visible. If you're analysing sensitive files (internal documents, corporate malware samples), use a <strong>private</strong> submission — this requires a paid account. Never submit files containing sensitive company or personal data on the free tier.</p>
+                        <p>Any.Run has a free public tier where submissions and reports are publicly visible. If you're analysing sensitive files (internal documents, corporate malware samples), use a <strong>private</strong> submission ï¿½ this requires a paid account. Never submit files containing sensitive company or personal data on the free tier.</p>
                     </div>
                 </section>
 
@@ -91,17 +91,17 @@
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-eye"></i></div>
                             <h4>Instrumentation</h4>
-                            <p>Every system call, process spawn, network connection, file write, and registry change is monitored and recorded — giving you complete visibility into what the sample does.</p>
+                            <p>Every system call, process spawn, network connection, file write, and registry change is monitored and recorded ï¿½ giving you complete visibility into what the sample does.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-mouse-pointer"></i></div>
                             <h4>Interactivity</h4>
-                            <p>Unlike automated sandboxes, Any.Run lets you interact with the VM — open files, click buttons, enter credentials. Malware that waits for user interaction or checks for VM environment can be triggered manually.</p>
+                            <p>Unlike automated sandboxes, Any.Run lets you interact with the VM ï¿½ open files, click buttons, enter credentials. Malware that waits for user interaction or checks for VM environment can be triggered manually.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-clock"></i></div>
                             <h4>Time limit</h4>
-                            <p>Free sessions run for 60 seconds. Paid plans extend to several minutes. Some malware has long sleep timers — use the time slider to advance the analysis if activity stalls.</p>
+                            <p>Free sessions run for 60 seconds. Paid plans extend to several minutes. Some malware has long sleep timers ï¿½ use the time slider to advance the analysis if activity stalls.</p>
                         </div>
                     </div>
                 </section>
@@ -115,10 +115,10 @@
                                 <tr><th>Option</th><th>Description</th><th>When to use</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>OS Version</td><td>Windows 7, 10, 11 — select to match target environment</td><td>Match the OS of the victim host when analysing an incident</td></tr>
-                                <tr><td>Bitness</td><td>32-bit or 64-bit</td><td>Match the victim architecture — some malware checks this</td></tr>
+                                <tr><td>OS Version</td><td>Windows 7, 10, 11 ï¿½ select to match target environment</td><td>Match the OS of the victim host when analysing an incident</td></tr>
+                                <tr><td>Bitness</td><td>32-bit or 64-bit</td><td>Match the victim architecture ï¿½ some malware checks this</td></tr>
                                 <tr><td>Real network</td><td>Routes traffic to actual internet instead of simulated</td><td>Needed if C2 infrastructure is live and you want to see real callbacks</td></tr>
-                                <tr><td>Fake net</td><td>Simulates network responses — keeps malware running even when C2 is down</td><td>Useful for analysing malware when C2 is offline</td></tr>
+                                <tr><td>Fake net</td><td>Simulates network responses ï¿½ keeps malware running even when C2 is down</td><td>Useful for analysing malware when C2 is offline</td></tr>
                                 <tr><td>Privacy</td><td>Public (free) or Private (paid)</td><td>Always use Private for real incident samples</td></tr>
                                 <tr><td>Run as admin</td><td>Starts the sample with administrator privileges</td><td>When malware requires elevated privileges to run</td></tr>
                                 <tr><td>MITM</td><td>Intercepts HTTPS traffic for decryption</td><td>When malware uses HTTPS C2 and you want to see request contents</td></tr>
@@ -134,20 +134,20 @@
 
                 <section id="report" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Reading the Report</h2>
-                    <p>The Any.Run report has several panels — understanding each one helps you quickly extract the information you need.</p>
+                    <p>The Any.Run report has several panels ï¿½ understanding each one helps you quickly extract the information you need.</p>
                     <div class="kql-table-wrap">
                         <table class="kql-table">
                             <thead>
                                 <tr><th>Panel</th><th>What it shows</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Process Graph</td><td>Visual tree of all spawned processes — the most important view for understanding execution chain</td></tr>
-                                <tr><td>Network Activity</td><td>DNS queries, HTTP requests, connections — shows C2 callbacks, payload downloads, exfiltration</td></tr>
-                                <tr><td>File Activity</td><td>Files created, modified, or deleted — dropped payloads, configuration files, ransom notes</td></tr>
-                                <tr><td>Registry Activity</td><td>Registry keys read or written — persistence mechanisms, configuration storage</td></tr>
-                                <tr><td>Threats</td><td>Any.Run's verdict and tagged signatures — malware family, MITRE techniques</td></tr>
-                                <tr><td>IOCs</td><td>Extracted indicators — IPs, domains, hashes, file paths — exportable for threat hunting</td></tr>
-                                <tr><td>Suricata Alerts</td><td>Network IDS hits — known malware traffic patterns matched against Suricata rules</td></tr>
+                                <tr><td>Process Graph</td><td>Visual tree of all spawned processes ï¿½ the most important view for understanding execution chain</td></tr>
+                                <tr><td>Network Activity</td><td>DNS queries, HTTP requests, connections ï¿½ shows C2 callbacks, payload downloads, exfiltration</td></tr>
+                                <tr><td>File Activity</td><td>Files created, modified, or deleted ï¿½ dropped payloads, configuration files, ransom notes</td></tr>
+                                <tr><td>Registry Activity</td><td>Registry keys read or written ï¿½ persistence mechanisms, configuration storage</td></tr>
+                                <tr><td>Threats</td><td>Any.Run's verdict and tagged signatures ï¿½ malware family, MITRE techniques</td></tr>
+                                <tr><td>IOCs</td><td>Extracted indicators ï¿½ IPs, domains, hashes, file paths ï¿½ exportable for threat hunting</td></tr>
+                                <tr><td>Suricata Alerts</td><td>Network IDS hits ï¿½ known malware traffic patterns matched against Suricata rules</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -162,7 +162,7 @@
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-file-word"></i></div>
                             <h4>Suspicious parent-child</h4>
-                            <p>Office applications spawning <code>cmd.exe</code> or <code>powershell.exe</code> — classic macro or exploit indicator. Browser spawning <code>wscript.exe</code> — drive-by download.</p>
+                            <p>Office applications spawning <code>cmd.exe</code> or <code>powershell.exe</code> ï¿½ classic macro or exploit indicator. Browser spawning <code>wscript.exe</code> ï¿½ drive-by download.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-copy"></i></div>
@@ -172,12 +172,12 @@
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-tools"></i></div>
                             <h4>LOLBins</h4>
-                            <p>Living-off-the-land binaries — <code>certutil</code>, <code>regsvr32</code>, <code>mshta</code>, <code>bitsadmin</code>, <code>rundll32</code> used with unusual arguments to download or execute payloads.</p>
+                            <p>Living-off-the-land binaries ï¿½ <code>certutil</code>, <code>regsvr32</code>, <code>mshta</code>, <code>bitsadmin</code>, <code>rundll32</code> used with unusual arguments to download or execute payloads.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-user-shield"></i></div>
                             <h4>Privilege escalation</h4>
-                            <p>Processes starting as a standard user and later appearing with SYSTEM or elevated context — look for UAC bypass attempts or token manipulation.</p>
+                            <p>Processes starting as a standard user and later appearing with SYSTEM or elevated context ï¿½ look for UAC bypass attempts or token manipulation.</p>
                         </div>
                     </div>
 
@@ -188,9 +188,9 @@
                                 <tr><th>Colour</th><th>Meaning</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Red</td><td>Process flagged as malicious — confirmed or highly suspicious activity</td></tr>
-                                <tr><td>Orange</td><td>Suspicious — potentially malicious behaviour detected</td></tr>
-                                <tr><td>Yellow</td><td>Informational — notable behaviour but not necessarily malicious</td></tr>
+                                <tr><td>Red</td><td>Process flagged as malicious ï¿½ confirmed or highly suspicious activity</td></tr>
+                                <tr><td>Orange</td><td>Suspicious ï¿½ potentially malicious behaviour detected</td></tr>
+                                <tr><td>Yellow</td><td>Informational ï¿½ notable behaviour but not necessarily malicious</td></tr>
                                 <tr><td>Grey</td><td>Clean / system process</td></tr>
                             </tbody>
                         </table>
@@ -208,12 +208,12 @@
                                 <tr><th>Type</th><th>What to look for</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>DNS queries</td><td>C2 domain names — look for DGA-style random strings, recently registered domains, or known malicious domains</td></tr>
-                                <tr><td>HTTP GET</td><td>Payload download URLs — note the path and any query parameters (often contain victim ID or encoded data)</td></tr>
-                                <tr><td>HTTP POST</td><td>Data being sent out — check request body for stolen credentials, system info, or encoded exfiltrated data</td></tr>
-                                <tr><td>User-Agent</td><td>Often hardcoded in malware — note the exact string for detection rules</td></tr>
-                                <tr><td>Beaconing pattern</td><td>Regular intervals of identical requests — note the interval and URL for C2 detection</td></tr>
-                                <tr><td>IP addresses</td><td>Direct IP connections (no DNS) are suspicious — often C2 infrastructure avoiding domain-based blocking</td></tr>
+                                <tr><td>DNS queries</td><td>C2 domain names ï¿½ look for DGA-style random strings, recently registered domains, or known malicious domains</td></tr>
+                                <tr><td>HTTP GET</td><td>Payload download URLs ï¿½ note the path and any query parameters (often contain victim ID or encoded data)</td></tr>
+                                <tr><td>HTTP POST</td><td>Data being sent out ï¿½ check request body for stolen credentials, system info, or encoded exfiltrated data</td></tr>
+                                <tr><td>User-Agent</td><td>Often hardcoded in malware ï¿½ note the exact string for detection rules</td></tr>
+                                <tr><td>Beaconing pattern</td><td>Regular intervals of identical requests ï¿½ note the interval and URL for C2 detection</td></tr>
+                                <tr><td>IP addresses</td><td>Direct IP connections (no DNS) are suspicious ï¿½ often C2 infrastructure avoiding domain-based blocking</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -226,12 +226,12 @@
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-download"></i></div>
                             <h4>Dropped payloads</h4>
-                            <p>Second-stage executables written to disk — note the path and hash. Common drop locations: <code>%TEMP%</code>, <code>%APPDATA%</code>, <code>C:\ProgramData</code>.</p>
+                            <p>Second-stage executables written to disk ï¿½ note the path and hash. Common drop locations: <code>%TEMP%</code>, <code>%APPDATA%</code>, <code>C:\ProgramData</code>.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-cog"></i></div>
                             <h4>Config files</h4>
-                            <p>Malware often writes configuration to disk — RC4 keys, C2 addresses, victim identifiers. These files may be encrypted or obfuscated.</p>
+                            <p>Malware often writes configuration to disk ï¿½ RC4 keys, C2 addresses, victim identifiers. These files may be encrypted or obfuscated.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-plug"></i></div>
@@ -261,7 +261,7 @@
                                 <tr><td>URLs</td><td>Block at web proxy; search proxy logs; may contain unique campaign identifiers</td></tr>
                                 <tr><td>File paths</td><td>Hunt for the same paths on other endpoints in your environment</td></tr>
                                 <tr><td>Registry keys</td><td>Hunt for the same persistence keys across endpoints</td></tr>
-                                <tr><td>Mutex names</td><td>Mutexes are created by malware to prevent re-infection — unique per malware family, useful for detection rules</td></tr>
+                                <tr><td>Mutex names</td><td>Mutexes are created by malware to prevent re-infection ï¿½ unique per malware family, useful for detection rules</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -283,13 +283,13 @@
                                 <tr><th>Technique ID</th><th>Name</th><th>What it looks like in Any.Run</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>T1059.001</td><td>PowerShell</td><td>PowerShell spawned, often with -enc flag — encoded command execution</td></tr>
+                                <tr><td>T1059.001</td><td>PowerShell</td><td>PowerShell spawned, often with -enc flag ï¿½ encoded command execution</td></tr>
                                 <tr><td>T1059.003</td><td>Windows Command Shell</td><td>cmd.exe with unusual arguments or spawned from document process</td></tr>
                                 <tr><td>T1055</td><td>Process Injection</td><td>Malicious code executing inside a legitimate host process</td></tr>
                                 <tr><td>T1547.001</td><td>Registry Run Keys</td><td>HKCU\Software\Microsoft\Windows\CurrentVersion\Run modified</td></tr>
                                 <tr><td>T1053.005</td><td>Scheduled Task</td><td>schtasks.exe run with /create argument</td></tr>
                                 <tr><td>T1071.001</td><td>Web Protocols (C2)</td><td>HTTP/HTTPS to unusual domain after execution</td></tr>
-                                <tr><td>T1486</td><td>Data Encrypted for Impact</td><td>Bulk file modification with new extensions — ransomware</td></tr>
+                                <tr><td>T1486</td><td>Data Encrypted for Impact</td><td>Bulk file modification with new extensions ï¿½ ransomware</td></tr>
                                 <tr><td>T1562.001</td><td>Disable Security Tools</td><td>AV/EDR services stopped; Windows Defender disabled via registry</td></tr>
                             </tbody>
                         </table>
@@ -300,11 +300,11 @@
                     <h2><span class="title-prefix">// </span>Tips &amp; Best Practices</h2>
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
-                        <p><strong>Interact with the sample.</strong> Any.Run's biggest advantage over automated sandboxes is interactivity. If a sample opens a document, click Enable Content. If it shows a password prompt, try common passwords. If it waits for input, provide it — malware often gates further activity behind user interaction.</p>
+                        <p><strong>Interact with the sample.</strong> Any.Run's biggest advantage over automated sandboxes is interactivity. If a sample opens a document, click Enable Content. If it shows a password prompt, try common passwords. If it waits for input, provide it ï¿½ malware often gates further activity behind user interaction.</p>
                     </div>
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
-                        <p><strong>Use fake network mode for offline C2.</strong> If the malware's C2 server is down, it may exit quickly or loop waiting for a connection. Enable Fake Net to simulate network responses — this keeps the malware running so you can observe more behaviour.</p>
+                        <p><strong>Use fake network mode for offline C2.</strong> If the malware's C2 server is down, it may exit quickly or loop waiting for a connection. Enable Fake Net to simulate network responses ï¿½ this keeps the malware running so you can observe more behaviour.</p>
                     </div>
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>

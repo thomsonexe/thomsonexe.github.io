@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wireshark — Network Analysis | Ben Thomson</title>
-    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <title>Wireshark ï¿½ Network Analysis | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/logo2.png">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/writeup.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,8 +37,8 @@
                 <span class="ctf-difficulty easy">Beginner</span>
                 <span class="writeup-category"><i class="fas fa-tag"></i> Network Analysis / Packet Capture / Threat Detection</span>
             </div>
-            <h1 class="writeup-title">Wireshark — Network Analysis</h1>
-            <p class="writeup-subtitle">A practical guide to capturing and analysing network traffic with Wireshark — covering display filters, protocol dissection, stream following, and identifying malicious activity in packet captures.</p>
+            <h1 class="writeup-title">Wireshark ï¿½ Network Analysis</h1>
+            <p class="writeup-subtitle">A practical guide to capturing and analysing network traffic with Wireshark ï¿½ covering display filters, protocol dissection, stream following, and identifying malicious activity in packet captures.</p>
             <div class="writeup-stats">
                 <span><i class="fas fa-clock"></i> 15 min read</span>
                 <span><i class="fas fa-network-wired"></i> Hands-on</span>
@@ -72,11 +72,11 @@
 
                 <section id="intro" class="writeup-section">
                     <h2><span class="title-prefix">// </span>What is Wireshark?</h2>
-                    <p>Wireshark is a free, open-source network protocol analyser. It captures live network traffic or reads from saved packet capture files (<code>.pcap</code> / <code>.pcapng</code>) and lets you inspect every packet in detail — from raw bytes up to application-layer data.</p>
+                    <p>Wireshark is a free, open-source network protocol analyser. It captures live network traffic or reads from saved packet capture files (<code>.pcap</code> / <code>.pcapng</code>) and lets you inspect every packet in detail ï¿½ from raw bytes up to application-layer data.</p>
                     <p>As a SOC analyst or DFIR responder, Wireshark is invaluable for investigating suspicious network activity, analysing malware command-and-control traffic, reconstructing file transfers, and understanding exactly what a compromised host was communicating with.</p>
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
-                        <p>Wireshark uses <strong>libpcap</strong> (Linux/macOS) or <strong>Npcap</strong> (Windows) for live capture. On Windows, install Npcap when prompted during the Wireshark installer — without it, live capture won't work.</p>
+                        <p>Wireshark uses <strong>libpcap</strong> (Linux/macOS) or <strong>Npcap</strong> (Windows) for live capture. On Windows, install Npcap when prompted during the Wireshark installer ï¿½ without it, live capture won't work.</p>
                     </div>
                 </section>
 
@@ -93,7 +93,7 @@
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-sitemap"></i></div>
                             <h4>Packet Details (middle)</h4>
-                            <p>Dissected layers for the selected packet — expanding each layer shows every field decoded from the raw bytes. Right-click any field to build a filter from it.</p>
+                            <p>Dissected layers for the selected packet ï¿½ expanding each layer shows every field decoded from the raw bytes. Right-click any field to build a filter from it.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-code"></i></div>
@@ -114,7 +114,7 @@
                                 <tr><td>Light green</td><td>TCP traffic</td></tr>
                                 <tr><td>Light blue</td><td>UDP traffic</td></tr>
                                 <tr><td>Dark blue</td><td>DNS queries / responses</td></tr>
-                                <tr><td>Black (red text)</td><td>TCP errors — bad checksum, retransmissions, out-of-order</td></tr>
+                                <tr><td>Black (red text)</td><td>TCP errors ï¿½ bad checksum, retransmissions, out-of-order</td></tr>
                                 <tr><td>Yellow</td><td>Windows-specific protocols (SMB, NetBIOS)</td></tr>
                                 <tr><td>Purple / magenta</td><td>ICMP traffic</td></tr>
                             </tbody>
@@ -124,11 +124,11 @@
 
                 <section id="capture" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Capture Filters</h2>
-                    <p>Capture filters are applied <strong>before</strong> packets are recorded. They reduce the volume of data captured, which matters on busy networks. Capture filters use <strong>BPF (Berkeley Packet Filter)</strong> syntax — different from display filter syntax.</p>
+                    <p>Capture filters are applied <strong>before</strong> packets are recorded. They reduce the volume of data captured, which matters on busy networks. Capture filters use <strong>BPF (Berkeley Packet Filter)</strong> syntax ï¿½ different from display filter syntax.</p>
 
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p>Capture filters discard non-matching packets permanently. If you're not sure what you need, capture everything and use display filters to narrow it down afterwards — you can't get back packets that were filtered out at capture time.</p>
+                        <p>Capture filters discard non-matching packets permanently. If you're not sure what you need, capture everything and use display filters to narrow it down afterwards ï¿½ you can't get back packets that were filtered out at capture time.</p>
                     </div>
 
                     <div class="kql-table-wrap">
@@ -143,7 +143,7 @@
                                 <tr><td><code>net 192.168.1.0/24</code></td><td>All traffic within a subnet</td></tr>
                                 <tr><td><code>port 443</code></td><td>Traffic on port 443 (HTTPS) in either direction</td></tr>
                                 <tr><td><code>tcp port 80</code></td><td>TCP traffic on port 80 only</td></tr>
-                                <tr><td><code>not port 22</code></td><td>Exclude SSH — useful to stop your own session flooding the capture</td></tr>
+                                <tr><td><code>not port 22</code></td><td>Exclude SSH ï¿½ useful to stop your own session flooding the capture</td></tr>
                                 <tr><td><code>tcp</code></td><td>TCP traffic only</td></tr>
                                 <tr><td><code>udp</code></td><td>UDP traffic only</td></tr>
                                 <tr><td><code>icmp</code></td><td>ICMP only (ping, traceroute)</td></tr>
@@ -155,7 +155,7 @@
 
                 <section id="display" class="writeup-section">
                     <h2><span class="title-prefix">// </span>Display Filters</h2>
-                    <p>Display filters are applied <strong>after</strong> capture — they hide packets that don't match without discarding them. This is the filter you'll use most during analysis. Display filters use Wireshark's own syntax and support any decoded field in any protocol.</p>
+                    <p>Display filters are applied <strong>after</strong> capture ï¿½ they hide packets that don't match without discarding them. This is the filter you'll use most during analysis. Display filters use Wireshark's own syntax and support any decoded field in any protocol.</p>
 
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
@@ -190,17 +190,17 @@
                             <tbody>
                                 <tr><td><code>ip.addr == 192.168.1.10</code></td><td>All traffic to or from an IP</td></tr>
                                 <tr><td><code>ip.src == 192.168.1.10</code></td><td>Traffic from a specific source</td></tr>
-                                <tr><td><code>tcp.port == 4444</code></td><td>Traffic on a specific port — common C2 port</td></tr>
+                                <tr><td><code>tcp.port == 4444</code></td><td>Traffic on a specific port ï¿½ common C2 port</td></tr>
                                 <tr><td><code>http</code></td><td>HTTP traffic only</td></tr>
                                 <tr><td><code>http.request</code></td><td>HTTP GET/POST requests only</td></tr>
-                                <tr><td><code>http.request.method == "POST"</code></td><td>HTTP POST requests — data being sent out</td></tr>
+                                <tr><td><code>http.request.method == "POST"</code></td><td>HTTP POST requests ï¿½ data being sent out</td></tr>
                                 <tr><td><code>dns</code></td><td>All DNS queries and responses</td></tr>
                                 <tr><td><code>dns.qry.name contains "pastebin"</code></td><td>DNS lookups for a specific domain pattern</td></tr>
                                 <tr><td><code>tls</code></td><td>TLS handshakes and encrypted traffic</td></tr>
-                                <tr><td><code>tls.handshake.type == 1</code></td><td>TLS Client Hello — start of a new TLS connection</td></tr>
-                                <tr><td><code>tcp.flags.syn == 1 && tcp.flags.ack == 0</code></td><td>TCP SYN packets only — useful for port scan detection</td></tr>
-                                <tr><td><code>icmp</code></td><td>All ICMP traffic — ping sweeps, tunnelling</td></tr>
-                                <tr><td><code>smb || smb2</code></td><td>SMB file sharing — lateral movement indicator</td></tr>
+                                <tr><td><code>tls.handshake.type == 1</code></td><td>TLS Client Hello ï¿½ start of a new TLS connection</td></tr>
+                                <tr><td><code>tcp.flags.syn == 1 && tcp.flags.ack == 0</code></td><td>TCP SYN packets only ï¿½ useful for port scan detection</td></tr>
+                                <tr><td><code>icmp</code></td><td>All ICMP traffic ï¿½ ping sweeps, tunnelling</td></tr>
+                                <tr><td><code>smb || smb2</code></td><td>SMB file sharing ï¿½ lateral movement indicator</td></tr>
                                 <tr><td><code>frame contains "password"</code></td><td>Any packet containing the word "password" in plaintext</td></tr>
                             </tbody>
                         </table>
@@ -220,7 +220,7 @@
                             </thead>
                             <tbody>
                                 <tr><td>Request URI</td><td><code>http.request.uri</code></td><td>Suspicious paths, encoded parameters, shell commands in URLs</td></tr>
-                                <tr><td>Host header</td><td><code>http.host</code></td><td>Domain contacted — compare against threat intel</td></tr>
+                                <tr><td>Host header</td><td><code>http.host</code></td><td>Domain contacted ï¿½ compare against threat intel</td></tr>
                                 <tr><td>User-Agent</td><td><code>http.user_agent</code></td><td>Malware often uses fake or unusual User-Agent strings</td></tr>
                                 <tr><td>POST body</td><td>HTTP &gt; Line-based text data</td><td>Credentials, exfiltrated data, C2 check-ins</td></tr>
                                 <tr><td>Response code</td><td><code>http.response.code</code></td><td>200 = success, 404 = not found, 302 = redirect</td></tr>
@@ -235,12 +235,12 @@
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-exchange-alt"></i></div>
                             <h4>High Query Volume</h4>
-                            <p>Hundreds of queries to the same domain in a short window — likely beaconing or DGA (Domain Generation Algorithm) malware.</p>
+                            <p>Hundreds of queries to the same domain in a short window ï¿½ likely beaconing or DGA (Domain Generation Algorithm) malware.</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-text-width"></i></div>
                             <h4>Long Subdomains</h4>
-                            <p>Subdomains longer than ~50 characters are suspicious — DNS tunnelling encodes data as subdomains (e.g. <code>aGVsbG8gd29ybGQ.evil.com</code>).</p>
+                            <p>Subdomains longer than ~50 characters are suspicious ï¿½ DNS tunnelling encodes data as subdomains (e.g. <code>aGVsbG8gd29ybGQ.evil.com</code>).</p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-random"></i></div>
@@ -256,7 +256,7 @@
 
                     <h3 class="sub-heading">TLS / HTTPS</h3>
                     <p>The payload of TLS traffic is encrypted, but the handshake is visible. The <strong>Server Name Indication (SNI)</strong> field in the Client Hello reveals the destination hostname even over HTTPS.</p>
-                    <p>Filter for TLS Client Hellos: <code>tls.handshake.type == 1</code> — then look at <code>tls.handshake.extensions_server_name</code> for the destination domain.</p>
+                    <p>Filter for TLS Client Hellos: <code>tls.handshake.type == 1</code> ï¿½ then look at <code>tls.handshake.extensions_server_name</code> for the destination domain.</p>
 
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
@@ -268,7 +268,7 @@
                     <h2><span class="title-prefix">// </span>Following Streams</h2>
                     <p>Wireshark reassembles fragmented packets and lets you read the full conversation between two hosts as a continuous stream. This is one of the most useful features for incident investigation.</p>
 
-                    <p>Right-click any packet and choose <strong>Follow &gt; TCP Stream</strong> (or UDP Stream, HTTP Stream, etc.). The stream window shows the full data exchange — client data in red, server data in blue by default.</p>
+                    <p>Right-click any packet and choose <strong>Follow &gt; TCP Stream</strong> (or UDP Stream, HTTP Stream, etc.). The stream window shows the full data exchange ï¿½ client data in red, server data in blue by default.</p>
 
                     <div class="kql-table-wrap">
                         <table class="kql-table">
@@ -276,10 +276,10 @@
                                 <tr><th>Stream type</th><th>Best used for</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>TCP Stream</td><td>Any TCP connection — raw reassembled data. Essential for shell sessions, custom protocols, or anything not decoded by a dissector.</td></tr>
-                                <tr><td>UDP Stream</td><td>UDP sessions — DNS responses, TFTP file transfers, custom UDP protocols.</td></tr>
+                                <tr><td>TCP Stream</td><td>Any TCP connection ï¿½ raw reassembled data. Essential for shell sessions, custom protocols, or anything not decoded by a dissector.</td></tr>
+                                <tr><td>UDP Stream</td><td>UDP sessions ï¿½ DNS responses, TFTP file transfers, custom UDP protocols.</td></tr>
                                 <tr><td>HTTP Stream</td><td>HTTP request and response together. Useful but TCP Stream often shows more.</td></tr>
-                                <tr><td>TLS Stream</td><td>Encrypted TLS data — only readable if you have keys loaded.</td></tr>
+                                <tr><td>TLS Stream</td><td>Encrypted TLS data ï¿½ only readable if you have keys loaded.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -300,13 +300,13 @@
                                 <tr><th>Tool</th><th>Menu</th><th>What it does</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Protocol Hierarchy</td><td>Statistics</td><td>Breakdown of protocols in the capture by packet count and bytes — instantly shows what makes up the traffic.</td></tr>
+                                <tr><td>Protocol Hierarchy</td><td>Statistics</td><td>Breakdown of protocols in the capture by packet count and bytes ï¿½ instantly shows what makes up the traffic.</td></tr>
                                 <tr><td>Conversations</td><td>Statistics</td><td>Lists all communication pairs (IP, TCP, UDP) with byte counts. Sort by bytes to find high-volume connections.</td></tr>
-                                <tr><td>Endpoints</td><td>Statistics</td><td>All unique IP/MAC addresses — useful for identifying active hosts.</td></tr>
-                                <tr><td>I/O Graph</td><td>Statistics</td><td>Traffic volume over time. Spikes indicate bursts of activity — useful for correlating with a timeline.</td></tr>
+                                <tr><td>Endpoints</td><td>Statistics</td><td>All unique IP/MAC addresses ï¿½ useful for identifying active hosts.</td></tr>
+                                <tr><td>I/O Graph</td><td>Statistics</td><td>Traffic volume over time. Spikes indicate bursts of activity ï¿½ useful for correlating with a timeline.</td></tr>
                                 <tr><td>DNS Statistics</td><td>Statistics &gt; DNS</td><td>Summary of DNS query types, response codes, and top queried domains.</td></tr>
                                 <tr><td>HTTP Statistics</td><td>Statistics &gt; HTTP</td><td>Request types, response codes, and packet counter for HTTP traffic.</td></tr>
-                                <tr><td>Expert Information</td><td>Analyze</td><td>Wireshark's automated findings — errors, warnings, notes. Start here when reviewing an unfamiliar capture.</td></tr>
+                                <tr><td>Expert Information</td><td>Analyze</td><td>Wireshark's automated findings ï¿½ errors, warnings, notes. Start here when reviewing an unfamiliar capture.</td></tr>
                                 <tr><td>TCP Stream Graphs</td><td>Statistics &gt; TCP Stream Graphs</td><td>Visualise TCP sequence numbers, throughput, RTT, and window scaling for a selected connection.</td></tr>
                             </tbody>
                         </table>
@@ -314,7 +314,7 @@
 
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
-                        <p><strong>Start with Protocol Hierarchy and Conversations.</strong> On an unfamiliar capture, these two views tell you what protocols are present and which hosts are talking the most — giving you a quick triage picture before reading individual packets.</p>
+                        <p><strong>Start with Protocol Hierarchy and Conversations.</strong> On an unfamiliar capture, these two views tell you what protocols are present and which hosts are talking the most ï¿½ giving you a quick triage picture before reading individual packets.</p>
                     </div>
                 </section>
 
@@ -330,7 +330,7 @@
                     </div>
 
                     <h3 class="sub-heading">C2 beaconing</h3>
-                    <p>Malware that phones home on a regular interval shows up as evenly spaced connections — often to the same IP and port. Use <strong>Statistics &gt; Conversations</strong>, sort by packet count, and look for repeated low-volume sessions at regular intervals.</p>
+                    <p>Malware that phones home on a regular interval shows up as evenly spaced connections ï¿½ often to the same IP and port. Use <strong>Statistics &gt; Conversations</strong>, sort by packet count, and look for repeated low-volume sessions at regular intervals.</p>
 
                     <h3 class="sub-heading">Cleartext credentials</h3>
                     <p>Credentials sent over unencrypted protocols (FTP, Telnet, HTTP Basic Auth, SMTP) are readable directly in Wireshark.</p>
@@ -344,14 +344,14 @@
                     </div>
 
                     <h3 class="sub-heading">ARP poisoning</h3>
-                    <p>An attacker floods the network with ARP replies mapping their MAC to another host's IP — enabling man-in-the-middle. Look for a single MAC claiming multiple IP addresses.</p>
+                    <p>An attacker floods the network with ARP replies mapping their MAC to another host's IP ï¿½ enabling man-in-the-middle. Look for a single MAC claiming multiple IP addresses.</p>
                     <div class="code-block">
                         <div class="code-header"><span class="code-lang">Wireshark Display Filter</span></div>
                         <pre><code>arp.opcode == 2</code></pre>
                     </div>
 
                     <h3 class="sub-heading">DNS exfiltration</h3>
-                    <p>Data encoded as subdomains in DNS queries — tunnelling tools like dnscat2 generate long, encoded subdomains at high frequency.</p>
+                    <p>Data encoded as subdomains in DNS queries ï¿½ tunnelling tools like dnscat2 generate long, encoded subdomains at high frequency.</p>
                     <div class="code-block">
                         <div class="code-header"><span class="code-lang">Wireshark Display Filter</span></div>
                         <pre><code>dns.qry.name matches "\.[a-z0-9]{30,}\."</code></pre>
@@ -382,7 +382,7 @@
                     <p>Wireshark can reconstruct and export files and objects that were transferred during the captured session.</p>
 
                     <h3 class="sub-heading">Export HTTP objects</h3>
-                    <p>Go to <strong>File &gt; Export Objects &gt; HTTP</strong>. Wireshark lists all files transferred over HTTP — images, scripts, executables, documents. Select items and save them for further analysis.</p>
+                    <p>Go to <strong>File &gt; Export Objects &gt; HTTP</strong>. Wireshark lists all files transferred over HTTP ï¿½ images, scripts, executables, documents. Select items and save them for further analysis.</p>
 
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
@@ -397,8 +397,8 @@
                             </thead>
                             <tbody>
                                 <tr><td>Export Objects &gt; SMB</td><td>File &gt; Export Objects</td><td>Extract files transferred over SMB file shares</td></tr>
-                                <tr><td>Export Objects &gt; TFTP</td><td>File &gt; Export Objects</td><td>Extract TFTP file transfers — common in network device configs</td></tr>
-                                <tr><td>Export Specified Packets</td><td>File &gt; Export Specified Packets</td><td>Save a filtered subset of packets as a new .pcap — useful for sharing a relevant slice of a large capture</td></tr>
+                                <tr><td>Export Objects &gt; TFTP</td><td>File &gt; Export Objects</td><td>Extract TFTP file transfers ï¿½ common in network device configs</td></tr>
+                                <tr><td>Export Specified Packets</td><td>File &gt; Export Specified Packets</td><td>Save a filtered subset of packets as a new .pcap ï¿½ useful for sharing a relevant slice of a large capture</td></tr>
                                 <tr><td>Export Packet Dissections</td><td>File &gt; Export Packet Dissections</td><td>Save decoded packet data as CSV, JSON, or plain text for reporting or further processing</td></tr>
                             </tbody>
                         </table>
@@ -410,7 +410,7 @@
 
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
-                        <p><strong>Use tshark for large captures.</strong> Wireshark's command-line companion <code>tshark</code> can apply display filters, extract fields, and output to CSV or JSON without loading the full capture into the GUI — much faster for multi-GB pcap files.</p>
+                        <p><strong>Use tshark for large captures.</strong> Wireshark's command-line companion <code>tshark</code> can apply display filters, extract fields, and output to CSV or JSON without loading the full capture into the GUI ï¿½ much faster for multi-GB pcap files.</p>
                     </div>
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
@@ -422,11 +422,11 @@
                     </div>
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
-                        <p><strong>Name resolution can mislead.</strong> Wireshark resolves IP addresses to hostnames by default. Disable it under <strong>View &gt; Name Resolution</strong> if DNS is slow or you want to see raw IPs. Resolved names are based on the capture machine's DNS — not necessarily accurate for the network you're analysing.</p>
+                        <p><strong>Name resolution can mislead.</strong> Wireshark resolves IP addresses to hostnames by default. Disable it under <strong>View &gt; Name Resolution</strong> if DNS is slow or you want to see raw IPs. Resolved names are based on the capture machine's DNS ï¿½ not necessarily accurate for the network you're analysing.</p>
                     </div>
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p><strong>Encrypted traffic is the norm.</strong> Most modern traffic is TLS — Wireshark shows metadata but not payloads without keys. Focus on DNS, TLS SNI, certificate fields, and traffic patterns when payloads are encrypted. You can still extract a lot of context without decryption.</p>
+                        <p><strong>Encrypted traffic is the norm.</strong> Most modern traffic is TLS ï¿½ Wireshark shows metadata but not payloads without keys. Focus on DNS, TLS SNI, certificate fields, and traffic patterns when payloads are encrypted. You can still extract a lot of context without decryption.</p>
                     </div>
                 </section>
 

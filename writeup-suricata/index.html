@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suricata IDS — Rules & Analysis | Ben Thomson</title>
-    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <title>Suricata IDS ï¿½ Rules & Analysis | Ben Thomson</title>
+    <link rel="icon" type="image/png" href="/logo2.png">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/writeup.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,8 +37,8 @@
                 <span class="ctf-difficulty medium">Intermediate</span>
                 <span class="writeup-category"><i class="fas fa-tag"></i> IDS / Network Detection / Rule Writing</span>
             </div>
-            <h1 class="writeup-title">Suricata IDS — Rules &amp; Analysis</h1>
-            <p class="writeup-subtitle">A practical guide to Suricata — rule anatomy, actions, protocol keywords, writing custom detection rules, analysing EVE JSON alerts, and tuning for low-noise detection.</p>
+            <h1 class="writeup-title">Suricata IDS ï¿½ Rules &amp; Analysis</h1>
+            <p class="writeup-subtitle">A practical guide to Suricata ï¿½ rule anatomy, actions, protocol keywords, writing custom detection rules, analysing EVE JSON alerts, and tuning for low-noise detection.</p>
             <div class="writeup-stats">
                 <span><i class="fas fa-clock"></i> 20 min read</span>
                 <span><i class="fas fa-code"></i> 20+ example rules</span>
@@ -83,7 +83,7 @@
                     <p>Every Suricata rule follows the same structure: <code>action protocol src_ip src_port direction dst_ip dst_port (options)</code></p>
 
                     <div class="code-block">
-                        <span class="code-comment"># Full rule example — detect Mimikatz LSASS dump over the network</span><br>
+                        <span class="code-comment"># Full rule example ï¿½ detect Mimikatz LSASS dump over the network</span><br>
                         alert tcp $HOME_NET any -&gt; $HOME_NET any (<br>
                         &nbsp;&nbsp;&nbsp;&nbsp;msg:<span class="code-val">"ET LATERAL MOVEMENT Mimikatz LSASS Dump"</span>;<br>
                         &nbsp;&nbsp;&nbsp;&nbsp;content:<span class="code-val">"|4c 4d 41 53 53|"</span>; <span class="code-comment">/* LMASS */</span><br>
@@ -108,8 +108,8 @@
                                 <tr><td><code>alert</code></td><td>IDS / IPS</td><td>Generate an alert and log the packet. Does not block traffic.</td></tr>
                                 <tr><td><code>drop</code></td><td>IPS only</td><td>Drop the packet and generate an alert. Requires inline/IPS mode.</td></tr>
                                 <tr><td><code>reject</code></td><td>IPS only</td><td>Drop packet and send TCP RST (or ICMP unreachable for UDP) to both sides.</td></tr>
-                                <tr><td><code>pass</code></td><td>IDS / IPS</td><td>Allow the packet through and skip further rule matching — used for whitelisting.</td></tr>
-                                <tr><td><code>log</code></td><td>IDS</td><td>Log the packet without alerting — useful for capturing specific traffic silently.</td></tr>
+                                <tr><td><code>pass</code></td><td>IDS / IPS</td><td>Allow the packet through and skip further rule matching ï¿½ used for whitelisting.</td></tr>
+                                <tr><td><code>log</code></td><td>IDS</td><td>Log the packet without alerting ï¿½ useful for capturing specific traffic silently.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -155,7 +155,7 @@
                                 <tr><td><code>http.uri</code></td><td>Match on HTTP URI (normalised)</td><td><code>http.uri; content:"/admin/login";</code></td></tr>
                                 <tr><td><code>http.user_agent</code></td><td>Match on HTTP User-Agent header</td><td><code>http.user_agent; content:"curl/7";</code></td></tr>
                                 <tr><td><code>dns.query</code></td><td>Match on DNS query name</td><td><code>dns.query; content:".onion.ly";</code></td></tr>
-                                <tr><td><code>sid</code></td><td>Unique rule ID (required)</td><td><code>sid:1000001;</code> — use &gt;1000000 for custom rules</td></tr>
+                                <tr><td><code>sid</code></td><td>Unique rule ID (required)</td><td><code>sid:1000001;</code> ï¿½ use &gt;1000000 for custom rules</td></tr>
                                 <tr><td><code>rev</code></td><td>Rule revision number (required)</td><td><code>rev:1;</code></td></tr>
                             </tbody>
                         </table>
@@ -206,7 +206,7 @@
 
                 <section id="eve" class="writeup-section">
                     <h2><span class="title-prefix">// </span>EVE JSON Logs</h2>
-                    <p>Suricata outputs alerts, DNS, HTTP, TLS, and file transaction logs in EVE JSON format — a single structured log file that can be ingested into Elasticsearch (ELK Stack), Splunk, or Microsoft Sentinel.</p>
+                    <p>Suricata outputs alerts, DNS, HTTP, TLS, and file transaction logs in EVE JSON format ï¿½ a single structured log file that can be ingested into Elasticsearch (ELK Stack), Splunk, or Microsoft Sentinel.</p>
 
                     <div class="code-block">
                         <span class="code-comment"># Example EVE JSON alert event</span><br>
@@ -231,7 +231,7 @@
 
                     <div class="callout callout-tip">
                         <i class="fas fa-lightbulb"></i>
-                        <p>Enable <code>eve-log</code> types beyond alerts — HTTP, DNS, and TLS logs provide context even when no alert fires. A malware connection to an unknown IP may not trigger an alert, but the TLS certificate in the TLS log may reveal the C2 infrastructure.</p>
+                        <p>Enable <code>eve-log</code> types beyond alerts ï¿½ HTTP, DNS, and TLS logs provide context even when no alert fires. A malware connection to an unknown IP may not trigger an alert, but the TLS certificate in the TLS log may reveal the C2 infrastructure.</p>
                     </div>
                 </section>
 
@@ -248,7 +248,7 @@
                     </div>
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p><strong>Custom SIDs must be above 1,000,000.</strong> SIDs 1–999999 are reserved for the Snort/ET rule set. Using low SIDs in custom rules causes conflicts when updating the official rule set.</p>
+                        <p><strong>Custom SIDs must be above 1,000,000.</strong> SIDs 1ï¿½999999 are reserved for the Snort/ET rule set. Using low SIDs in custom rules causes conflicts when updating the official rule set.</p>
                     </div>
                 </section>
 

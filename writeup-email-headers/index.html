@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"><script>if(location.pathname!=="/"&&location.pathname.endsWith("/"))history.replaceState(null,"",location.pathname.slice(0,-1)+location.search+location.hash);</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Email Header Analysis | Ben Thomson</title>
-    <link rel="icon" type="image/png" href="/mouse_t.png">
+    <link rel="icon" type="image/png" href="/logo2.png">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/writeup.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,7 +38,7 @@
                 <span class="writeup-category"><i class="fas fa-tag"></i> Email Analysis / Phishing / Threat Intel</span>
             </div>
             <h1 class="writeup-title">Email Header Analysis</h1>
-            <p class="writeup-subtitle">A practical guide to reading and analysing email headers — tracing the delivery path, validating SPF, DKIM, and DMARC, identifying spoofing attempts, and extracting IOCs from suspicious emails.</p>
+            <p class="writeup-subtitle">A practical guide to reading and analysing email headers ï¿½ tracing the delivery path, validating SPF, DKIM, and DMARC, identifying spoofing attempts, and extracting IOCs from suspicious emails.</p>
             <div class="writeup-stats">
                 <span><i class="fas fa-clock"></i> 12 min read</span>
                 <span><i class="fas fa-envelope"></i> Email Security</span>
@@ -72,7 +72,7 @@
 
                 <section id="intro" class="writeup-section">
                     <h2><span class="title-prefix">// </span>What are Email Headers?</h2>
-                    <p>Email headers are metadata prepended to every email. They contain the complete delivery path, sender information, authentication results, timestamps, and technical details about the message. The email client hides them by default — but for security analysis, they are essential.</p>
+                    <p>Email headers are metadata prepended to every email. They contain the complete delivery path, sender information, authentication results, timestamps, and technical details about the message. The email client hides them by default ï¿½ but for security analysis, they are essential.</p>
                     <p>Headers are added at each hop as the email travels from the sender's mail client ? sender's mail server ? intermediate relays ? recipient's mail server ? recipient's inbox. Each server prepends its own <code>Received:</code> header, building a chain from destination back to origin.</p>
 
                     <h3 class="sub-heading">How to view headers</h3>
@@ -81,7 +81,7 @@
                             <thead><tr><th>Client</th><th>How to access headers</th></tr></thead>
                             <tbody>
                                 <tr><td>Outlook (desktop)</td><td>File ? Properties ? Internet headers</td></tr>
-                                <tr><td>Outlook (web)</td><td>More actions (…) ? View message source</td></tr>
+                                <tr><td>Outlook (web)</td><td>More actions (ï¿½) ? View message source</td></tr>
                                 <tr><td>Gmail</td><td>Three dots menu ? Show original</td></tr>
                                 <tr><td>Apple Mail</td><td>View ? Message ? All Headers</td></tr>
                                 <tr><td>Thunderbird</td><td>View ? Message Source (Ctrl+U)</td></tr>
@@ -92,11 +92,11 @@
 
                 <section id="received" class="writeup-section">
                     <h2><span class="title-prefix">// </span>The Received Chain</h2>
-                    <p>The most important part of the header for tracing email origin. Each mail server adds a <code>Received:</code> header at the top as the message passes through. Because each new header is prepended, the chain reads <strong>bottom to top</strong> — the bottom entry is where the email originated, the top entry is where it was delivered.</p>
+                    <p>The most important part of the header for tracing email origin. Each mail server adds a <code>Received:</code> header at the top as the message passes through. Because each new header is prepended, the chain reads <strong>bottom to top</strong> ï¿½ the bottom entry is where the email originated, the top entry is where it was delivered.</p>
 
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p><strong>Received headers can be forged</strong> — but only up to the first server your organisation controls. The topmost <code>Received:</code> header added by your own mail gateway is trustworthy; everything below it could have been injected by the sender.</p>
+                        <p><strong>Received headers can be forged</strong> ï¿½ but only up to the first server your organisation controls. The topmost <code>Received:</code> header added by your own mail gateway is trustworthy; everything below it could have been injected by the sender.</p>
                     </div>
 
                     <h3 class="sub-heading">Anatomy of a Received header</h3>
@@ -111,11 +111,11 @@
                         <table class="kql-table">
                             <thead><tr><th>Part</th><th>Meaning</th></tr></thead>
                             <tbody>
-                                <tr><td><code>from mail.evil.com</code></td><td>Hostname the sending server announced (HELO/EHLO) — can be faked</td></tr>
-                                <tr><td><code>(mail.evil.com [185.220.101.42])</code></td><td>Reverse DNS lookup of the connecting IP — more reliable than the announced name</td></tr>
-                                <tr><td><code>[185.220.101.42]</code></td><td>The actual connecting IP — this is what to check against threat intel</td></tr>
-                                <tr><td><code>by mx.victim.org</code></td><td>The receiving server — in this case, your organisation's MX server</td></tr>
-                                <tr><td>Timestamp</td><td>When this hop occurred — compare across hops to identify unusual delays</td></tr>
+                                <tr><td><code>from mail.evil.com</code></td><td>Hostname the sending server announced (HELO/EHLO) ï¿½ can be faked</td></tr>
+                                <tr><td><code>(mail.evil.com [185.220.101.42])</code></td><td>Reverse DNS lookup of the connecting IP ï¿½ more reliable than the announced name</td></tr>
+                                <tr><td><code>[185.220.101.42]</code></td><td>The actual connecting IP ï¿½ this is what to check against threat intel</td></tr>
+                                <tr><td><code>by mx.victim.org</code></td><td>The receiving server ï¿½ in this case, your organisation's MX server</td></tr>
+                                <tr><td>Timestamp</td><td>When this hop occurred ï¿½ compare across hops to identify unusual delays</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -128,22 +128,22 @@
                         <table class="kql-table">
                             <thead><tr><th>Header</th><th>What it contains</th><th>Notes</th></tr></thead>
                             <tbody>
-                                <tr><td><code>From:</code></td><td>Display name and address the sender chose — what the user sees in their email client</td><td>Easily faked — this is the primary spoofing vector</td></tr>
+                                <tr><td><code>From:</code></td><td>Display name and address the sender chose ï¿½ what the user sees in their email client</td><td>Easily faked ï¿½ this is the primary spoofing vector</td></tr>
                                 <tr><td><code>Reply-To:</code></td><td>Address replies will be sent to if different from From</td><td>Phishers use this to redirect replies to attacker-controlled inbox</td></tr>
                                 <tr><td><code>Return-Path:</code></td><td>Address for bounce messages (envelope sender)</td><td>Should match the From domain in legitimate email; mismatch = spoofing signal</td></tr>
-                                <tr><td><code>Envelope-From (MAIL FROM)</code></td><td>The sender address declared in the SMTP envelope — not a message header itself, but visible as <code>Return-Path:</code> in delivered mail</td><td>What SPF validates against — can differ from the From: header</td></tr>
-                                <tr><td><code>Message-ID:</code></td><td>Unique identifier for the message, assigned by the sending server</td><td>Format is <code>&lt;random@sending-domain&gt;</code> — domain should match sender</td></tr>
-                                <tr><td><code>X-Originating-IP:</code></td><td>IP address of the user who submitted the email to the mail server</td><td>Added by some providers (Outlook, Yahoo) — reveals sender's real IP</td></tr>
+                                <tr><td><code>Envelope-From (MAIL FROM)</code></td><td>The sender address declared in the SMTP envelope ï¿½ not a message header itself, but visible as <code>Return-Path:</code> in delivered mail</td><td>What SPF validates against ï¿½ can differ from the From: header</td></tr>
+                                <tr><td><code>Message-ID:</code></td><td>Unique identifier for the message, assigned by the sending server</td><td>Format is <code>&lt;random@sending-domain&gt;</code> ï¿½ domain should match sender</td></tr>
+                                <tr><td><code>X-Originating-IP:</code></td><td>IP address of the user who submitted the email to the mail server</td><td>Added by some providers (Outlook, Yahoo) ï¿½ reveals sender's real IP</td></tr>
                                 <tr><td><code>X-Mailer:</code></td><td>Email client or library used to send the message</td><td>Phishing tools and malware often leave identifiable strings here</td></tr>
-                                <tr><td><code>MIME-Version:</code></td><td>MIME protocol version — always 1.0</td><td>Check <code>Content-Type</code> for attachments and multipart structures</td></tr>
-                                <tr><td><code>Date:</code></td><td>Timestamp the sender's client set</td><td>Compare against Received timestamps — large discrepancies are suspicious</td></tr>
+                                <tr><td><code>MIME-Version:</code></td><td>MIME protocol version ï¿½ always 1.0</td><td>Check <code>Content-Type</code> for attachments and multipart structures</td></tr>
+                                <tr><td><code>Date:</code></td><td>Timestamp the sender's client set</td><td>Compare against Received timestamps ï¿½ large discrepancies are suspicious</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </section>
 
                 <section id="spf" class="writeup-section">
-                    <h2><span class="title-prefix">// </span>SPF — Sender Policy Framework</h2>
+                    <h2><span class="title-prefix">// </span>SPF ï¿½ Sender Policy Framework</h2>
                     <p>SPF is a DNS TXT record that lists the IP addresses and mail servers authorised to send email on behalf of a domain. When a receiving server gets an email, it checks whether the sending IP is listed in the sender domain's SPF record.</p>
 
                     <h3 class="sub-heading">SPF record example</h3>
@@ -156,10 +156,10 @@
                         <table class="kql-table">
                             <thead><tr><th>Mechanism</th><th>Meaning</th></tr></thead>
                             <tbody>
-                                <tr><td><code>v=spf1</code></td><td>SPF version — always starts with this</td></tr>
+                                <tr><td><code>v=spf1</code></td><td>SPF version ï¿½ always starts with this</td></tr>
                                 <tr><td><code>include:_spf.google.com</code></td><td>Authorise all IPs listed in Google's SPF record (for G Suite users)</td></tr>
                                 <tr><td><code>ip4:203.0.113.10</code></td><td>Explicitly authorise this specific IP</td></tr>
-                                <tr><td><code>-all</code></td><td>Hard fail — any IP not listed should be rejected. <code>~all</code> = soft fail (mark as spam), <code>?all</code> = neutral</td></tr>
+                                <tr><td><code>-all</code></td><td>Hard fail ï¿½ any IP not listed should be rejected. <code>~all</code> = soft fail (mark as spam), <code>?all</code> = neutral</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -169,12 +169,12 @@
                         <table class="kql-table">
                             <thead><tr><th>Result</th><th>Meaning</th></tr></thead>
                             <tbody>
-                                <tr><td><code>pass</code></td><td>Sending IP is authorised — legitimate</td></tr>
-                                <tr><td><code>fail</code></td><td>Sending IP is explicitly not authorised — spoofing likely</td></tr>
+                                <tr><td><code>pass</code></td><td>Sending IP is authorised ï¿½ legitimate</td></tr>
+                                <tr><td><code>fail</code></td><td>Sending IP is explicitly not authorised ï¿½ spoofing likely</td></tr>
                                 <tr><td><code>softfail</code></td><td>Not authorised but domain policy says to accept and mark</td></tr>
-                                <tr><td><code>neutral</code></td><td>Domain makes no assertion — treat as unauthenticated</td></tr>
+                                <tr><td><code>neutral</code></td><td>Domain makes no assertion ï¿½ treat as unauthenticated</td></tr>
                                 <tr><td><code>none</code></td><td>No SPF record found for the domain</td></tr>
-                                <tr><td><code>temperror</code></td><td>DNS lookup failed temporarily — retry</td></tr>
+                                <tr><td><code>temperror</code></td><td>DNS lookup failed temporarily ï¿½ retry</td></tr>
                                 <tr><td><code>permerror</code></td><td>SPF record is malformed</td></tr>
                             </tbody>
                         </table>
@@ -182,8 +182,8 @@
                 </section>
 
                 <section id="dkim" class="writeup-section">
-                    <h2><span class="title-prefix">// </span>DKIM — DomainKeys Identified Mail</h2>
-                    <p>DKIM adds a cryptographic signature to outgoing emails. The sending server signs the email headers and body with a private key. The public key is published in DNS, and receiving servers use it to verify the signature — proving the email was sent by a server with access to the domain's private key and hasn't been modified in transit.</p>
+                    <h2><span class="title-prefix">// </span>DKIM ï¿½ DomainKeys Identified Mail</h2>
+                    <p>DKIM adds a cryptographic signature to outgoing emails. The sending server signs the email headers and body with a private key. The public key is published in DNS, and receiving servers use it to verify the signature ï¿½ proving the email was sent by a server with access to the domain's private key and hasn't been modified in transit.</p>
 
                     <h3 class="sub-heading">DKIM-Signature header</h3>
                     <div class="code-block">
@@ -199,10 +199,10 @@
                         <table class="kql-table">
                             <thead><tr><th>Tag</th><th>Meaning</th></tr></thead>
                             <tbody>
-                                <tr><td><code>d=example.com</code></td><td>The signing domain — should match or align with the From: domain</td></tr>
-                                <tr><td><code>s=selector1</code></td><td>Selector — identifies which public key in DNS to use (<code>selector1._domainkey.example.com</code>)</td></tr>
-                                <tr><td><code>h=from:to:subject...</code></td><td>Headers that were signed — if these are modified in transit, verification fails</td></tr>
-                                <tr><td><code>bh=...</code></td><td>Hash of the email body — body tampering detected here</td></tr>
+                                <tr><td><code>d=example.com</code></td><td>The signing domain ï¿½ should match or align with the From: domain</td></tr>
+                                <tr><td><code>s=selector1</code></td><td>Selector ï¿½ identifies which public key in DNS to use (<code>selector1._domainkey.example.com</code>)</td></tr>
+                                <tr><td><code>h=from:to:subject...</code></td><td>Headers that were signed ï¿½ if these are modified in transit, verification fails</td></tr>
+                                <tr><td><code>bh=...</code></td><td>Hash of the email body ï¿½ body tampering detected here</td></tr>
                                 <tr><td><code>b=...</code></td><td>The actual cryptographic signature</td></tr>
                             </tbody>
                         </table>
@@ -210,17 +210,17 @@
 
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
-                        <p>DKIM <code>pass</code> means the email was signed by the stated domain and hasn't been modified. However, it does <strong>not</strong> mean the From: address is legitimate — an attacker can register evil.com, set up DKIM for it, and send spoofed-looking emails that pass DKIM. This is where DMARC comes in.</p>
+                        <p>DKIM <code>pass</code> means the email was signed by the stated domain and hasn't been modified. However, it does <strong>not</strong> mean the From: address is legitimate ï¿½ an attacker can register evil.com, set up DKIM for it, and send spoofed-looking emails that pass DKIM. This is where DMARC comes in.</p>
                     </div>
                 </section>
 
                 <section id="dmarc" class="writeup-section">
-                    <h2><span class="title-prefix">// </span>DMARC — Domain-based Message Authentication</h2>
-                    <p>DMARC ties SPF and DKIM together and adds a policy telling receiving servers what to do if checks fail. It requires <strong>alignment</strong> — the domain in the From: header must align with the domain used in SPF and/or DKIM. This closes the gap where SPF and DKIM could pass even for spoofed From: addresses.</p>
+                    <h2><span class="title-prefix">// </span>DMARC ï¿½ Domain-based Message Authentication</h2>
+                    <p>DMARC ties SPF and DKIM together and adds a policy telling receiving servers what to do if checks fail. It requires <strong>alignment</strong> ï¿½ the domain in the From: header must align with the domain used in SPF and/or DKIM. This closes the gap where SPF and DKIM could pass even for spoofed From: addresses.</p>
 
                     <h3 class="sub-heading">DMARC record example</h3>
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">DNS TXT record — _dmarc.example.com</span></div>
+                        <div class="code-header"><span class="code-lang">DNS TXT record ï¿½ _dmarc.example.com</span></div>
                         <pre><code>v=DMARC1; p=reject; rua=mailto:dmarc-reports@example.com; ruf=mailto:dmarc-fail@example.com; pct=100; adkim=s; aspf=s</code></pre>
                     </div>
 
@@ -231,7 +231,7 @@
                                 <tr><td><code>p=reject</code></td><td>Policy: what to do when DMARC fails. <code>none</code> = monitor only, <code>quarantine</code> = junk folder, <code>reject</code> = block</td></tr>
                                 <tr><td><code>rua=mailto:...</code></td><td>Where to send aggregate reports (daily summary of pass/fail stats)</td></tr>
                                 <tr><td><code>ruf=mailto:...</code></td><td>Where to send forensic reports (per-email failure reports)</td></tr>
-                                <tr><td><code>pct=100</code></td><td>Percentage of failing mail to apply the policy to — 100% means all</td></tr>
+                                <tr><td><code>pct=100</code></td><td>Percentage of failing mail to apply the policy to ï¿½ 100% means all</td></tr>
                                 <tr><td><code>adkim=s</code></td><td>DKIM alignment mode: <code>s</code>=strict (exact domain match), <code>r</code>=relaxed (subdomain allowed)</td></tr>
                                 <tr><td><code>aspf=s</code></td><td>SPF alignment mode: same options as adkim</td></tr>
                             </tbody>
@@ -244,7 +244,7 @@
                     <p>The receiving mail server writes the results of SPF, DKIM, and DMARC checks into an <code>Authentication-Results:</code> header. This is the quickest way to see the authentication verdict at a glance.</p>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">Email Header — authentication pass example</span></div>
+                        <div class="code-header"><span class="code-lang">Email Header ï¿½ authentication pass example</span></div>
                         <pre><code>Authentication-Results: mx.victim.org;
     dkim=pass header.i=@example.com header.s=selector1;
     spf=pass (mx.victim.org: domain of sender@example.com designates 203.0.113.10 as permitted sender) smtp.mailfrom=sender@example.com;
@@ -252,7 +252,7 @@
                     </div>
 
                     <div class="code-block">
-                        <div class="code-header"><span class="code-lang">Email Header — spoofing attempt example</span></div>
+                        <div class="code-header"><span class="code-lang">Email Header ï¿½ spoofing attempt example</span></div>
                         <pre><code>Authentication-Results: mx.victim.org;
     dkim=none;
     spf=fail (mx.victim.org: domain of noreply@paypal.com does not designate 185.220.101.42 as permitted sender) smtp.mailfrom=noreply@paypal.com;
@@ -273,15 +273,15 @@
                         <table class="kql-table">
                             <thead><tr><th>Red flag</th><th>What to check</th></tr></thead>
                             <tbody>
-                                <tr><td>SPF / DKIM / DMARC fail</td><td>Authentication-Results — any fail is suspicious, especially for well-known brands</td></tr>
+                                <tr><td>SPF / DKIM / DMARC fail</td><td>Authentication-Results ï¿½ any fail is suspicious, especially for well-known brands</td></tr>
                                 <tr><td>From / Return-Path mismatch</td><td>From: shows paypal.com but Return-Path: shows random-domain.ru</td></tr>
                                 <tr><td>Message-ID domain mismatch</td><td>From: shows paypal.com but Message-ID shows <code>@amazon-support.biz</code></td></tr>
                                 <tr><td>Received IP reputation</td><td>Extract the sending IP from Received headers and check on AbuseIPDB, VirusTotal, Shodan</td></tr>
-                                <tr><td>Unusual X-Originating-IP</td><td>If present, this is the sender's actual IP — check its location and reputation</td></tr>
-                                <tr><td>Domain lookalike</td><td>paypa1.com, pay-pal.com, microsoft-support.net — compare carefully against the real domain</td></tr>
-                                <tr><td>Recently registered domain</td><td>Check WHOIS for registration date — phishing domains are often days or weeks old</td></tr>
-                                <tr><td>Excessive hops</td><td>Legitimate email rarely passes through more than 4-5 hops — a long Received chain may indicate relaying through compromised servers</td></tr>
-                                <tr><td>Time zone anomalies</td><td>Date header in one timezone, Received timestamps in another — may indicate header manipulation</td></tr>
+                                <tr><td>Unusual X-Originating-IP</td><td>If present, this is the sender's actual IP ï¿½ check its location and reputation</td></tr>
+                                <tr><td>Domain lookalike</td><td>paypa1.com, pay-pal.com, microsoft-support.net ï¿½ compare carefully against the real domain</td></tr>
+                                <tr><td>Recently registered domain</td><td>Check WHOIS for registration date ï¿½ phishing domains are often days or weeks old</td></tr>
+                                <tr><td>Excessive hops</td><td>Legitimate email rarely passes through more than 4-5 hops ï¿½ a long Received chain may indicate relaying through compromised servers</td></tr>
+                                <tr><td>Time zone anomalies</td><td>Date header in one timezone, Received timestamps in another ï¿½ may indicate header manipulation</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -305,12 +305,12 @@
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-link"></i></div>
                             <h4>URLs</h4>
-                            <p>Links in the email body — do not click directly. Check: URLscan.io, VirusTotal URL, Any.run (sandbox). Use URL defanging: <code>hxxp://evil[.]com</code></p>
+                            <p>Links in the email body ï¿½ do not click directly. Check: URLscan.io, VirusTotal URL, Any.run (sandbox). Use URL defanging: <code>hxxp://evil[.]com</code></p>
                         </div>
                         <div class="concept-card">
                             <div class="concept-icon"><i class="fas fa-file"></i></div>
                             <h4>Attachments</h4>
-                            <p>Hash the file (MD5, SHA256) and submit to VirusTotal or Any.run. Never open directly — use a sandbox.</p>
+                            <p>Hash the file (MD5, SHA256) and submit to VirusTotal or Any.run. Never open directly ï¿½ use a sandbox.</p>
                         </div>
                     </div>
 
@@ -327,12 +327,12 @@
                         <table class="kql-table">
                             <thead><tr><th>Tool</th><th>Use case</th></tr></thead>
                             <tbody>
-                                <tr><td>Google Admin Toolbox — Message Header Analyser</td><td>Paste raw headers for a visual, parsed breakdown of the Received chain and authentication results</td></tr>
+                                <tr><td>Google Admin Toolbox ï¿½ Message Header Analyser</td><td>Paste raw headers for a visual, parsed breakdown of the Received chain and authentication results</td></tr>
                                 <tr><td>MXToolbox Header Analyser</td><td>Parses headers and highlights delays, flags SPF/DKIM/DMARC issues, shows hop-by-hop timing</td></tr>
                                 <tr><td>MXToolbox SPF / DKIM checker</td><td>Look up and validate the SPF / DKIM DNS records for any domain</td></tr>
                                 <tr><td>AbuseIPDB</td><td>Check sending IPs against a crowdsourced database of reported malicious addresses</td></tr>
                                 <tr><td>VirusTotal</td><td>Check IPs, domains, URLs, and file hashes against 70+ security vendor databases</td></tr>
-                                <tr><td>URLscan.io</td><td>Submit URLs for sandboxed rendering — shows what the page looks like and any redirects/scripts</td></tr>
+                                <tr><td>URLscan.io</td><td>Submit URLs for sandboxed rendering ï¿½ shows what the page looks like and any redirects/scripts</td></tr>
                                 <tr><td>Cisco Talos Intelligence</td><td>IP and domain reputation, email sender reputation, threat intelligence context</td></tr>
                                 <tr><td>PhishTool</td><td>Automated email header parsing, attachment analysis, and IOC extraction purpose-built for phishing triage</td></tr>
                             </tbody>
