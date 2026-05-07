@@ -51,13 +51,6 @@
             display: flex;
             justify-content: center;
         }
-        .auth-logo-img {
-            width: 120px;
-            height: 120px;
-            object-fit: contain;
-            filter: drop-shadow(0 0 18px rgba(255,255,255,0.2));
-            animation: mouseFloat 4s ease-in-out infinite, heroGlow 3s ease-in-out infinite;
-        }
         .auth-card {
             width: 100%;
             max-width: 460px;
@@ -406,7 +399,7 @@
 
     <main class="auth-main">
         <div class="auth-logo-wrap">
-            <img src="/logo2.png" class="auth-logo-img" alt="">
+            <canvas id="authFlag"></canvas>
         </div>
         <div class="auth-card">
             <div class="auth-card-header">
@@ -559,6 +552,46 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="/script.js"></script>
+    <script>
+    (function() {
+        const canvas = document.getElementById('authFlag');
+        if (!canvas) return;
+        const dpr  = Math.min(window.devicePixelRatio || 1, 2);
+        const SIZE = 150;
+        canvas.width  = SIZE * dpr;
+        canvas.height = SIZE * dpr;
+        canvas.style.width  = SIZE + 'px';
+        canvas.style.height = SIZE + 'px';
+        canvas.style.filter = 'drop-shadow(0 0 22px rgba(255,255,255,0.22))';
+        canvas.style.animation = 'mouseFloat 4s ease-in-out infinite';
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+        const SEGS = 80;
+        const FW = SIZE * 0.82, FH = SIZE * 0.82;
+        const FX = (SIZE - FW) / 2, FY = (SIZE - FH) / 2;
+        let t = 0;
+        const img = new Image();
+        img.src = '/logo2.png';
+        img.onload = function() {
+            function draw() {
+                ctx.clearRect(0, 0, SIZE, SIZE);
+                const sw = img.width / SEGS;
+                for (let i = 0; i < SEGS; i++) {
+                    const prog   = i / SEGS;
+                    const amp    = prog * prog * 20;
+                    const dy     = Math.sin(prog * Math.PI * 2.4 - t) * amp;
+                    const squish = 1 - Math.abs(Math.sin(prog * Math.PI * 2.4 - t)) * prog * 0.08;
+                    const dh     = FH * squish;
+                    const dyo    = FY + (FH - dh) / 2 + dy;
+                    ctx.drawImage(img, i * sw, 0, sw, img.height, FX + i * (FW / SEGS), dyo, FW / SEGS + 0.5, dh);
+                }
+                t += 0.045;
+                requestAnimationFrame(draw);
+            }
+            draw();
+        };
+    })();
+    </script>
     <script>
     (function() {
         const SB_URL = 'https://nqrdljwhvjjoahpjfrlh.supabase.co';
