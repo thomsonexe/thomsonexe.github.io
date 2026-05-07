@@ -2596,7 +2596,7 @@ initGuestbook();
         { title: 'Tools',                  url: '/tools',                     cat: 'page', icon: 'fa-wrench' },
         { title: 'CTF Lab',                url: '/vm',                        cat: 'page', icon: 'fa-flag' },
         { title: 'CVEs',                   url: '/cves',                      cat: 'page', icon: 'fa-bug' },
-        { title: 'Intel',                  url: '/intel',                     cat: 'page', icon: 'fa-satellite-dish' },
+        { title: 'News',                   url: '/intel',                     cat: 'page', icon: 'fa-newspaper' },
         { title: 'Links',                  url: '/links',                     cat: 'page', icon: 'fa-link' },
         { title: 'Guestbook',              url: '/guestbook',                 cat: 'page', icon: 'fa-comments' },
         { title: 'Profile',                url: '/profile',                   cat: 'page', icon: 'fa-id-card' },
