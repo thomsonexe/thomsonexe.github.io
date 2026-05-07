@@ -336,16 +336,17 @@ function initTerminal() {
 
     const introSteps = [
         { type: 'login' },
+        { type: 'cmd', text: 'cat site.txt' },
+        { type: 'out', text: 'thomson.cx — personal site for ben thomson.' },
+        { type: 'out', text: '' },
+        { type: 'out-html', html: '  <span class="t-key">/notes</span>    writeups and security notes' },
+        { type: 'out-html', html: '  <span class="t-key">/ctf</span>      ctf lab with challenges and leaderboard' },
+        { type: 'out-html', html: '  <span class="t-key">/tools</span>    small tools and utilities' },
+        { type: 'out-html', html: '  <span class="t-key">/cves</span>     cve research and advisories' },
+        { type: 'out-html', html: '  <span class="t-key">/intel</span>    threat intel and ioc tracking' },
+        { type: 'out', text: '' },
         { type: 'cmd', text: 'whoami' },
-        { type: 'out', text: 'ben — security analyst, ctf player, builder of things' },
-        { type: 'cmd', text: 'cat welcome.txt' },
-        { type: 'out', text: 'hey! thanks for stopping by :)' },
-        { type: 'out', text: 'feel free to look around, check out my notes,' },
-        { type: 'out', text: 'try the ctf lab, or just say hi in the guestbook.' },
-        { type: 'cmd', text: 'ls interests/' },
-        { type: 'out-html', html: '<span class="t-accent">blue-teaming/</span>  <span class="t-accent">ctf-challenges/</span>  <span class="t-accent">homelab/</span>  <span class="t-accent">coffee.txt</span>' },
-        { type: 'cmd', text: 'cat coffee.txt' },
-        { type: 'out', text: 'currently on cup #3. send help.' },
+        { type: 'out', text: 'ben' },
         { type: 'done' },
     ];
 
