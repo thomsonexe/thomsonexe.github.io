@@ -334,14 +334,20 @@ function initTerminal() {
 
     const introSteps = [
         { type: 'login' },
-        { type: 'cmd', text: 'cat site.txt' },
-        { type: 'out', text: '' },
-        { type: 'out-html', html: '  <span class="t-key">/notes</span>    writeups and security notes' },
-        { type: 'out-html', html: '  <span class="t-key">/ctf</span>      ctf lab with challenges and leaderboard' },
-        { type: 'out-html', html: '  <span class="t-key">/tools</span>    small tools and utilities' },
-        { type: 'out-html', html: '  <span class="t-key">/cves</span>     cve research and advisories' },
-        { type: 'out-html', html: '  <span class="t-key">/intel</span>    threat intel and ioc tracking' },
-        { type: 'out', text: '' },
+        { type: 'out', text: '', d: 80 },
+        { type: 'out', text: 'Linux thomson.cx 6.1.0-kali9-amd64 #1 SMP PREEMPT_DYNAMIC x86_64 GNU/Linux', d: 140 },
+        { type: 'out', text: '', d: 80 },
+        { type: 'out-html', html: '  <span class="t-accent">Welcome to thomson.cx</span>', d: 140 },
+        { type: 'out-html', html: '  <span class="t-dim">blue team labs · ctf challenges · security notes</span>', d: 140 },
+        { type: 'out', text: '', d: 80 },
+        { type: 'out-html', html: '  <span class="t-key">/notes    </span><span class="t-dim">writeups &amp; blue team labs</span>', d: 120 },
+        { type: 'out-html', html: '  <span class="t-key">/ctf      </span><span class="t-dim">ctf challenges &amp; leaderboard</span>', d: 120 },
+        { type: 'out-html', html: '  <span class="t-key">/tools    </span><span class="t-dim">tools &amp; utilities</span>', d: 120 },
+        { type: 'out-html', html: '  <span class="t-key">/cves     </span><span class="t-dim">live cve tracker</span>', d: 120 },
+        { type: 'out-html', html: '  <span class="t-key">/news     </span><span class="t-dim">threat intel &amp; advisories</span>', d: 120 },
+        { type: 'out', text: '', d: 80 },
+        { type: 'out-html', html: '  type <span class="t-key">help</span> for available commands', d: 120 },
+        { type: 'out', text: '', d: 80 },
         { type: 'done' },
     ];
 
@@ -356,7 +362,8 @@ function initTerminal() {
     function runIntro(steps, i) {
         if (i >= steps.length) return;
         const step = steps[i];
-        const next = () => setTimeout(() => runIntro(steps, i + 1), 380);
+        const delay = step.d !== undefined ? step.d : 380;
+        const next = () => setTimeout(() => runIntro(steps, i + 1), delay);
 
         if (step.type === 'login') {
             addLine('terminal-login', loginStamp());
