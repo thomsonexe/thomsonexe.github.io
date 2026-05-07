@@ -1,25 +1,20 @@
-﻿// Theme toggle
-var themeToggle = document.getElementById('themeToggle');
-var savedTheme = localStorage.getItem('theme') || 'dark';
-document.documentElement.setAttribute('data-theme', savedTheme);
-updateThemeIcon(savedTheme);
-
-if (themeToggle) {
-    themeToggle.addEventListener('click', () => {
-        const current = document.documentElement.getAttribute('data-theme');
-        const next = current === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', next);
-        localStorage.setItem('theme', next);
-        updateThemeIcon(next);
-    });
-}
-
-function updateThemeIcon(theme) {
-    if (!themeToggle) return;
-    themeToggle.innerHTML = theme === 'dark'
-        ? '<i class="fas fa-sun"></i>'
-        : '<i class="fas fa-moon"></i>';
-}
+﻿// Theme toggle — wrapped in IIFE so var declarations don't enter the global
+// lexical scope and conflict with const themeToggle/savedTheme in page inline scripts
+(function() {
+    var tt = document.getElementById('themeToggle');
+    var st = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', st);
+    if (tt) {
+        tt.innerHTML = st === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        tt.addEventListener('click', function() {
+            var cur  = document.documentElement.getAttribute('data-theme');
+            var next = cur === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            tt.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+    }
+})();
 
 
 // Particle background
