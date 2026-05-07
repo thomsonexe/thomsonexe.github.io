@@ -428,15 +428,17 @@ sections.forEach(s => sectionObserver.observe(s));
 const navToggle = document.getElementById('navToggle');
 const navLinksList = document.getElementById('navLinks');
 
-navToggle.addEventListener('click', () => {
-    navToggle.classList.toggle('active');
-    navLinksList.classList.toggle('open');
-});
+if (navToggle) {
+    navToggle.addEventListener('click', () => {
+        navToggle.classList.toggle('active');
+        if (navLinksList) navLinksList.classList.toggle('open');
+    });
+}
 
 navLinks.forEach(link => {
     link.addEventListener('click', () => {
-        navToggle.classList.remove('active');
-        navLinksList.classList.remove('open');
+        if (navToggle) navToggle.classList.remove('active');
+        if (navLinksList) navLinksList.classList.remove('open');
     });
 });
 
