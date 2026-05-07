@@ -2586,3 +2586,144 @@ initGuestbook();
     // Init nav button on page load
     setNavBtn(localStorage.getItem('ctf_username'));
 })();
+
+// ── Global site search ───────────────────────────────────────────────────────
+(function initSiteSearch() {
+    var PAGES = [
+        { title: 'Home',                   url: '/',                          cat: 'page', icon: 'fa-house' },
+        { title: 'About',                  url: '/about',                     cat: 'page', icon: 'fa-user' },
+        { title: 'Notes',                  url: '/labs',                      cat: 'page', icon: 'fa-book-open' },
+        { title: 'Tools',                  url: '/tools',                     cat: 'page', icon: 'fa-wrench' },
+        { title: 'CTF Lab',                url: '/vm',                        cat: 'page', icon: 'fa-flag' },
+        { title: 'CVEs',                   url: '/cves',                      cat: 'page', icon: 'fa-bug' },
+        { title: 'Map',                    url: '/map',                       cat: 'page', icon: 'fa-map' },
+        { title: 'Intel',                  url: '/intel',                     cat: 'page', icon: 'fa-satellite-dish' },
+        { title: 'Links',                  url: '/links',                     cat: 'page', icon: 'fa-link' },
+        { title: 'Guestbook',              url: '/guestbook',                 cat: 'page', icon: 'fa-comments' },
+        { title: 'Profile',                url: '/profile',                   cat: 'page', icon: 'fa-id-card' },
+        { title: 'Active Directory',       url: '/writeup-active-directory',  cat: 'note', icon: 'fa-file-lines' },
+        { title: 'ANY.RUN Sandbox',        url: '/writeup-anyrun',            cat: 'note', icon: 'fa-file-lines' },
+        { title: 'Autopsy Forensics',      url: '/writeup-autopsy',           cat: 'note', icon: 'fa-file-lines' },
+        { title: 'AWS CloudTrail',         url: '/writeup-aws',               cat: 'note', icon: 'fa-file-lines' },
+        { title: 'BTL1',                   url: '/writeup-btl1',              cat: 'note', icon: 'fa-file-lines' },
+        { title: 'Cortex XDR',            url: '/writeup-cortex-xdr',        cat: 'note', icon: 'fa-file-lines' },
+        { title: 'DNS Threat Hunting',     url: '/writeup-dns',               cat: 'note', icon: 'fa-file-lines' },
+        { title: 'Email Header Analysis',  url: '/writeup-email-headers',     cat: 'note', icon: 'fa-file-lines' },
+        { title: 'Microsoft Entra ID',     url: '/writeup-entra-id',          cat: 'note', icon: 'fa-file-lines' },
+        { title: 'FTK Imager',            url: '/writeup-ftk-imager',        cat: 'note', icon: 'fa-file-lines' },
+        { title: 'Incident Response',      url: '/writeup-incident-response', cat: 'note', icon: 'fa-file-lines' },
+        { title: 'KQL & Log Analytics',    url: '/writeup-kql',               cat: 'note', icon: 'fa-file-lines' },
+        { title: 'Linux Commands',         url: '/writeup-linux-commands',    cat: 'note', icon: 'fa-file-lines' },
+        { title: 'Linux Log Analysis',     url: '/writeup-linux-logs',        cat: 'note', icon: 'fa-file-lines' },
+        { title: 'Microsoft Defender MDE', url: '/writeup-mde',               cat: 'note', icon: 'fa-file-lines' },
+        { title: 'Network+ N10-009',       url: '/writeup-netplus',           cat: 'note', icon: 'fa-file-lines' },
+        { title: 'Nmap Scanning',          url: '/writeup-nmap',              cat: 'note', icon: 'fa-file-lines' },
+        { title: 'PowerShell Blue Team',   url: '/writeup-powershell',        cat: 'note', icon: 'fa-file-lines' },
+        { title: 'Windows Registry',       url: '/writeup-registry',          cat: 'note', icon: 'fa-file-lines' },
+        { title: 'Security+ SY0-701',      url: '/writeup-secplus',           cat: 'note', icon: 'fa-file-lines' },
+        { title: 'SecurityX CAS-005',      url: '/writeup-securityx',         cat: 'note', icon: 'fa-file-lines' },
+        { title: 'Splunk SPL',             url: '/writeup-splunk',            cat: 'note', icon: 'fa-file-lines' },
+        { title: 'Suricata IDS',           url: '/writeup-suricata',          cat: 'note', icon: 'fa-file-lines' },
+        { title: 'Sysmon Telemetry',       url: '/writeup-sysmon',            cat: 'note', icon: 'fa-file-lines' },
+        { title: 'Threat Intelligence',    url: '/writeup-threat-intel',      cat: 'note', icon: 'fa-file-lines' },
+        { title: 'Volatility Memory',      url: '/writeup-volatility',        cat: 'note', icon: 'fa-file-lines' },
+        { title: 'Wireshark',              url: '/writeup-wireshark',         cat: 'note', icon: 'fa-file-lines' },
+        { title: 'Cortex XSOAR',          url: '/writeup-xsoar',             cat: 'note', icon: 'fa-file-lines' },
+        { title: 'YARA Rules',             url: '/writeup-yara',              cat: 'note', icon: 'fa-file-lines' },
+    ];
+
+    document.body.insertAdjacentHTML('beforeend', [
+        '<div class="ss-overlay" id="ssOverlay">',
+        '  <div class="ss-panel" id="ssPanel">',
+        '    <div class="ss-input-row">',
+        '      <i class="fas fa-magnifying-glass"></i>',
+        '      <input class="ss-input" id="ssInput" type="text" placeholder="Search pages and notes..." autocomplete="off" spellcheck="false">',
+        '      <span class="ss-kbd">esc</span>',
+        '    </div>',
+        '    <div class="ss-body" id="ssBody">',
+        '      <div id="ssDefault">',
+        '        <div class="ss-section-label">Pages</div>',
+        '        <div class="ss-results" id="ssDefaultList"></div>',
+        '      </div>',
+        '      <div id="ssFiltered" style="display:none;">',
+        '        <div class="ss-section-label" id="ssFilteredLabel">Results</div>',
+        '        <div class="ss-results" id="ssFilteredList"></div>',
+        '      </div>',
+        '      <div class="ss-empty" id="ssEmpty">No results found</div>',
+        '    </div>',
+        '  </div>',
+        '</div>'
+    ].join(''));
+
+    var overlay      = document.getElementById('ssOverlay');
+    var input        = document.getElementById('ssInput');
+    var defaultEl    = document.getElementById('ssDefault');
+    var filteredEl   = document.getElementById('ssFiltered');
+    var filteredList = document.getElementById('ssFilteredList');
+    var labelEl      = document.getElementById('ssFilteredLabel');
+    var emptyEl      = document.getElementById('ssEmpty');
+
+    function itemHTML(p) {
+        return '<a class="ss-result" href="' + p.url + '">' +
+            '<span class="ss-icon ' + p.cat + '"><i class="fas ' + p.icon + '"></i></span>' +
+            '<span class="ss-result-title">' + p.title + '</span>' +
+            '<span class="ss-result-cat">' + p.cat + '</span>' +
+            '</a>';
+    }
+
+    document.getElementById('ssDefaultList').innerHTML =
+        PAGES.filter(function(p) { return p.cat === 'page'; }).map(itemHTML).join('');
+
+    function doSearch(q) {
+        q = q.trim().toLowerCase();
+        if (!q) {
+            defaultEl.style.display = '';
+            filteredEl.style.display = 'none';
+            emptyEl.style.display = 'none';
+            return;
+        }
+        defaultEl.style.display = 'none';
+        var hits = PAGES.filter(function(p) {
+            return p.title.toLowerCase().indexOf(q) !== -1 ||
+                   p.cat.toLowerCase().indexOf(q) !== -1 ||
+                   p.url.indexOf(q) !== -1;
+        });
+        if (hits.length === 0) {
+            filteredEl.style.display = 'none';
+            emptyEl.style.display = '';
+        } else {
+            filteredList.innerHTML = hits.map(itemHTML).join('');
+            labelEl.textContent = hits.length + ' result' + (hits.length === 1 ? '' : 's');
+            filteredEl.style.display = '';
+            emptyEl.style.display = 'none';
+        }
+    }
+
+    function openSearch() {
+        overlay.classList.add('active');
+        setTimeout(function() { input.focus(); }, 60);
+    }
+
+    function closeSearch() {
+        overlay.classList.remove('active');
+        input.value = '';
+        doSearch('');
+    }
+
+    var btn = document.getElementById('siteSearchBtn');
+    if (btn) { btn.addEventListener('click', openSearch); }
+
+    input.addEventListener('input', function() { doSearch(this.value); });
+
+    overlay.addEventListener('click', function(e) {
+        if (!document.getElementById('ssPanel').contains(e.target)) { closeSearch(); }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            overlay.classList.contains('active') ? closeSearch() : openSearch();
+        }
+        if (e.key === 'Escape' && overlay.classList.contains('active')) { closeSearch(); }
+    });
+})();
