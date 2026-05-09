@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="mouse_t.png" width="80" alt="Logo">
+  <img src="logo2.png" width="80" alt="Logo">
   <h1>thomson.cx</h1>
   <p>Website made for fun </p>
 
