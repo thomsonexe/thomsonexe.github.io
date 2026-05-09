@@ -8,6 +8,7 @@
 - CompTIA Security+
 - CompTIA Network+
 - Blue Team Labs Level 1 (BTL1)
+- CompTIA SecAI+ (IN PROGRESS)
 - CompTIA SecurityX (CAS-005) (IN PROGRESS)
 
 ---
