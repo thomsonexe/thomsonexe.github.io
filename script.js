@@ -404,11 +404,14 @@ function initTerminal() {
 
 initTerminal();
 
-// Navbar scroll effect
-var navbar = document.getElementById('navbar');
-window.addEventListener('scroll', () => {
-    if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 50);
-});
+// Navbar scroll effect — wrapped in IIFE so `navbar` doesn't enter the global
+// lexical scope and collide with `const navbar` in page inline scripts
+(function() {
+    var navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', function() {
+        if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+})();
 
 // Active nav link on scroll
 var sections = document.querySelectorAll('section[id]');
