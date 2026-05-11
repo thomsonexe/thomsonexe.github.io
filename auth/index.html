@@ -856,8 +856,14 @@
             currentUsername = existing;
             showStep('stepDone');
             document.getElementById('doneName').textContent = existing;
-            document.getElementById('doneSub').textContent  = 'already signed in';
-            document.getElementById('doneBtn').href = getNext();
+            const next = getNext();
+            document.getElementById('doneBtn').href = next;
+            document.getElementById('doneSub').textContent = next !== '/'
+                ? 'redirecting to ' + next
+                : 'already signed in';
+            if (next !== '/') {
+                setTimeout(function() { location.href = next; }, 900);
+            }
         }
 
         // Enter to submit

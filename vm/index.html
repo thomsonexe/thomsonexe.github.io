@@ -1430,7 +1430,7 @@
 
         // ── Flag submission ───────────────────────────────────────────
         function launchVM(e) {
-            if (!currentUser) {
+            if (!localStorage.getItem('ctf_username')) {
                 e.preventDefault();
                 location.href = '/auth?next=/vm';
             }
